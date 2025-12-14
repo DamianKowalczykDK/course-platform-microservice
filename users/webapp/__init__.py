@@ -3,6 +3,7 @@ from .settings import config
 from .extensions import db, mail
 from .container import Container
 from .api import api_bp
+from .api.error_handlers import register_error_handlers
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -23,6 +24,7 @@ def create_app() -> Flask:
     container = Container()
     container.wire()
 
+    register_error_handlers(app)
     app.register_blueprint(api_bp)
 
     return app
