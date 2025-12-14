@@ -38,7 +38,7 @@ class Config:
     MAIL_SERVER: str=os.getenv('MAIL_SERVER', "smtp.gmail.com")
     MAIL_PORT: int= int(os.getenv('MAIL_PORT', "587"))
     MAIL_USE_TLS: bool=os.getenv('MAIL_USE_TLS', "True") in ("1", "true", "True")
-    MAIL_USE_SSL: bool=os.getenv('MAIL_USE_SSL', "True") in ("1", "true", "True")
+    MAIL_USE_SSL: bool=os.getenv('MAIL_USE_SSL', "False") in ("1", "true", "True")
     MAIL_USERNAME: str=os.getenv('MAIL_USERNAME', "")
     MAIL_PASSWORD: str=os.getenv('MAIL_PASSWORD', "")
     MAIL_DEFAULT_SENDER: str=os.getenv('MAIL_DEFAULT_SENDER', "")

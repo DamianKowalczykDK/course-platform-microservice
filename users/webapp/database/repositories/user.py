@@ -1,3 +1,4 @@
+import uuid
 from datetime import timezone, datetime
 
 from webapp.database.models.user import User
@@ -17,6 +18,9 @@ class UserRepository:
     def get_by_username(self, username: str) -> User | None:
         return User.objects(username=username).first()
 
+    def get_by_username_or_email(self, identifier: str) -> User | None:
+        return User.objects(Q(username=identifier) | Q(email=identifier)).first()
+
     def get_active_by_username_or_email(self, identifier: str) -> User | None:
         return User.objects(Q(username=identifier) | Q(email=identifier), is_active=True).first()
 
@@ -31,6 +35,16 @@ class UserRepository:
         user.activation_code = ""
         user.updated_at = datetime.now(timezone.utc)
         user.save()
+
+    def update_activation_code(self, user: User) -> User:
+        user.activation_code = str(uuid.uuid4())
+        now_utc = datetime.now(timezone.utc)
+        user.activation_created_at = now_utc
+        user.updated_at = datetime.now(timezone.utc)
+        user.save()
+        return user
+
+
 
 
 

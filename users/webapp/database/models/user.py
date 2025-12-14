@@ -20,5 +20,6 @@ class User(Document):
     role: Literal["user", "admin"] = StringField(default="user", choices=["user", "admin"])
     is_active: bool = BooleanField(default=False)
     activation_code: str = StringField(required=True, unique=True)
+    activation_created_at: datetime = DateTimeField(default=lambda: datetime.now(timezone.utc))
     created_at: datetime = DateTimeField(default=lambda: datetime.now(timezone.utc))
     updated_at: datetime = DateTimeField(default=lambda: datetime.now(timezone.utc))
