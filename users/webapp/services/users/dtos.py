@@ -27,6 +27,3 @@ class ReadUserDTO:
     created_at: datetime
 
 
-#TODO przejsc do Flask 23
-
-

@@ -14,15 +14,15 @@ class MongoDBSettings(TypedDict):
     password: str
 
 class Config:
-    SECRET_KEY: str = os.getenv('SECRET_KEY')
-    FLASK_ENV:str = os.getenv('FLASK_ENV')
-    Flask_DEBUG: bool = os.getenv('FLASK_DEBUG')
+    SECRET_KEY: str = os.getenv('SECRET_KEY', "default secret key")
+    FLASK_ENV:str = os.getenv('FLASK_ENV', "development")
+    FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
 
-    MONGODB_DB: str=os.getenv('MONGODB_DB')
-    MONGODB_HOST: str=os.getenv('MONGODB_HOST')
-    MONGODB_PORT: int=int(os.getenv('MONGODB_PORT'))
-    MONGODB_USERNAME: str=os.getenv('MONGODB_USERNAME')
-    MONGODB_PASSWORD: str=os.getenv('MONGODB_PASSWORD')
+    MONGODB_DB: str=os.getenv('MONGODB_DB', "")
+    MONGODB_HOST: str=os.getenv('MONGODB_HOST', "")
+    MONGODB_PORT: int=int(os.getenv('MONGODB_PORT', "27018"))
+    MONGODB_USERNAME: str=os.getenv('MONGODB_USERNAME', "")
+    MONGODB_PASSWORD: str=os.getenv('MONGODB_PASSWORD', "")
 
     @property
     def MONGODB_SETTINGS(self) -> MongoDBSettings:
@@ -34,12 +34,13 @@ class Config:
             'password': self.MONGODB_PASSWORD
         }
 
-    MAIL_SERVER: str=os.getenv('MAIL_SERVER')
-    MAIL_PORT: str= int(os.getenv('MAIL_PORT'))
-    MAIL_USE_TLS: bool=os.getenv('MAIL_USE_TLS')
-    MAIL_USERNAME: str=os.getenv('MAIL_USERNAME')
-    MAIL_PASSWORD: str=os.getenv('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER: str=os.getenv('MAIL_DEFAULT_SENDER')
+    MAIL_SERVER: str=os.getenv('MAIL_SERVER', "smtp.gmail.com")
+    MAIL_PORT: int= int(os.getenv('MAIL_PORT', "587"))
+    MAIL_USE_TLS: bool=os.getenv('MAIL_USE_TLS', "True") in ("1", "true", "True")
+    MAIL_USE_SSL: bool=os.getenv('MAIL_USE_SSL', "True") in ("1", "true", "True")
+    MAIL_USERNAME: str=os.getenv('MAIL_USERNAME', "")
+    MAIL_PASSWORD: str=os.getenv('MAIL_PASSWORD', "")
+    MAIL_DEFAULT_SENDER: str=os.getenv('MAIL_DEFAULT_SENDER', "")
 
     @staticmethod
     def configure_logging(app: Flask) -> None:
@@ -62,7 +63,4 @@ class Config:
 config: dict[str, type[Config]] = {
     "default": Config,
 }
-
-
-
 
