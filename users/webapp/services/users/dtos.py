@@ -26,4 +26,7 @@ class ReadUserDTO:
     is_active: bool
     created_at: datetime
 
-
+@dataclass(frozen=True)
+class LoginUserDTO:
+    identifier: str
+    password: str
