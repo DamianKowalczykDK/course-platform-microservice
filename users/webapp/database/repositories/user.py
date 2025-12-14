@@ -7,16 +7,16 @@ class UserRepository:
         return user
 
     def get_user_by_id(self, user_id: str) -> User | None:
-        return User.objects.get(id=user_id).first()
+        return User.objects(id=user_id).first()
 
     def get_by_email(self, email: str) -> User | None:
-        return User.objects.get(email=email).first()
+        return User.objects(email=email).first()
 
     def get_by_username_or_email(self, identifier: str) -> User | None:
         return User.objects(Q(username=identifier) | Q(email=identifier)).first()
 
     def get_by_activation_code(self, activation_code: str) -> User | None:
-        return User.objects.get(activation_code=activation_code).first()
+        return User.objects(activation_code=activation_code).first()
 
     def get_all(self) -> list[User]:
         return list(User.objects.all())
