@@ -17,6 +17,7 @@ class Config:
     SECRET_KEY: str = os.getenv('SECRET_KEY', "default secret key")
     FLASK_ENV:str = os.getenv('FLASK_ENV', "development")
     FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
+    USER_ACTIVATION_EXPIRATION_MINUTES: int = int(os.getenv("USER_ACTIVATION_EXPIRATION_MINUTES", "30"))
 
     MONGODB_DB: str=os.getenv('MONGODB_DB', "")
     MONGODB_HOST: str=os.getenv('MONGODB_HOST', "")
