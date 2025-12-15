@@ -7,5 +7,5 @@ class Container(containers.DeclarativeContainer):
             "webapp.api.login"
         ]
     )
-    auth_service = providers.Singleton(AuthService)
+    auth_service=providers.Singleton(AuthService)
 
