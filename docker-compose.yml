@@ -16,10 +16,10 @@ services:
   api-gateway-webapp:
     restart: always
     build:
-      context: ./users
+      context: ./api-gateway
       dockerfile: Dockerfile
     volumes:
-      - ./users:/app
+      - ./api-gateway:/app
     networks:
       - dk-network
 
