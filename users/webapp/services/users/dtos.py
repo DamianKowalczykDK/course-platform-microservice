@@ -30,3 +30,12 @@ class ReadUserDTO:
 class LoginUserDTO:
     identifier: str
     password: str
+
+@dataclass(frozen=True)
+class ForgotPasswordDTO:
+    identifier: str
+
+@dataclass(frozen=True)
+class ResetPasswordDTO:
+    token: str
+    new_password: str

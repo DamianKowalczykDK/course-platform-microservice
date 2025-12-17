@@ -39,5 +39,12 @@ class LoginSchema(BaseModel):
     identifier: str = Field(..., min_length=3, max_length=64)
     password: str = Field(..., min_length=6)
 
+class ForgotPasswordSchema(BaseModel):
+    identifier: str = Field(..., min_length=3)
+
+class ResetPasswordSchema(BaseModel):
+    token: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=6)
+
 
 
