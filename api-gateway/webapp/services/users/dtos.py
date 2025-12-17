@@ -26,6 +26,6 @@ class UserDTO:
     first_name: str
     last_name: str
     email: str
-    gender: str
+    gender: GenderType
     role: Literal["user", "admin"]
     is_active: bool

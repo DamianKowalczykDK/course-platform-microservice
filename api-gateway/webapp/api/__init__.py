@@ -5,3 +5,7 @@ api_bp = Blueprint('api', __name__, url_prefix='/api/gateway')
 from .login import login_bp
 
 api_bp.register_blueprint(login_bp)
+
+from .users import users_bp
+
+api_bp.register_blueprint(users_bp)
