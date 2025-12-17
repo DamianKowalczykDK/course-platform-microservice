@@ -1,11 +1,16 @@
 import uuid
-from datetime import timezone, datetime
+from datetime import timezone, datetime, timedelta
 
 from webapp.database.models.user import User
 from mongoengine.queryset.visitor import Q
 
 class UserRepository:
     def create_user(self, user: User) -> User:
+        user.save()
+        return user
+
+    def save(self, user: User) -> User:
+        user.updated_at = datetime.now(timezone.utc)
         user.save()
         return user
 
@@ -27,22 +32,8 @@ class UserRepository:
     def get_by_activation_code(self, activation_code: str) -> User | None:
         return User.objects(activation_code=activation_code).first()
 
-    def get_all(self) -> list[User]:
-        return list(User.objects.all())
-
-    def activate(self, user: User) -> None:
-        user.is_active = True
-        user.activation_code = ""
-        user.updated_at = datetime.now(timezone.utc)
-        user.save()
-
-    def update_activation_code(self, user: User) -> User:
-        user.activation_code = str(uuid.uuid4())
-        now_utc = datetime.now(timezone.utc)
-        user.activation_created_at = now_utc
-        user.updated_at = datetime.now(timezone.utc)
-        user.save()
-        return user
+    def get_by_reset_password_token(self, token: str) -> User | None:
+        return User.objects(reset_password_token=token).first()
 
 
 
