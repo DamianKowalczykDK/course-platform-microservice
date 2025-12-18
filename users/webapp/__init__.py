@@ -17,6 +17,7 @@ def create_app() -> Flask:
         port=app.config['MONGODB_PORT'],
         username=app.config['MONGODB_USERNAME'],
         password=app.config['MONGODB_PASSWORD'],
+        uuidRepresentation="standard",
     )
 
     mail.init_app(app)
