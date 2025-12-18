@@ -1,5 +1,6 @@
-from webapp.api.users.schemas import CreateUserSchema, UserResponseSchema, LoginSchema
-from webapp.services.users.dtos import CreateUserDTO, ReadUserDTO, LoginUserDTO
+from webapp.api.users.schemas import CreateUserSchema, UserResponseSchema, LoginSchema, ForgotPasswordSchema, \
+    ResetPasswordSchema
+from webapp.services.users.dtos import CreateUserDTO, ReadUserDTO, LoginUserDTO, ForgotPasswordDTO, ResetPasswordDTO
 
 
 def to_dto_create(schema: CreateUserSchema) -> CreateUserDTO:
@@ -7,7 +8,7 @@ def to_dto_create(schema: CreateUserSchema) -> CreateUserDTO:
         username=schema.username,
         first_name=schema.first_name,
         last_name=schema.last_name,
-        email=schema.email,
+        email=str(schema.email),
         gender=schema.gender,
         role=schema.role,
         password=schema.password,
@@ -30,3 +31,10 @@ def to_dto_login(schema: LoginSchema) -> LoginUserDTO:
         identifier=schema.identifier,
         password=schema.password,
     )
+
+def to_dto_forgot_password(schema: ForgotPasswordSchema) -> ForgotPasswordDTO:
+    return ForgotPasswordDTO(identifier=schema.identifier)
+
+
+def to_dto_reset_passwort(schema: ResetPasswordSchema) -> ResetPasswordDTO:
+    return ResetPasswordDTO(token=schema.token, new_password=schema.new_password)

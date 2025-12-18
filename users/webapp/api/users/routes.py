@@ -1,8 +1,21 @@
+
 from flask import request, jsonify
 from flask.typing import ResponseReturnValue
 from dependency_injector.wiring import Provide, inject
-from webapp.api.users.schemas import CreateUserSchema, ActivationCodeSchema, LoginSchema
-from webapp.api.users.mappers import to_schema_user, to_dto_create, to_dto_login
+from webapp.api.users.schemas import (
+    CreateUserSchema,
+    ActivationCodeSchema,
+    LoginSchema,
+    ForgotPasswordSchema,
+    ResetPasswordSchema
+)
+from webapp.api.users.mappers import (
+    to_schema_user,
+    to_dto_create,
+    to_dto_login,
+    to_dto_forgot_password,
+    to_dto_reset_passwort
+)
 from webapp.services.users.services import UserService
 from webapp.container import Container
 from . import users_bp
@@ -45,4 +58,20 @@ def verify_login(user_service: UserService=Provide[Container.user_service]) -> R
     read_dto = user_service.verify_credentials(dto)
     return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 200
 
+
+@users_bp.post("/forgot-password")#type: ignore
+@inject
+def forgot_password(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+    payload = ForgotPasswordSchema.model_validate(request.get_json() or {})
+    dto = to_dto_forgot_password(payload)
+    user_service.forgot_password(dto)
+    return jsonify({"message": "If the email exist, a reset link has been sent."}), 200
+
+@users_bp.post("/reset-password")#type: ignore
+@inject
+def reset_password(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+    payload = ResetPasswordSchema.model_validate(request.get_json() or {})
+    dto = to_dto_reset_passwort(payload)
+    user_service.reset_password(dto)
+    return jsonify({"message": "Password has been reset successfully."}), 200
 
