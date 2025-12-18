@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from webapp.database.models.user import User, GenderType
 from webapp.database.repositories.user import UserRepository
-from webapp.services.users.dtos import CreateUserDTO, ReadUserDTO, LoginUserDTO
+from webapp.services.users.dtos import CreateUserDTO, ReadUserDTO, LoginUserDTO, ResetPasswordDTO, ForgotPasswordDTO
 from webapp.services.exceptions import ConflictException, NotFoundException, ValidationException
 from werkzeug.security import generate_password_hash, check_password_hash
 from webapp.services.email_service import EmailService
@@ -62,8 +62,8 @@ class UserService:
         if created_at + timedelta(minutes=expiration_minutes) < now_utc:
             raise ValueError("Activation code expired")
 
-        self.user_repository.activate(user)
-        return self._to_read_dto(user)
+        user.activate()
+        return self._to_read_dto(self.user_repository.save(user))
 
     def resend_activation_code(self, identifier: str) -> ReadUserDTO:
         user = self.user_repository.get_by_username_or_email(identifier)
@@ -72,16 +72,17 @@ class UserService:
         if user.is_active:
             raise ValidationException("User already activated")
 
-        updated_user = self.user_repository.update_activation_code(user)
+        user.update_activation_code()
+        self.user_repository.save(user)
 
         self._send_email_with_activation_code(
             subject="Your new activation code",
             to=user.email,
             username=user.username,
-            activation_code=updated_user.activation_code,
+            activation_code=user.activation_code,
         )
 
-        return self._to_read_dto(updated_user)
+        return self._to_read_dto(user)
 
     def get_by_username_or_email(self, identifier: str) -> ReadUserDTO:
         user = self.user_repository.get_active_by_username_or_email(identifier)
@@ -98,6 +99,34 @@ class UserService:
         if not check_password_hash(user.password_hash, dto.password):
             raise ValidationException("Invalid credentials -2")
         return self._to_read_dto(user)
+
+
+    def forgot_password(self, dto: ForgotPasswordDTO) -> None:
+        user = self.user_repository.get_active_by_username_or_email(dto.identifier)
+        if not user:
+            return
+
+        user.set_reset_password_token(expires_minutes=current_app.config["RESET_PASSWORD_EXPIRATION_MINUTES"])
+        self.user_repository.save(user)
+
+        resset_link = f"http://frontend/reset-password?token={user.reset_password_token}"
+
+        html = f"<html><body>Reset password link: {resset_link}</body></html>"
+
+        self.email_service.send_email(
+            to=user.email,
+            subject="Reset password",
+            html=html,
+        )
+
+    def reset_password(self, dto: ResetPasswordDTO) -> None:
+        user = self.user_repository.get_by_reset_password_token(dto.token)
+        if not user or not user.is_token_rest_password_valid(dto.token):
+            raise NotFoundException("Invalid or expired token")
+
+        user.reset_password(dto.new_password)
+        self.user_repository.save(user)
+
 
     def _to_read_dto(self, user: User) -> ReadUserDTO:
         return ReadUserDTO(
