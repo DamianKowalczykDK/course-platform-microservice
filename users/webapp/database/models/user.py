@@ -25,6 +25,8 @@ class User(Document):
     activation_code: str = StringField(required=True, unique=True)
     activation_created_at: datetime = DateTimeField(default=lambda: datetime.now(timezone.utc))
 
+    mfa_secret: str | None = StringField(default=None)
+
     reset_password_token: str | None = StringField(unique=True, sparse=True, default=None)
     reset_password_expires_at: datetime | None = DateTimeField(default=None)
 
@@ -70,5 +72,13 @@ class User(Document):
 
         return created_at > now_utc
 
+    def enable_mfa_secret(self, secret: str) -> None:
+        self.mfa_secret = secret
+
+    def disable_mfa_secret(self) -> None:
+        self.mfa_secret = None
+
+    def has_mfa_secret(self) -> bool:
+        return self.mfa_secret is not None
 
 

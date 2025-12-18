@@ -39,7 +39,6 @@ def activate_code(user_service: UserService=Provide[Container.user_service]) -> 
 @users_bp.get("/resend-activation/<string:identifier>")#type: ignore
 @inject
 def resend_activation(identifier: str, user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
-    # identifier = request.args.get("identifier")
     read_dto = user_service.resend_activation_code(identifier)
     return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 200
 
