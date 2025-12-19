@@ -40,3 +40,13 @@ class ForgotPasswordDTO:
 class ResetPasswordDTO:
     token: str
     new_password: str
+
+@dataclass(frozen=True)
+class EnableMfaDTO:
+    user_id: str
+
+@dataclass(frozen=True)
+class MfaSetupDTO:
+    user_id: str
+    provisioning_uri: str
+    qr_code_base64: str
