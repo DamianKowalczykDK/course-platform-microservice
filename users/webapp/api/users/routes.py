@@ -7,14 +7,16 @@ from webapp.api.users.schemas import (
     ActivationCodeSchema,
     LoginSchema,
     ForgotPasswordSchema,
-    ResetPasswordSchema
+    ResetPasswordSchema, MfaSetupSchema, EnableMfaSchema,
+
 )
 from webapp.api.users.mappers import (
     to_schema_user,
     to_dto_create,
     to_dto_login,
     to_dto_forgot_password,
-    to_dto_reset_passwort
+    to_dto_reset_passwort,
+    to_dto_mfa_enable, to_schema_mfa_enable,
 )
 from webapp.services.users.services import UserService
 from webapp.container import Container
@@ -74,3 +76,10 @@ def reset_password(user_service: UserService=Provide[Container.user_service]) ->
     user_service.reset_password(dto)
     return jsonify({"message": "Password has been reset successfully."}), 200
 
+@users_bp.patch("/enable-mfa")
+@inject
+def enable_mfa(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+    payload = EnableMfaSchema.model_validate(request.get_json() or {})
+    dto = to_dto_mfa_enable(payload)
+    result = user_service.enable_mfa(dto)
+    return jsonify(to_schema_mfa_enable(result).model_dump(mode="json")), 200
