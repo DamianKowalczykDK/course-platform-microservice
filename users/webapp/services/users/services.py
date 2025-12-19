@@ -1,13 +1,25 @@
 from datetime import datetime, timedelta, timezone
-
 from webapp.database.models.user import User, GenderType
 from webapp.database.repositories.user import UserRepository
-from webapp.services.users.dtos import CreateUserDTO, ReadUserDTO, LoginUserDTO, ResetPasswordDTO, ForgotPasswordDTO
+from webapp.services.users.dtos import (
+    CreateUserDTO,
+    ReadUserDTO,
+    LoginUserDTO,
+    ResetPasswordDTO,
+    ForgotPasswordDTO,
+    EnableMfaDTO,
+    MfaSetupDTO
+)
 from webapp.services.exceptions import ConflictException, NotFoundException, ValidationException
 from werkzeug.security import generate_password_hash, check_password_hash
 from webapp.services.email_service import EmailService
 from flask import current_app
 import uuid
+import io
+import base64
+import pyotp
+import qrcode
+
 
 class UserService:
     def __init__(self, user_repository: UserRepository, email_service: EmailService) -> None:
@@ -126,6 +138,41 @@ class UserService:
 
         user.reset_password(dto.new_password)
         self.user_repository.save(user)
+
+    def enable_mfa(self, dto: EnableMfaDTO) -> MfaSetupDTO:
+        user = self.user_repository.get_user_by_id(dto.user_id)
+        if not user:
+            raise NotFoundException("User not found")
+
+        secret = pyotp.random_base32()
+        user.enable_mfa_secret(secret=secret)
+        self.user_repository.save(user)
+
+        toto = pyotp.TOTP(secret)
+
+        provisioning_uri = toto.provisioning_uri(
+            name=user.email,
+            issuer_name="Course Management System",
+        )
+
+        qr = qrcode.QRCode(box_size=10, border=5)
+        qr.add_data(provisioning_uri)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        buf =io.BytesIO()
+
+        img.save(buf, format="PNG")
+
+        qr_code_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+        return MfaSetupDTO(
+            user_id=str(user.id),
+            provisioning_uri=provisioning_uri,
+            qr_code_base64=qr_code_base64,
+        )
+
 
 
     def _to_read_dto(self, user: User) -> ReadUserDTO:
