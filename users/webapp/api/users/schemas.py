@@ -46,5 +46,10 @@ class ResetPasswordSchema(BaseModel):
     token: str = Field(..., min_length=1)
     new_password: str = Field(..., min_length=6)
 
+class EnableMfaSchema(BaseModel):
+    user_id: str
 
-
+class MfaSetupSchema(BaseModel):
+    user_id: str
+    provisioning_uri: str
+    qr_code_base64: str
