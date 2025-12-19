@@ -1,6 +1,7 @@
 from webapp.api.users.schemas import CreateUserSchema, UserResponseSchema, LoginSchema, ForgotPasswordSchema, \
-    ResetPasswordSchema
-from webapp.services.users.dtos import CreateUserDTO, ReadUserDTO, LoginUserDTO, ForgotPasswordDTO, ResetPasswordDTO
+    ResetPasswordSchema, MfaSetupSchema, EnableMfaSchema
+from webapp.services.users.dtos import CreateUserDTO, ReadUserDTO, LoginUserDTO, ForgotPasswordDTO, ResetPasswordDTO, \
+    MfaSetupDTO, EnableMfaDTO
 
 
 def to_dto_create(schema: CreateUserSchema) -> CreateUserDTO:
@@ -38,3 +39,11 @@ def to_dto_forgot_password(schema: ForgotPasswordSchema) -> ForgotPasswordDTO:
 
 def to_dto_reset_passwort(schema: ResetPasswordSchema) -> ResetPasswordDTO:
     return ResetPasswordDTO(token=schema.token, new_password=schema.new_password)
+
+def to_schema_mfa_enable(dto: MfaSetupDTO) -> MfaSetupSchema:
+    return MfaSetupSchema(user_id=dto.user_id, provisioning_uri=dto.provisioning_uri, qr_code_base64=dto.qr_code_base64)
+
+def to_dto_mfa_enable(schema: EnableMfaSchema) -> EnableMfaDTO:
+    return EnableMfaDTO(
+        user_id=schema.user_id,
+    )
