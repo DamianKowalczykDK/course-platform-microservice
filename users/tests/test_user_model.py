@@ -71,5 +71,20 @@ def test_if_token_reset_password_valid_date_time(user: User) -> None:
     user.reset_password_expires_at = datetime.now()
     assert user.is_token_rest_password_valid("token-test") is True
 
+def test_enable_mfa(user: User) -> None:
+    user.enable_mfa_secret("secret123")
+    assert user.mfa_secret == "secret123"
+
+def test_disable_mfa(user: User) -> None:
+    user.enable_mfa_secret("secret123")
+    assert user.mfa_secret == "secret123"
+    user.disable_mfa_secret()
+    assert user.mfa_secret is None
+
+def test_has_mfa_secret(user: User) -> None:
+    user.mfa_secret = "secret123"
+    user.has_mfa_secret()
+    assert user.mfa_secret is not None
+
 
 
