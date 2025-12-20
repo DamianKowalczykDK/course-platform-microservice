@@ -1,4 +1,12 @@
-from webapp.services.users.dtos import CreateUserDTO, UserDTO, ActivationUserDTO
+from webapp.services.users.dtos import (
+    CreateUserDTO,
+    UserDTO,
+    ActivationUserDTO,
+    ForgotPasswordDTO,
+    ResetPasswordDTO,
+    EnableMfaDTO,
+    MfaSetupDTO
+)
 from flask import current_app
 from webapp.services.exceptions import ValidationException, NotFoundException
 import httpx
@@ -36,3 +44,22 @@ class UserService:
             raise ValidationException(f"Failed to resend activation code {response.text}")
 
         return UserDTO(**response.json())
+
+    def forgot_password(self, dto: ForgotPasswordDTO) -> None:
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        response = httpx.post(f"{users_url}/forgot-password", json=dto.__dict__, timeout=5)
+        if response.status_code != 200:
+            raise ValidationException(f"Failed to forgot password {response.text}")
+
+    def reset_password(self, dto: ResetPasswordDTO) -> None:
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        response = httpx.post(f"{users_url}/reset-password", json=dto.__dict__, timeout=5)
+        if response.status_code != 200:
+            raise ValidationException(f"Failed to reset password {response.text}")
+
+    def enable_mfa(self, dto: EnableMfaDTO) -> MfaSetupDTO:
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        response = httpx.patch(f"{users_url}/enable-mfa", json=dto.__dict__, timeout=5)
+        if response.status_code != 200:
+            raise ValidationException(f"Failed to enable MFA {response.text}")
+        return MfaSetupDTO(**response.json())
