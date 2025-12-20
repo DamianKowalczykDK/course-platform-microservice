@@ -10,3 +10,8 @@ class TokenPairDTO:
     access_token: str
     refresh_token: str
 
+@dataclass(frozen=True)
+class VerifyMfaDTO:
+    user_id: str
+    code: str
+

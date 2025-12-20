@@ -29,3 +29,23 @@ class UserDTO:
     gender: GenderType
     role: Literal["user", "admin"]
     is_active: bool
+    mfa_enabled: bool = False
+
+@dataclass(frozen=True)
+class ForgotPasswordDTO:
+    identifier: str
+
+@dataclass(frozen=True)
+class ResetPasswordDTO:
+    token: str
+    new_password: str
+
+@dataclass(frozen=True)
+class EnableMfaDTO:
+    user_id: str
+
+@dataclass(frozen=True)
+class MfaSetupDTO:
+    user_id: str
+    provisioning_uri: str
+    qr_code_base64: str
