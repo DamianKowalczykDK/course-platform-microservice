@@ -1,10 +1,14 @@
+import urllib
 from datetime import datetime
 from unittest.mock import MagicMock
 from werkzeug.security import check_password_hash
 import pytest
+from urllib.parse import unquote
 
-from webapp.database.models.user import GenderType
-from webapp.services.users.dtos import CreateUserDTO, ReadUserDTO
+from webapp.database.models import user
+from webapp.database.models.user import GenderType, User
+from webapp.services.exceptions import NotFoundException
+from webapp.services.users.dtos import CreateUserDTO, ReadUserDTO, EnableMfaDTO
 from webapp.services.users.services import UserService
 
 
@@ -68,4 +72,34 @@ def test_creat_user_and_send_activation_email(
     # mock_user_repository.get_active_by_username_or_email.return_value = read_dto
     # activate = user_service.get_by_username_or_email("test_user")
     # assert activate.is_active is False
+
+def test_enable_mfa_enable(user_service: UserService, mock_user_repository: MagicMock) -> None:
+    user = User(
+        id="4234dsfsgd98234234",
+        username="test_user",
+        first_name="test_first_name",
+        last_name="test_last_name",
+        email="test@example.com",
+        password_hash="hash1234",
+        gender="Male",
+        activation_code="code123"
+
+    )
+
+    mock_user_repository.get_user_by_id.return_value = user
+
+    dto = EnableMfaDTO(user_id=str(user.id))
+    result = user_service.enable_mfa(dto)
+
+    assert result.user_id == str(user.id)
+
+    decoded_uri = urllib.parse.unquote(result.provisioning_uri)
+    assert "test@example.com" in decoded_uri
+
+def test_enable_mfa_not_found_raises(user_service: UserService, mock_user_repository: MagicMock) -> None:
+    mock_user_repository.get_user_by_id.return_value = None
+    with pytest.raises(NotFoundException, match="User not found"):
+        dto = EnableMfaDTO(user_id=str("bad"))
+        user_service.enable_mfa(dto)
+
 

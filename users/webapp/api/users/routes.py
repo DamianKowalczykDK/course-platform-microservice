@@ -76,7 +76,7 @@ def reset_password(user_service: UserService=Provide[Container.user_service]) ->
     user_service.reset_password(dto)
     return jsonify({"message": "Password has been reset successfully."}), 200
 
-@users_bp.patch("/enable-mfa")
+@users_bp.patch("/enable-mfa")#type: ignore
 @inject
 def enable_mfa(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = EnableMfaSchema.model_validate(request.get_json() or {})

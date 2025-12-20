@@ -10,6 +10,7 @@ from webapp import create_app
 from webapp.database.models.user import User
 from webapp.settings import Config
 import pytest
+import urllib
 
 @pytest.fixture(scope="module")
 def mongo_db_container_url() -> Generator[str, None, None]:
@@ -101,6 +102,12 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
         assert resp.status_code == 200
         data = resp.get_json()
         assert data["message"] == "Password has been reset successfully."
+
+        resp = client.patch("/api/users/enable-mfa", json={"user_id": str(user.id)})
+        assert resp.status_code == 200
+        data = resp.get_json()
+        decoded_uri = urllib.parse.unquote(data["provisioning_uri"])
+        assert "jon@example.com" in decoded_uri
 
 
 
