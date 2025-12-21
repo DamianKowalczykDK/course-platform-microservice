@@ -8,7 +8,7 @@ from webapp.services.users.dtos import (
     ResetPasswordDTO,
     ForgotPasswordDTO,
     EnableMfaDTO,
-    MfaSetupDTO
+    MfaSetupDTO, DisableMfaDTO
 )
 from webapp.services.exceptions import ConflictException, NotFoundException, ValidationException
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -96,16 +96,22 @@ class UserService:
 
         return self._to_read_dto(user)
 
+    def get_by_id(self, user_id: str) -> ReadUserDTO:
+        user = self.user_repository.get_by_id(user_id)
+        if not user:
+            raise NotFoundException("Active user not found")
+        return self._to_read_dto(user)
+
     def get_by_username_or_email(self, identifier: str) -> ReadUserDTO:
         user = self.user_repository.get_active_by_username_or_email(identifier)
-        if user is None:
+        if not user:
             raise NotFoundException("Active user not found")
 
         return self._to_read_dto(user)
 
     def verify_credentials(self, dto: LoginUserDTO) -> ReadUserDTO:
         user = self.user_repository.get_active_by_username_or_email(dto.identifier)
-        if user is None:
+        if not user:
             raise NotFoundException("Invalid credentials -1")
 
         if not check_password_hash(user.password_hash, dto.password):
@@ -140,7 +146,7 @@ class UserService:
         self.user_repository.save(user)
 
     def enable_mfa(self, dto: EnableMfaDTO) -> MfaSetupDTO:
-        user = self.user_repository.get_user_by_id(dto.user_id)
+        user = self.user_repository.get_by_id(dto.user_id)
         if not user:
             raise NotFoundException("User not found")
 
@@ -173,7 +179,18 @@ class UserService:
             qr_code_base64=qr_code_base64,
         )
 
+    def disable_mfa(self, dto: DisableMfaDTO) -> ReadUserDTO:
+        user = self.user_repository.get_by_id(dto.user_id)
+        if not user:
+            raise NotFoundException("User not found")
 
+        if not user.has_mfa_secret():
+            raise ValidationException("MFA is not enabled for this user")
+
+        user.disable_mfa_secret()
+        self.user_repository.save(user)
+
+        return self._to_read_dto(user)
 
     def _to_read_dto(self, user: User) -> ReadUserDTO:
         return ReadUserDTO(
@@ -186,6 +203,7 @@ class UserService:
             role=user.role,
             is_active=user.is_active,
             created_at=user.created_at,
+            mfa_secret=user.mfa_secret
 
         )
 
