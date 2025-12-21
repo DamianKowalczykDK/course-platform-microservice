@@ -14,7 +14,7 @@ class UserRepository:
         user.save()
         return user
 
-    def get_user_by_id(self, user_id: str) -> User | None:
+    def get_by_id(self, user_id: str) -> User | None:
         return User.objects(id=user_id).first()
 
     def get_by_email(self, email: str) -> User | None:
