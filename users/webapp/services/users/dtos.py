@@ -46,6 +46,10 @@ class EnableMfaDTO:
     user_id: str
 
 @dataclass(frozen=True)
+class DisableMfaDTO:
+    user_id: str
+
+@dataclass(frozen=True)
 class MfaSetupDTO:
     user_id: str
     provisioning_uri: str
