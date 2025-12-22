@@ -40,7 +40,23 @@ class ResetPasswordSchema(BaseModel):
 class EnableMfaSchema(BaseModel):
     user_id: str
 
+class DisableMfaSchema(BaseModel):
+    user_id: str
+
 class MfaSetupSchema(BaseModel):
     user_id: str
     provisioning_uri: str
     qr_code_base64: str
+
+
+class ResendActivationCodeSchema(BaseModel):
+    identifier: str
+
+class IdentifierSchema(BaseModel):
+    identifier: str
+
+class UserIdSchema(BaseModel):
+    user_id: str
+
+class GetMfaSchema(BaseModel):
+    user_id: str

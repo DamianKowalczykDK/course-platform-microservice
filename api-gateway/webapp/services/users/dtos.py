@@ -45,7 +45,27 @@ class EnableMfaDTO:
     user_id: str
 
 @dataclass(frozen=True)
+class DisableMfaDTO:
+    user_id: str
+
+@dataclass(frozen=True)
+class UserIdDTO:
+    user_id: str
+
+@dataclass(frozen=True)
+class GetMfaDTO:
+    user_id: str
+
+@dataclass(frozen=True)
 class MfaSetupDTO:
     user_id: str
     provisioning_uri: str
     qr_code_base64: str
+
+@dataclass(frozen=True)
+class ResendActivationCodeDTO:
+    identifier: str
+
+@dataclass(frozen=True)
+class IdentifierDTO:
+    identifier: str
