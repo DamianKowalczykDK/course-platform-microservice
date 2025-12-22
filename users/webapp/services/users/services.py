@@ -8,7 +8,7 @@ from webapp.services.users.dtos import (
     ResetPasswordDTO,
     ForgotPasswordDTO,
     EnableMfaDTO,
-    MfaSetupDTO, DisableMfaDTO
+    MfaSetupDTO, DisableMfaDTO, GetMfaQrCodeDTO
 )
 from webapp.services.exceptions import ConflictException, NotFoundException, ValidationException
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -154,30 +154,8 @@ class UserService:
         user.enable_mfa_secret(secret=secret)
         self.user_repository.save(user)
 
-        toto = pyotp.TOTP(secret)
+        return self._generate_mfa_setup(user)
 
-        provisioning_uri = toto.provisioning_uri(
-            name=user.email,
-            issuer_name="Course Management System",
-        )
-
-        qr = qrcode.QRCode(box_size=10, border=5)
-        qr.add_data(provisioning_uri)
-        qr.make(fit=True)
-
-        img = qr.make_image(fill_color="black", back_color="white")
-
-        buf =io.BytesIO()
-
-        img.save(buf, format="PNG")
-
-        qr_code_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-
-        return MfaSetupDTO(
-            user_id=str(user.id),
-            provisioning_uri=provisioning_uri,
-            qr_code_base64=qr_code_base64,
-        )
 
     def disable_mfa(self, dto: DisableMfaDTO) -> ReadUserDTO:
         user = self.user_repository.get_by_id(dto.user_id)
@@ -191,6 +169,43 @@ class UserService:
         self.user_repository.save(user)
 
         return self._to_read_dto(user)
+
+    def get_mfa_qrcode(self, dto: GetMfaQrCodeDTO) -> MfaSetupDTO:
+        user = self.user_repository.get_by_id(dto.user_id)
+        if not user:
+            raise NotFoundException("User not found")
+        if not user.has_mfa_secret():
+            raise ValidationException("MFA is not enabled for this user")
+
+        return self._generate_mfa_setup(user)
+
+
+    def _generate_mfa_setup(self, user: User) -> MfaSetupDTO:
+        totp = pyotp.TOTP(user.mfa_secret) #type: ignore
+
+        provisioning_uri = totp.provisioning_uri(
+            name=user.email,
+            issuer_name="Course Management System",
+        )
+
+        qr = qrcode.QRCode(box_size=10, border=5)
+        qr.add_data(provisioning_uri)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        buf = io.BytesIO()
+
+        img.save(buf, format="PNG")
+
+        qr_code_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+        return MfaSetupDTO(
+            user_id=str(user.id),
+            provisioning_uri=provisioning_uri,
+            qr_code_base64=qr_code_base64,
+        )
+
 
     def _to_read_dto(self, user: User) -> ReadUserDTO:
         return ReadUserDTO(
