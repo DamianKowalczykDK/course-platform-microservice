@@ -29,3 +29,18 @@ class UserResponseSchema(BaseModel):
     gender: GenderType
     role: Literal["user", "admin"]
     is_active: bool
+
+class ForgotPasswordSchema(BaseModel):
+    identifier: str
+
+class ResetPasswordSchema(BaseModel):
+    token: str
+    new_password: str
+
+class EnableMfaSchema(BaseModel):
+    user_id: str
+
+class MfaSetupSchema(BaseModel):
+    user_id: str
+    provisioning_uri: str
+    qr_code_base64: str
