@@ -1,8 +1,5 @@
-import uuid
-from datetime import datetime, timezone, timedelta
-
+from datetime import datetime, timezone
 import pytest
-
 from webapp.database.models.user import User
 
 

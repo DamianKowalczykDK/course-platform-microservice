@@ -71,6 +71,7 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
         activation_code = user.activation_code
 
 
+
         resp = client.patch("/api/users/activate", json={"code": activation_code})
         assert resp.status_code == 200
         data = resp.get_json()
@@ -79,6 +80,10 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
         resp = client.get("/api/users/Jon30")
         assert resp.status_code == 200
 
+        user_id = data["id"]
+
+        resp = client.get(f"/api/users/by-id/{user_id}")
+        assert resp.status_code == 200
 
         resp = client.post("/api/users/login", json={"identifier": "Jon30", "password": "secret123"})
         assert resp.status_code == 200
@@ -109,6 +114,11 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
         decoded_uri = urllib.parse.unquote(data["provisioning_uri"])
         assert "jon@example.com" in decoded_uri
 
+        resp = client.get("/api/users/mfa-qr", query_string={"user_id": str(user.id)})
+        assert resp.status_code == 200
+
+        resp = client.patch("/api/users/disable-mfa", json={"user_id": str(user.id)})
+        assert resp.status_code == 200
 
 
 
