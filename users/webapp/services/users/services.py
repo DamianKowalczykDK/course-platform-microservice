@@ -61,13 +61,13 @@ class UserService:
 
     def activate_user(self, activation_code: str) -> ReadUserDTO:
         user = self.user_repository.get_by_activation_code(activation_code)
-        if user is None:
+        if not user:
             raise NotFoundException("Invalid activation code")
 
         expiration_minutes = current_app.config["USER_ACTIVATION_EXPIRATION_MINUTES"]
 
         now_utc = datetime.now(timezone.utc)
-        created_at = user.created_at
+        created_at = user.activation_created_at
         if created_at.tzinfo is None:
             created_at = created_at.replace(tzinfo=timezone.utc)
 
