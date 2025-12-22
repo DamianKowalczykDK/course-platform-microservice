@@ -7,7 +7,10 @@ from webapp.api.users.schemas import (
     ActivationCodeSchema,
     LoginSchema,
     ForgotPasswordSchema,
-    ResetPasswordSchema, MfaSetupSchema, EnableMfaSchema,
+    ResetPasswordSchema,
+    DisableMfaSchema,
+    EnableMfaSchema,
+    UserIDQuerySchema
 
 )
 from webapp.api.users.mappers import (
@@ -16,7 +19,10 @@ from webapp.api.users.mappers import (
     to_dto_login,
     to_dto_forgot_password,
     to_dto_reset_passwort,
-    to_dto_mfa_enable, to_schema_mfa_enable,
+    to_dto_mfa_enable,
+    to_schema_mfa_setup,
+    to_dto_mfa_disable,
+    to_dto_get_mfa_qrcode
 )
 from webapp.services.users.services import UserService
 from webapp.container import Container
@@ -47,8 +53,14 @@ def resend_activation(identifier: str, user_service: UserService=Provide[Contain
 
 @users_bp.get("<string:identifier>")#type: ignore
 @inject
-def get_user(identifier: str, user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+def get_user_by_identifier(identifier: str, user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     read_dto = user_service.get_by_username_or_email(identifier)
+    return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 200
+
+@users_bp.get("/by-id/<string:user_id>")#type: ignore
+@inject
+def get_user_by_id(user_id: str, user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+    read_dto = user_service.get_by_id(user_id)
     return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 200
 
 @users_bp.post("/login")#type: ignore
@@ -82,4 +94,20 @@ def enable_mfa(user_service: UserService=Provide[Container.user_service]) -> Res
     payload = EnableMfaSchema.model_validate(request.get_json() or {})
     dto = to_dto_mfa_enable(payload)
     result = user_service.enable_mfa(dto)
-    return jsonify(to_schema_mfa_enable(result).model_dump(mode="json")), 200
+    return jsonify(to_schema_mfa_setup(result).model_dump(mode="json")), 200
+
+@users_bp.patch("/disable-mfa")#type: ignore
+@inject
+def disable_mfa(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+    payload = DisableMfaSchema.model_validate(request.get_json() or {})
+    dto = to_dto_mfa_disable(payload)
+    result = user_service.disable_mfa(dto)
+    return jsonify(to_schema_user(result).model_dump(mode="json")), 200
+
+@users_bp.get("/mfa-qr")#type: ignore
+@inject
+def get_mfa_qrcode(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+    payload = UserIDQuerySchema.model_validate(request.args.to_dict(flat=True))
+    dto = to_dto_get_mfa_qrcode(payload)
+    result = user_service.get_mfa_qrcode(dto)
+    return jsonify(to_schema_mfa_setup(result).model_dump(mode="json")), 200
