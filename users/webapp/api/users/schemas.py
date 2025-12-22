@@ -34,6 +34,7 @@ class UserResponseSchema(BaseModel):
     gender: GenderType
     role: Literal["user", "admin"]
     is_active: bool
+    mfa_secret: str | None = None
 
 class LoginSchema(BaseModel):
     identifier: str = Field(..., min_length=3, max_length=64)
@@ -47,6 +48,12 @@ class ResetPasswordSchema(BaseModel):
     new_password: str = Field(..., min_length=6)
 
 class EnableMfaSchema(BaseModel):
+    user_id: str
+
+class DisableMfaSchema(BaseModel):
+    user_id: str
+
+class UserIDQuerySchema(BaseModel):
     user_id: str
 
 class MfaSetupSchema(BaseModel):
