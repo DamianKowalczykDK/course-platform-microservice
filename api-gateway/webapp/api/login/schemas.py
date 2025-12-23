@@ -11,3 +11,6 @@ class TokenPairSchema(BaseModel):
 class VerifyMfaSchema(BaseModel):
     user_id: str
     code: str
+
+class AccessTokenSchema(BaseModel):
+    access_token: str
