@@ -1,13 +1,18 @@
 from flask_jwt_extended import create_access_token, create_refresh_token
 from flask import current_app
-import httpx
+from typing import TypedDict
 from webapp.services.auth.dtos import LoginDTO, TokenPairDTO, VerifyMfaDTO
 from webapp.services.exceptions import ValidationException
+import httpx
 import pyotp
+
+class LoginMfaRequired(TypedDict):
+    mfa_required: bool
+    user_id: str
 
 
 class AuthService:
-    def login(self, dto: LoginDTO) -> TokenPairDTO:
+    def login(self, dto: LoginDTO) -> TokenPairDTO | LoginMfaRequired:
         users_url = current_app.config["USERS_SERVICE_URL"]
 
         response = httpx.post(f"{users_url}/login", json=dto.__dict__, timeout=5)
@@ -18,11 +23,9 @@ class AuthService:
         if not user.get("is_active"):
             raise ValidationException("User is not active")
 
-        if user.get("mfa_enabled"):
-            return {
-                "mfa_required": True,
-                "user_id": user["id"],
-            }
+        if user.get("mfa_secret"):
+            return LoginMfaRequired(mfa_required=True, user_id=user.get("user_id"))
+
 
         return self._generate_token(user["id"])
 
