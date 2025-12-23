@@ -12,7 +12,7 @@ def app_with_handlers() -> Generator[Flask, None, None]:
     app = Flask(__name__)
     register_error_handlers(app)
 
-    @app.route("/boom")
+    @app.route("/boom")#type: ignore
     def boom() -> ResponseReturnValue:
         raise RuntimeError("BOOM!")
 

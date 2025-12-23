@@ -11,7 +11,7 @@ from webapp.services.users.dtos import (
     GetMfaQrCodeDTO,
     ResetPasswordDTO,
     LoginUserDTO,
-    ForgotPasswordDTO
+    ForgotPasswordDTO, UserIdDTO, IdentifierDTO, ResendActivationCodeDTO
 )
 from webapp.services.users.services import UserService
 import pyotp
@@ -243,19 +243,22 @@ def test_active_user_if_code_expired(flask_app: Flask, user_service: UserService
 def test_resend_activation_code_if_not_user(user_service: UserService, mock_user_repository: MagicMock) -> None:
     mock_user_repository.get_by_username_or_email.return_value = None
     with pytest.raises(NotFoundException, match="Invalid username or email"):
-        user_service.resend_activation_code("code123")
+        dto = ResendActivationCodeDTO(identifier="Bad")
+        user_service.resend_activation_code(dto)
 
 def test_resend_activation_code_if_user_active(user_service: UserService, mock_user_repository: MagicMock) -> None:
     user = MagicMock()
     mock_user_repository.get_by_activation_code.return_value = user
     user.is_active = True
     with pytest.raises(ValidationException, match="User already activated"):
-        user_service.resend_activation_code("code123")
+        dto = ResendActivationCodeDTO(identifier="Bad")
+        user_service.resend_activation_code(dto)
 
 def test_get_by_username_or_email_if_not_active_user(user_service: UserService, mock_user_repository: MagicMock) -> None:
     mock_user_repository.get_active_by_username_or_email.return_value = None
     with pytest.raises(NotFoundException, match="Active user not found"):
-        user_service.get_by_username_or_email("Test30")
+        dto = IdentifierDTO(identifier="Bad")
+        user_service.get_by_username_or_email(dto)
 
 def test_get_by_id_success(user_service: UserService, mock_user_repository: MagicMock) -> None:
     user = User(
@@ -270,13 +273,15 @@ def test_get_by_id_success(user_service: UserService, mock_user_repository: Magi
         mfa_secret=None
     )
     mock_user_repository.get_by_id.return_value = user
-    result = user_service.get_by_id(user_id=str(user.id))
+    dto = UserIdDTO(user_id="4234dsfsgd98234234")
+    result = user_service.get_by_id(dto)
     assert result.id == user.id
 
 def test_get_by_id_not_found_user(user_service: UserService, mock_user_repository: MagicMock) -> None:
     mock_user_repository.get_by_id.return_value = None
+    dto = UserIdDTO(user_id="4234dsfsgd98234234")
     with pytest.raises(NotFoundException, match="Active user not found"):
-        user_service.get_by_id("Bad")
+        user_service.get_by_id(dto)
 
 def test_verify_credentials_if_not_user(user_service: UserService, mock_user_repository: MagicMock) -> None:
     mock_user_repository.get_active_by_username_or_email.return_value = None

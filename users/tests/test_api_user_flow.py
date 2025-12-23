@@ -63,26 +63,27 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
         data = resp.get_json()
         assert data["is_active"] is False
 
+        user = User.objects.get(username="Jon30")
+        user_identifier = user.username
 
-        resp = client.get("/api/users/resend-activation/Jon30")
+        resp = client.get("/api/users/resend-activation", query_string={"identifier": user_identifier})
         assert resp.status_code == 200
 
         user = User.objects.get(username="Jon30")
         activation_code = user.activation_code
-
-
 
         resp = client.patch("/api/users/activate", json={"code": activation_code})
         assert resp.status_code == 200
         data = resp.get_json()
         assert data["is_active"] is True
 
-        resp = client.get("/api/users/Jon30")
+        resp = client.get("/api/users/by-identifier", query_string={"identifier": user_identifier})
         assert resp.status_code == 200
 
-        user_id = data["id"]
+        data = resp.get_json()
+        user_id= data["id"]
 
-        resp = client.get(f"/api/users/by-id/{user_id}")
+        resp = client.get(f"/api/users/by-id", query_string={"user_id": user_id})
         assert resp.status_code == 200
 
         resp = client.post("/api/users/login", json={"identifier": "Jon30", "password": "secret123"})
