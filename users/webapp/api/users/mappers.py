@@ -7,7 +7,9 @@ from webapp.api.users.schemas import (
     MfaSetupSchema,
     EnableMfaSchema,
     DisableMfaSchema,
-    UserIDQuerySchema,
+    UserIDSchema,
+    IdentifierSchema,
+    ResendActivationCodeSchema,
 )
 from webapp.services.users.dtos import (
     CreateUserDTO,
@@ -18,7 +20,10 @@ from webapp.services.users.dtos import (
     MfaSetupDTO,
     EnableMfaDTO,
     DisableMfaDTO,
-    GetMfaQrCodeDTO
+    GetMfaQrCodeDTO,
+    UserIdDTO,
+    IdentifierDTO,
+    ResendActivationCodeDTO
 )
 
 
@@ -70,5 +75,14 @@ def to_dto_mfa_enable(schema: EnableMfaSchema) -> EnableMfaDTO:
 def to_dto_mfa_disable(schema: DisableMfaSchema) -> DisableMfaDTO:
     return DisableMfaDTO(user_id=schema.user_id)
 
-def to_dto_get_mfa_qrcode(schema: UserIDQuerySchema) -> GetMfaQrCodeDTO:
+def to_dto_get_mfa_qrcode(schema: UserIDSchema) -> GetMfaQrCodeDTO:
     return GetMfaQrCodeDTO(user_id=schema.user_id)
+
+def to_dto_user_id(schema: UserIDSchema) -> UserIdDTO:
+    return UserIdDTO(user_id=schema.user_id)
+
+def to_dto_identifier(schema: IdentifierSchema) -> IdentifierDTO:
+    return IdentifierDTO(identifier=schema.identifier)
+
+def to_dto_resend_activation_code(schema: ResendActivationCodeSchema) -> ResendActivationCodeDTO:
+    return ResendActivationCodeDTO(identifier=schema.identifier)

@@ -53,10 +53,16 @@ class EnableMfaSchema(BaseModel):
 class DisableMfaSchema(BaseModel):
     user_id: str
 
-class UserIDQuerySchema(BaseModel):
+class UserIDSchema(BaseModel):
     user_id: str
+
+class IdentifierSchema(BaseModel):
+    identifier: str
 
 class MfaSetupSchema(BaseModel):
     user_id: str
     provisioning_uri: str
     qr_code_base64: str
+
+class ResendActivationCodeSchema(BaseModel):
+    identifier: str
