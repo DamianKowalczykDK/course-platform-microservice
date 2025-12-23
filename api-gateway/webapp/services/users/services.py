@@ -36,7 +36,7 @@ class UserService:
     def resend_activation_code(self, dto: ResendActivationCodeDTO) -> UserDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
 
-        response = httpx.get(f"{users_url}/resend-activation/{dto.identifier}", timeout=5)
+        response = httpx.get(f"{users_url}/resend-activation", params=dto.__dict__ , timeout=5)
 
         if response.status_code == 404:
             raise NotFoundException(f"User {dto.identifier} not found")
@@ -67,7 +67,7 @@ class UserService:
 
     def get_user_by_id(self, dto: UserIdDTO) -> UserDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.get(f"{users_url}/by-id/{dto.user_id}", params=dto.__dict__, timeout=5)
+        response = httpx.get(f"{users_url}/by-id", params=dto.__dict__, timeout=5)
 
         if response.status_code != 200:
             raise NotFoundException(f"User {dto.user_id} not found")
@@ -75,7 +75,7 @@ class UserService:
 
     def get_user_by_identifier(self, dto: IdentifierDTO) -> UserDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.get(f"{users_url}/{dto.identifier}", timeout=5)
+        response = httpx.get(f"{users_url}/by-identifier",params=dto.__dict__ , timeout=5)
 
         if response.status_code == 404:
             raise NotFoundException(f"User {dto.identifier} not found")
