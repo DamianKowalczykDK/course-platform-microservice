@@ -8,7 +8,7 @@ from webapp.services.users.dtos import (
     ResetPasswordDTO,
     ForgotPasswordDTO,
     EnableMfaDTO,
-    MfaSetupDTO, DisableMfaDTO, GetMfaQrCodeDTO
+    MfaSetupDTO, DisableMfaDTO, GetMfaQrCodeDTO, UserIdDTO, IdentifierDTO, ResendActivationCodeDTO
 )
 from webapp.services.exceptions import ConflictException, NotFoundException, ValidationException
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -77,8 +77,8 @@ class UserService:
         user.activate()
         return self._to_read_dto(self.user_repository.save(user))
 
-    def resend_activation_code(self, identifier: str) -> ReadUserDTO:
-        user = self.user_repository.get_by_username_or_email(identifier)
+    def resend_activation_code(self, dto: ResendActivationCodeDTO) -> ReadUserDTO:
+        user = self.user_repository.get_by_username_or_email(dto.identifier)
         if not user:
             raise NotFoundException("Invalid username or email")
         if user.is_active:
@@ -96,14 +96,14 @@ class UserService:
 
         return self._to_read_dto(user)
 
-    def get_by_id(self, user_id: str) -> ReadUserDTO:
-        user = self.user_repository.get_by_id(user_id)
+    def get_by_id(self, dto: UserIdDTO) -> ReadUserDTO:
+        user = self.user_repository.get_by_id(dto.user_id)
         if not user:
             raise NotFoundException("Active user not found")
         return self._to_read_dto(user)
 
-    def get_by_username_or_email(self, identifier: str) -> ReadUserDTO:
-        user = self.user_repository.get_active_by_username_or_email(identifier)
+    def get_by_username_or_email(self, dto: IdentifierDTO) -> ReadUserDTO:
+        user = self.user_repository.get_active_by_username_or_email(dto.identifier)
         if not user:
             raise NotFoundException("Active user not found")
 
