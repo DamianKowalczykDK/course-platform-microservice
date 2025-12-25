@@ -5,7 +5,7 @@ from webapp.services.users.services import UserService
 class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         packages=[
-            "webapp.api.login",
+            "webapp.api.auth",
             "webapp.api.users"
         ]
     )
