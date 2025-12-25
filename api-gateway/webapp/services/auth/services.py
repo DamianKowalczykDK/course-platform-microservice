@@ -27,11 +27,11 @@ class AuthService:
             return LoginMfaRequired(mfa_required=True, user_id=user.get("user_id"))
 
 
-        return self._generate_token(user["id"])
+        return self.generate_token(user["id"])
 
     def verify_mfa(self, dto: VerifyMfaDTO) -> TokenPairDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.get(f"{users_url}/by-id/{dto.user_id}", timeout=5)
+        response = httpx.get(f"{users_url}/by-id", params=dto.__dict__, timeout=5)
 
         if response.status_code != 200:
             raise ValidationException("User not found")
@@ -47,10 +47,10 @@ class AuthService:
         if not totp.verify(dto.code, valid_window=1):
             raise ValidationException("Mfa verification failed")
 
-        return self._generate_token(user["id"])
+        return self.generate_token(user["id"])
 
 
-    def _generate_token(self, user_id: str)  -> TokenPairDTO:
+    def generate_token(self, user_id: str)  -> TokenPairDTO:
         access_token = create_access_token(identity=user_id)
         refresh_token = create_refresh_token(identity=user_id)
 
