@@ -17,6 +17,9 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES: int = int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 3600))
     JWT_COOKIE_CSRF_PROTECT: bool = os.getenv("JWT_COOKIE_CSRF_PROTECT", "False") in ("1", "true", "True")
     JWT_ALGORITHM: str = os.getenv('JWT_ALGORITHM', "HS256")
+    JWT_TOKEN_LOCATION: list[str] = os.getenv('JWT_TOKEN_LOCATION', "cookies, headers").split(",")
+    # JWT_TOKEN_SECURE: bool = os.getenv('JWT_TOKEN_SECURE', "True") in ("1", "true", "True")
+    # JWT_TOKEN_SAMESITE: str = os.getenv('JWT_TOKEN_SAMESITE', "Strict")
 
     USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "http://localhost:5000/api/users")
 
