@@ -25,7 +25,7 @@ class ReadUserDTO:
     role: Literal["user", "admin"]
     is_active: bool
     created_at: datetime
-    mfa_secret: str | None = None
+    mfa_secret: str
 
 @dataclass(frozen=True)
 class LoginUserDTO:

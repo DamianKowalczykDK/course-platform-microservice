@@ -15,7 +15,7 @@ class AuthService:
     def login(self, dto: LoginDTO) -> TokenPairDTO | LoginMfaRequired:
         users_url = current_app.config["USERS_SERVICE_URL"]
 
-        response = httpx.post(f"{users_url}/login", json=dto.__dict__, timeout=5)
+        response = httpx.post(f"{users_url}/check", json=dto.__dict__, timeout=5)
         if response.status_code != 200:
             raise ValidationException("invalid Credentials")
 
@@ -24,7 +24,7 @@ class AuthService:
             raise ValidationException("User is not active")
 
         if user.get("mfa_secret"):
-            return LoginMfaRequired(mfa_required=True, user_id=user.get("user_id"))
+            return LoginMfaRequired(mfa_required=True, user_id=user["id"])
 
 
         return self.generate_token(user["id"])

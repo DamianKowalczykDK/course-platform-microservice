@@ -1,4 +1,3 @@
-
 from flask import request, jsonify
 from flask.typing import ResponseReturnValue
 from dependency_injector.wiring import Provide, inject
@@ -10,7 +9,9 @@ from webapp.api.users.schemas import (
     ResetPasswordSchema,
     DisableMfaSchema,
     EnableMfaSchema,
-    UserIDSchema, IdentifierSchema, ResendActivationCodeSchema
+    UserIDSchema,
+    IdentifierSchema,
+    ResendActivationCodeSchema
 
 )
 from webapp.api.users.mappers import (
@@ -24,7 +25,8 @@ from webapp.api.users.mappers import (
     to_dto_mfa_disable,
     to_dto_get_mfa_qrcode,
     to_dto_user_id,
-    to_dto_identifier, to_dto_resend_activation_code
+    to_dto_identifier,
+    to_dto_resend_activation_code
 )
 from webapp.services.users.services import UserService
 from webapp.container import Container
@@ -39,14 +41,14 @@ def create_user(user_service: UserService=Provide[Container.user_service]) -> Re
     return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 201
 
 
-@users_bp.patch("/activate")#type: ignore
+@users_bp.patch("/activation")#type: ignore
 @inject
 def activate_code(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = ActivationCodeSchema.model_validate(request.get_json() or {})
     read_dto = user_service.activate_user(payload.code)
     return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 200
 
-@users_bp.get("/resend-activation")#type: ignore
+@users_bp.get("/activation/resend")#type: ignore
 @inject
 def resend_activation(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = ResendActivationCodeSchema.model_validate(request.args.to_dict() or {})
@@ -55,7 +57,7 @@ def resend_activation(user_service: UserService=Provide[Container.user_service])
     return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 200
 
 
-@users_bp.get("/by-identifier")#type: ignore
+@users_bp.get("/identifier")#type: ignore
 @inject
 def get_user_by_identifier(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = IdentifierSchema.model_validate(request.args.to_dict() or {})
@@ -63,7 +65,7 @@ def get_user_by_identifier(user_service: UserService=Provide[Container.user_serv
     read_dto = user_service.get_by_username_or_email(dto)
     return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 200
 
-@users_bp.get("/by-id")#type: ignore
+@users_bp.get("/id")#type: ignore
 @inject
 def get_user_by_id(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = UserIDSchema.model_validate(request.args.to_dict() or {})
@@ -71,7 +73,7 @@ def get_user_by_id(user_service: UserService=Provide[Container.user_service]) ->
     read_dto = user_service.get_by_id(dto)
     return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 200
 
-@users_bp.post("/login")#type: ignore
+@users_bp.post("/check")#type: ignore
 @inject
 def verify_login(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = LoginSchema.model_validate(request.get_json() or {})
@@ -80,7 +82,7 @@ def verify_login(user_service: UserService=Provide[Container.user_service]) -> R
     return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 200
 
 
-@users_bp.post("/forgot-password")#type: ignore
+@users_bp.post("/password/forgot")#type: ignore
 @inject
 def forgot_password(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = ForgotPasswordSchema.model_validate(request.get_json() or {})
@@ -88,7 +90,7 @@ def forgot_password(user_service: UserService=Provide[Container.user_service]) -
     user_service.forgot_password(dto)
     return jsonify({"message": "If the email exist, a reset link has been sent."}), 200
 
-@users_bp.post("/reset-password")#type: ignore
+@users_bp.post("/password/reset")#type: ignore
 @inject
 def reset_password(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = ResetPasswordSchema.model_validate(request.get_json() or {})
@@ -96,7 +98,7 @@ def reset_password(user_service: UserService=Provide[Container.user_service]) ->
     user_service.reset_password(dto)
     return jsonify({"message": "Password has been reset successfully."}), 200
 
-@users_bp.patch("/enable-mfa")#type: ignore
+@users_bp.patch("/mfa/enable")#type: ignore
 @inject
 def enable_mfa(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = EnableMfaSchema.model_validate(request.get_json() or {})
@@ -104,7 +106,7 @@ def enable_mfa(user_service: UserService=Provide[Container.user_service]) -> Res
     result = user_service.enable_mfa(dto)
     return jsonify(to_schema_mfa_setup(result).model_dump(mode="json")), 200
 
-@users_bp.patch("/disable-mfa")#type: ignore
+@users_bp.patch("/mfa/disable")#type: ignore
 @inject
 def disable_mfa(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = DisableMfaSchema.model_validate(request.get_json() or {})
@@ -112,7 +114,7 @@ def disable_mfa(user_service: UserService=Provide[Container.user_service]) -> Re
     result = user_service.disable_mfa(dto)
     return jsonify(to_schema_user(result).model_dump(mode="json")), 200
 
-@users_bp.get("/mfa-qr")#type: ignore
+@users_bp.get("/mfa/qr")#type: ignore
 @inject
 def get_mfa_qrcode(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = UserIDSchema.model_validate(request.args.to_dict(flat=True))

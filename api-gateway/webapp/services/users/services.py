@@ -27,7 +27,7 @@ class UserService:
     def activate_user(self, dto: ActivationUserDTO) -> UserDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
 
-        response = httpx.patch(f"{users_url}/activate", json=dto.__dict__, timeout=5)
+        response = httpx.patch(f"{users_url}/activation", json=dto.__dict__, timeout=5)
 
         if response.status_code != 200:
             raise ValidationException(f"Failed to activate user {response.text}")
@@ -36,7 +36,7 @@ class UserService:
     def resend_activation_code(self, dto: ResendActivationCodeDTO) -> UserDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
 
-        response = httpx.get(f"{users_url}/resend-activation", params=dto.__dict__ , timeout=5)
+        response = httpx.get(f"{users_url}/activation/resend", params=dto.__dict__ , timeout=5)
 
         if response.status_code == 404:
             raise NotFoundException(f"User {dto.identifier} not found")
@@ -48,26 +48,26 @@ class UserService:
 
     def forgot_password(self, dto: ForgotPasswordDTO) -> None:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.post(f"{users_url}/forgot-password", json=dto.__dict__, timeout=5)
+        response = httpx.post(f"{users_url}/password/forgot", json=dto.__dict__, timeout=5)
         if response.status_code != 200:
             raise ValidationException(f"Failed to forgot password {response.text}")
 
     def reset_password(self, dto: ResetPasswordDTO) -> None:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.post(f"{users_url}/reset-password", json=dto.__dict__, timeout=5)
+        response = httpx.post(f"{users_url}/password/reset", json=dto.__dict__, timeout=5)
         if response.status_code != 200:
             raise ValidationException(f"Failed to reset password {response.text}")
 
     def enable_mfa(self, dto: EnableMfaDTO) -> MfaSetupDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.patch(f"{users_url}/enable-mfa", json=dto.__dict__, timeout=5)
+        response = httpx.patch(f"{users_url}/mfa/enable", json=dto.__dict__, timeout=5)
         if response.status_code != 200:
             raise ValidationException(f"Failed to enable MFA {response.text}")
         return MfaSetupDTO(**response.json())
 
     def get_user_by_id(self, dto: UserIdDTO) -> UserDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.get(f"{users_url}/by-id", params=dto.__dict__, timeout=5)
+        response = httpx.get(f"{users_url}/id", params=dto.__dict__, timeout=5)
 
         if response.status_code != 200:
             raise NotFoundException(f"User {dto.user_id} not found")
@@ -75,7 +75,7 @@ class UserService:
 
     def get_user_by_identifier(self, dto: IdentifierDTO) -> UserDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.get(f"{users_url}/by-identifier",params=dto.__dict__ , timeout=5)
+        response = httpx.get(f"{users_url}/identifier",params=dto.__dict__ , timeout=5)
 
         if response.status_code == 404:
             raise NotFoundException(f"User {dto.identifier} not found")
@@ -87,7 +87,7 @@ class UserService:
 
     def disable_mfa(self, dto: DisableMfaDTO) -> UserDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.patch(f"{users_url}/disable-mfa", json=dto.__dict__, timeout=5)
+        response = httpx.patch(f"{users_url}/mfa/disable", json=dto.__dict__, timeout=5)
         if response.status_code != 200:
             raise ValidationException(f"Failed to disable MFA {response.text}")
 
@@ -95,7 +95,7 @@ class UserService:
 
     def get_qr_code(self, dto: GetMfaDTO) -> MfaSetupDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.get(f"{users_url}/mfa-qr", params=dto.__dict__, timeout=5)
+        response = httpx.get(f"{users_url}/mfa/qr", params=dto.__dict__, timeout=5)
         if response.status_code != 200:
             raise ValidationException(f"Failed to get MFA QR code {response.text}")
         return MfaSetupDTO(**response.json())

@@ -22,7 +22,6 @@ from .schemas import (
     ActivationCodeSchema,
     ForgotPasswordSchema,
     ResetPasswordSchema,
-    MfaSetupSchema,
     EnableMfaSchema,
     ResendActivationCodeSchema,
     UserIdSchema,
@@ -34,7 +33,6 @@ from .schemas import (
 from . import users_bp
 
 
-
 @users_bp.post("")
 @inject
 def create_user(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
@@ -43,7 +41,7 @@ def create_user(user_service: UserService=Provide[Container.user_service]) -> Re
     user = user_service.create_user(dto)
     return jsonify(to_schema_user(user).model_dump(mode="json")), 201
 
-@users_bp.get("/by-id")
+@users_bp.get("/id")
 @inject
 def get_user_by_id(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = UserIdSchema.model_validate(request.args.to_dict() or {})
@@ -51,7 +49,7 @@ def get_user_by_id(user_service: UserService=Provide[Container.user_service]) ->
     user = user_service.get_user_by_id(dto)
     return jsonify(to_schema_user(user).model_dump(mode="json")), 200
 
-@users_bp.get("/by-identifier")
+@users_bp.get("/identifier")
 @inject
 def get_user_by_identifier(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = IdentifierSchema.model_validate(request.args.to_dict() or {})
@@ -60,7 +58,7 @@ def get_user_by_identifier(user_service: UserService=Provide[Container.user_serv
     return jsonify(to_schema_user(user).model_dump(mode="json")), 200
 
 
-@users_bp.patch("/activate")
+@users_bp.patch("/activation")
 @inject
 def activate_user(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = ActivationCodeSchema.model_validate(request.get_json() or {})
@@ -68,7 +66,7 @@ def activate_user(user_service: UserService=Provide[Container.user_service]) -> 
     user = user_service.activate_user(dto)
     return jsonify(to_schema_user(user).model_dump(mode="json")), 200
 
-@users_bp.get("/resend-activation")
+@users_bp.get("/activation/resend")
 @inject
 def resend_activation( user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = ResendActivationCodeSchema.model_validate(request.args.to_dict() or {})
@@ -76,7 +74,7 @@ def resend_activation( user_service: UserService=Provide[Container.user_service]
     user = user_service.resend_activation_code(dto)
     return jsonify(to_schema_user(user).model_dump(mode="json")), 200
 
-@users_bp.post("/forgot-password")
+@users_bp.post("/password/forgot")
 @inject
 def forgot_password(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = ForgotPasswordSchema.model_validate(request.get_json() or {})
@@ -84,7 +82,7 @@ def forgot_password(user_service: UserService=Provide[Container.user_service]) -
     user_service.forgot_password(dto)
     return jsonify({"message": "If the email exist, a reset link has been sent."}), 200
 
-@users_bp.post("/reset-password")
+@users_bp.post("/password/reset")
 @inject
 def reset_password(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = ResetPasswordSchema.model_validate(request.get_json() or {})
@@ -92,7 +90,7 @@ def reset_password(user_service: UserService=Provide[Container.user_service]) ->
     user_service.reset_password(dto)
     return jsonify({"message": "Password has been reset successfully."}), 200
 
-@users_bp.patch("/enable-mfa")
+@users_bp.patch("/mfa/enable")
 @inject
 def enable_mfa(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = EnableMfaSchema.model_validate(request.get_json() or {})
@@ -100,7 +98,7 @@ def enable_mfa(user_service: UserService=Provide[Container.user_service]) -> Res
     result = user_service.enable_mfa(dto)
     return jsonify(to_schema_mfa_setup(result).model_dump(mode="json")), 200
 
-@users_bp.patch("/disable-mfa")
+@users_bp.patch("/mfa/disable")
 @inject
 def disable_mfa(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = DisableMfaSchema.model_validate(request.get_json() or {})
@@ -108,7 +106,7 @@ def disable_mfa(user_service: UserService=Provide[Container.user_service]) -> Re
     result = user_service.disable_mfa(dto)
     return jsonify(to_schema_user(result).model_dump(mode="json")), 200
 
-@users_bp.get("/mfa-qr")
+@users_bp.get("/mfa/qr")
 @inject
 def get_mfa_qr_code(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = GetMfaSchema.model_validate(request.args.to_dict() or {})
