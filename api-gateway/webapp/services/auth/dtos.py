@@ -15,3 +15,9 @@ class VerifyMfaDTO:
     user_id: str
     code: str
 
+@dataclass(frozen=True)
+class LoginMfaRequiredDTO:
+    mfa_required: bool
+    user_id: str
+
+
