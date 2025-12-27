@@ -10,7 +10,7 @@ from webapp.api.auth.mappers import to_dto_login, to_schema_token_pair, to_dto_v
 from webapp.api.auth.schemas import LoginSchema, VerifyMfaSchema
 from webapp.services.auth.services import AuthService
 from .import auth_bp
-from ...services.auth.dtos import TokenPairDTO
+from ...services.auth.dtos import TokenPairDTO, LoginMfaRequiredDTO
 
 
 @auth_bp.post("/login")
@@ -20,13 +20,12 @@ def login(auth_service: AuthService=Provide[Container.auth_service]) -> Response
     dto = to_dto_login(payload)
     result = auth_service.login(dto)
 
-    if isinstance(result, dict) and result.get("mfa_required"):
+    if isinstance(result, LoginMfaRequiredDTO) and result.mfa_required:
         return jsonify(result), 200
 
-    token_pair_dto: TokenPairDTO = cast(TokenPairDTO, result)
-    response: Response = jsonify(to_schema_access_token(token_pair_dto).model_dump(mode="json"))
-    set_refresh_cookies(response, token_pair_dto.refresh_token)
-
+    tokens_pair_dto: TokenPairDTO = cast(TokenPairDTO, result)
+    response: Response = jsonify(to_schema_access_token(tokens_pair_dto).model_dump(mode="json"))
+    set_refresh_cookies(response, tokens_pair_dto.refresh_token)
     return response
 
 @auth_bp.post("/mfa/verify")
@@ -54,7 +53,6 @@ def refresh_token(auth_service: AuthService=Provide[Container.auth_service]) -> 
     return response
 
 @auth_bp.post("/logout")
-@inject
 def logout() -> ResponseReturnValue:
     response: Response = jsonify({"Message": "Logged out"})
     unset_jwt_cookies(response)
