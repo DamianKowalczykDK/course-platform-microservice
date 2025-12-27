@@ -66,31 +66,31 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
         user = User.objects.get(username="Jon30")
         user_identifier = user.username
 
-        resp = client.get("/api/users/resend-activation", query_string={"identifier": user_identifier})
+        resp = client.get("/api/users/activation/resend", query_string={"identifier": user_identifier})
         assert resp.status_code == 200
 
         user = User.objects.get(username="Jon30")
         activation_code = user.activation_code
 
-        resp = client.patch("/api/users/activate", json={"code": activation_code})
+        resp = client.patch("/api/users/activation", json={"code": activation_code})
         assert resp.status_code == 200
         data = resp.get_json()
         assert data["is_active"] is True
 
-        resp = client.get("/api/users/by-identifier", query_string={"identifier": user_identifier})
+        resp = client.get("/api/users/identifier", query_string={"identifier": user_identifier})
         assert resp.status_code == 200
 
         data = resp.get_json()
         user_id= data["id"]
 
-        resp = client.get(f"/api/users/by-id", query_string={"user_id": user_id})
+        resp = client.get(f"/api/users/id", query_string={"user_id": user_id})
         assert resp.status_code == 200
 
-        resp = client.post("/api/users/login", json={"identifier": "Jon30", "password": "secret123"})
+        resp = client.post("/api/users/auth/check", json={"identifier": "Jon30", "password": "secret123"})
         assert resp.status_code == 200
 
 
-        resp = client.post("/api/users/forgot-password", json={"identifier": "Jon30"})
+        resp = client.post("/api/users/password/forgot", json={"identifier": "Jon30"})
         assert resp.status_code == 200
         data = resp.get_json()
         assert data["message"] == "If the email exist, a reset link has been sent."
@@ -99,7 +99,7 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
         reset_token = user.reset_password_token
         assert reset_token is not None
 
-        resp = client.post("/api/users/reset-password",
+        resp = client.post("/api/users/password/reset",
                json={
                    "token": reset_token,
                    "new_password": "newpassword123"
@@ -109,16 +109,16 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
         data = resp.get_json()
         assert data["message"] == "Password has been reset successfully."
 
-        resp = client.patch("/api/users/enable-mfa", json={"user_id": str(user.id)})
+        resp = client.patch("/api/users/mfa/enable", json={"user_id": str(user.id)})
         assert resp.status_code == 200
         data = resp.get_json()
         decoded_uri = urllib.parse.unquote(data["provisioning_uri"])
         assert "jon@example.com" in decoded_uri
 
-        resp = client.get("/api/users/mfa-qr", query_string={"user_id": str(user.id)})
+        resp = client.get("/api/users/mfa/qr", query_string={"user_id": str(user.id)})
         assert resp.status_code == 200
 
-        resp = client.patch("/api/users/disable-mfa", json={"user_id": str(user.id)})
+        resp = client.patch("/api/users/mfa/disable", json={"user_id": str(user.id)})
         assert resp.status_code == 200
 
 
