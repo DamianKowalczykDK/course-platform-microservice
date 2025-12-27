@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from .settings import config
 from flask_jwt_extended import JWTManager
 from .api.error_handlers import register_error_handlers
@@ -10,12 +11,27 @@ def create_app() -> Flask:
     app.config.from_object(config['default'])
     config['default'].init_app(app)
 
+    CORS(
+        app,
+        resources={
+            r'/api/*': {
+                'origins': ['http://localhost:3000'],
+                'methods': ['GET', 'POST', 'PATCH', 'OPTIONS'],
+                'allow_headers': ['Content-Type', 'Authorization'],
+            }
+        },
+        supports_credentials=True
+    )
+
     jwt = JWTManager()
 
     jwt.init_app(app)
 
     container = Container()
     container.wire()
+
+
+
 
     register_error_handlers(app)
     app.register_blueprint(api_bp)
