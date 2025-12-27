@@ -73,7 +73,7 @@ def get_user_by_id(user_service: UserService=Provide[Container.user_service]) ->
     read_dto = user_service.get_by_id(dto)
     return jsonify(to_schema_user(read_dto).model_dump(mode="json")), 200
 
-@users_bp.post("/check")#type: ignore
+@users_bp.post("/auth/check")#type: ignore
 @inject
 def verify_login(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = LoginSchema.model_validate(request.get_json() or {})
