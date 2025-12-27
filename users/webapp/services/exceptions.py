@@ -1,6 +1,6 @@
-
 class ApiException(Exception):
     def __init__(self, message: str, status_code: int = 400, error_code: str = "error"):
+        super().__init__(message)
         self.message = message
         self.status_code = status_code
         self.error_code = error_code
@@ -20,4 +20,3 @@ class ConflictException(ApiException):
 class ServerException(ApiException):
     def __init__(self, message: str = "Server error") -> None:
         super().__init__(message, status_code=500, error_code="server_error")
-
