@@ -1,11 +1,15 @@
-import pytest
-from typing import Generator
-from flask import Flask
-from flask.testing import FlaskClient
-from flask.typing import ResponseReturnValue
-
+from webapp.services.exceptions import ServerException
 from webapp import register_error_handlers
+from flask.typing import ResponseReturnValue
+from flask.testing import FlaskClient
+from flask import Flask
+from pydantic import BaseModel
+from typing import Generator
+import pytest
 
+
+class ValidationSchema(BaseModel):
+    age: int
 
 @pytest.fixture()
 def app_with_handlers() -> Generator[Flask, None, None]:
@@ -15,6 +19,16 @@ def app_with_handlers() -> Generator[Flask, None, None]:
     @app.route("/boom")#type: ignore
     def boom() -> ResponseReturnValue:
         raise RuntimeError("BOOM!")
+
+    @app.route("/apiexception")#type: ignore
+    def apiexception() -> ResponseReturnValue:
+        raise ServerException()
+
+    @app.route("/validate")# type: ignore
+    def validate() -> ResponseReturnValue:
+        ValidationSchema.model_validate({"age", "abc"})
+        return {"ok": True}
+
 
     yield app
 
@@ -33,3 +47,16 @@ def test_generic_exception_handler(client: FlaskClient) -> None:
     assert resp.status_code == 500
     data = resp.get_json()
     assert data["message"] == "Unexpected error"
+
+def test_pydantic_exception_handler(client: FlaskClient) -> None:
+    resp = client.get("/validate")
+    assert resp.status_code == 400
+    data = resp.get_json()
+    assert data["message"] == "Validation failed"
+
+
+def test_api_exception_handler(client: FlaskClient) -> None:
+    resp = client.get("/apiexception")
+    assert resp.status_code == 500
+    data = resp.get_json()
+    assert data["message"] == "Server error"
