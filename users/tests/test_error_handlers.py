@@ -1,4 +1,4 @@
-from webapp.services.exceptions import ServerException
+from webapp.services.exceptions import ServerException, ValidationException
 from webapp import register_error_handlers
 from flask.typing import ResponseReturnValue
 from flask.testing import FlaskClient
@@ -7,8 +7,7 @@ from pydantic import BaseModel
 from typing import Generator
 import pytest
 
-
-class ValidationSchema(BaseModel):
+class AgeSchema(BaseModel):
     age: int
 
 @pytest.fixture()
@@ -26,9 +25,8 @@ def app_with_handlers() -> Generator[Flask, None, None]:
 
     @app.route("/validate")# type: ignore
     def validate() -> ResponseReturnValue:
-        ValidationSchema.model_validate({"age", "abc"})
-        return {"ok": True}
-
+        AgeSchema.model_validate({"age": "abc"})
+        raise ValidationException()
 
     yield app
 
