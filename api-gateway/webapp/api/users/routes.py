@@ -111,5 +111,5 @@ def disable_mfa(user_service: UserService=Provide[Container.user_service]) -> Re
 def get_mfa_qr_code(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     payload = GetMfaSchema.model_validate(request.args.to_dict() or {})
     dto = to_dto_mfa_qr(payload)
-    result = user_service.get_qr_code(dto)
+    result = user_service.get_mfa_qr_code(dto)
     return jsonify(to_schema_mfa_setup(result).model_dump(mode="json"), 200)

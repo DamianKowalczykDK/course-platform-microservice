@@ -83,10 +83,11 @@ class UserService:
 
         return UserDTO(**response.json())
 
-    def get_qr_code(self, dto: GetMfaDTO) -> MfaSetupDTO:
+    def get_mfa_qr_code(self, dto: GetMfaDTO) -> MfaSetupDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
 
         response = httpx.get(f"{users_url}/mfa/qr", params=dto.__dict__, timeout=5)
         raise_for_status(response)
 
         return MfaSetupDTO(**response.json())
+
