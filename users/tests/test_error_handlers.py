@@ -26,10 +26,10 @@ def test_not_found_handler(client: FlaskClient) -> None:
     resp = client.get("/nonexistent")
     assert resp.status_code == 404
     data = resp.get_json()
-    assert data["Message"] == "Not Found"
+    assert data["message"] == "The requested resource could not be found"
 
 def test_generic_exception_handler(client: FlaskClient) -> None:
     resp = client.get("/boom")
     assert resp.status_code == 500
     data = resp.get_json()
-    assert "BOOM!" in data
+    assert data["message"] == "Unexpected error"

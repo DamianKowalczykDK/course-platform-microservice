@@ -1,4 +1,3 @@
-
 from urllib.parse import urlparse
 from unittest.mock import patch, MagicMock
 from flask.testing import FlaskClient
