@@ -12,8 +12,10 @@ class Course(db.Model): #type: ignore
     description: Mapped[str] = mapped_column(String(255), nullable=False)
     max_participants: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime(), server_default=func.now(), nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(), server_default=func.now(), onupdate=func.now, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(),  nullable=False)
 
     start_date: Mapped[datetime] = mapped_column(DateTime(), nullable=False)
     end_date: Mapped[datetime] = mapped_column(DateTime(), nullable=False)
@@ -30,7 +32,7 @@ class Course(db.Model): #type: ignore
             end_date: datetime,
             max_participants: int | None = None
     ) -> None:
-        self.updated_at = datetime.now(timezone.utc)
+        # self.updated_at = datetime.now(timezone.utc)
         self.name = name
         self.description = description
         self.start_date = start_date
