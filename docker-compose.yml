@@ -1,5 +1,18 @@
 services:
 
+  courses-webapp:
+    restart: always
+    build:
+      context: ./courses
+      dockerfile: Dockerfile
+    depends_on:
+      mysql-courses:
+        condition: service_healthy
+    volumes:
+      - ./courses:/app
+    networks:
+      - dk-network
+
   users-webapp:
     restart: always
     build:
@@ -32,6 +45,7 @@ services:
     ports:
       - "80:80"
     depends_on:
+      - courses-webapp
       - users-webapp
     networks:
       - dk-network
@@ -56,9 +70,34 @@ services:
     networks:
       - dk-network
 
+  mysql-courses:
+    image: mysql:latest
+    restart: always
+    volumes:
+      - mysql-courses:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_TCP_PORT: ${MYSQL_PORT}
+      TZ: Europe/Warsaw
+    ports:
+      - 3307:3307
+    expose:
+      - 3307
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - dk-network
+
 networks:
   dk-network:
 
 volumes:
+  mysql-courses:
   mongo:
 
