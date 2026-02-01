@@ -19,5 +19,9 @@ def create_app() -> Flask:
     register_error_handlers(app)
     app.register_blueprint(api_bp)
 
+    with app.app_context():
+        app.logger.info("[COURSES ROUTES]")
+        app.logger.info(app.url_map)
+
 
     return app
