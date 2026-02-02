@@ -17,5 +17,7 @@ class CourseRepository(GenericRepository[Course]):
         return db.session.scalars(stmt).first()
 
     def delete_by_id(self, course_id: int) -> None:
-        stmt = select(Course).where(Course.id == course_id)
-        db.session.delete(stmt)
+        course = db.session.get(Course, course_id)
+        if course:
+            db.session.delete(course)
+            db.session.commit()
