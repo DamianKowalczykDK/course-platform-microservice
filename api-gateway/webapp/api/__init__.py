@@ -10,3 +10,7 @@ api_bp.register_blueprint(users_bp)
 
 from .protected import protected_bp
 api_bp.register_blueprint(protected_bp)
+
+from .courses import course_bp
+api_bp.register_blueprint(course_bp)
+
