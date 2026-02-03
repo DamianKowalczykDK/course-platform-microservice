@@ -22,6 +22,7 @@ class Config:
     # JWT_TOKEN_SAMESITE: str = os.getenv('JWT_TOKEN_SAMESITE', "Strict")
 
     USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "http://localhost:5000/api/users")
+    COURSE_SERVICE_URL: str = os.getenv('COURSE_SERVICE_URL', "http://localhost:5000/api/course")
 
     @staticmethod
     def configure_logging(app: Flask) -> None:
