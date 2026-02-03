@@ -2,7 +2,7 @@ from webapp.services.exceptions import ValidationException, ServerException
 from webapp import register_error_handlers
 from pydantic import BaseModel
 from typing import Generator
-from flask import Flask
+from flask import Flask, jsonify
 from flask.testing import FlaskClient
 from flask.typing import ResponseReturnValue
 import pytest
@@ -31,12 +31,12 @@ def app_with_handler() -> Generator[Flask, None, None]:
 
     @app.route('/validate')
     def validate() -> ResponseReturnValue:
-        # AgeTestSchema.model_validate({"age": "bad"})
-        # raise ValidationException()
         try:
             AgeTestSchema.model_validate({"age": "bad"})
         except Exception:
             raise ValidationException("Validation failed")
+        return jsonify({"ok": True}), 200
+
     yield app
 
 @pytest.fixture

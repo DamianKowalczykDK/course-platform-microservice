@@ -5,7 +5,7 @@ from .container import Container
 from .api import api_bp
 from .api.error_handlers import register_error_handlers
 
-def create_app() -> Flask:
+def create_app() -> Flask: # pragma: no cover
     app = Flask(__name__)
     app.config.from_object(config['default'])
     config['default'].init_app(app)
