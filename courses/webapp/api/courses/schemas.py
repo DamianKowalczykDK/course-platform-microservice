@@ -21,7 +21,7 @@ class CourseIdSchema(BaseModel):
     course_id: int
 
 class CourseNameSchema(BaseModel):
-    name: str = Field(min_length=3, max_length=64)
+    name: str = Field(min_length=2, max_length=64)
 
 class UpdateCourseSchema(BaseModel):
     name: str =  Field(min_length=2, max_length=64)

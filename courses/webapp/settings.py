@@ -22,7 +22,7 @@ class Config:
     MYSQL_PORT: str = os.getenv('MYSQL_PORT', '3307')
 
     @property
-    def SQLALCHEMY_DATABASE_URI(self) -> str:
+    def SQLALCHEMY_DATABASE_URI(self) -> str: # pragma: no cover
         return (
             f"{self.MYSQL_DIALECT}://{self.MYSQL_USER}:{quote_plus(self.MYSQL_PASSWORD)}"
             f"@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}?charset=utf8mb4"
@@ -37,7 +37,7 @@ class Config:
     # MAIL_DEFAULT_SENDER: str=os.getenv('MAIL_DEFAULT_SENDER', "")
 
     @staticmethod
-    def configure_logging(app: Flask) -> None:
+    def configure_logging(app: Flask) -> None: # pragma: no cover
         if getattr(app, "_logging_configured", False):
             return
         app._logging_configured = True # type: ignore
@@ -50,13 +50,11 @@ class Config:
         })
 
     @classmethod
-    def init_app(cls, app: Flask) -> None:
+    def init_app(cls, app: Flask) -> None: # pragma: no cover
         cls.configure_logging(app)
         app.logger.debug("Logger initialized")
         conf = cls()
         app.config['SQLALCHEMY_DATABASE_URI'] = conf.SQLALCHEMY_DATABASE_URI
-        # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = cls.SQLALCHEMY_TRACK_MODIFICATIONS
-        # app.config['SQLALCHEMY_ENGINE_OPTIONS'] = cls.SQLALCHEMY_ENGINE_OPTIONS
 
 config: dict[str, type[Config]] = {
     "default": Config,
