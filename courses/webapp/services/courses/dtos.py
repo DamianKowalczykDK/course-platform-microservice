@@ -29,6 +29,7 @@ class CourseNameDTO:
 
 @dataclass(frozen=True)
 class UpdateCourseDTO:
+    id: int
     name: str
     description: str
     start_date: datetime

@@ -1,10 +1,9 @@
-from webapp.extensions import db
-from webapp.database.models.courses import Course
-from webapp.database.repositories.courses import CourseRepository
 from webapp.services.courses.dtos import CreateCourseDTO, ReadCourseDTO, CourseIdDTO, CourseNameDTO, UpdateCourseDTO
-from webapp.services.exceptions import ValidationException, ServerException, ConflictException, ApiException, \
-    NotFoundException
+from webapp.services.exceptions import ConflictException, NotFoundException
 from webapp.services.courses.mappers import to_read_dto
+from webapp.database.repositories.courses import CourseRepository
+from webapp.database.models.courses import Course
+
 
 class CourseService:
     def __init__(self, course_repository: CourseRepository):
@@ -40,7 +39,7 @@ class CourseService:
         return to_read_dto(course)
 
     def update_course(self, dto: UpdateCourseDTO) -> ReadCourseDTO:
-        course = self.course_repository.get_by_name(dto.name)
+        course = self.course_repository.get_by_id(dto.id)
         if not course:
             raise NotFoundException("Course not found")
 

@@ -28,8 +28,9 @@ def to_dto_course_id(schema: CourseIdSchema) -> CourseIdDTO:
 def to_dto_course_name(schema: CourseNameSchema) -> CourseNameDTO:
     return CourseNameDTO(name=schema.name)
 
-def to_dto_update_course(schema: UpdateCourseSchema) -> UpdateCourseDTO:
+def to_dto_update_course(course_id: int, schema: UpdateCourseSchema) -> UpdateCourseDTO:
     return UpdateCourseDTO(
+        course_id,
         name=schema.name,
         description=schema.description,
         max_participants=schema.max_participants,

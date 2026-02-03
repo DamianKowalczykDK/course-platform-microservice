@@ -33,11 +33,11 @@ def get_by_name(course_service: CourseService=Provide[Container.courses_service]
     read_dto = course_service.get_by_name(dto)
     return jsonify(to_schema_course(read_dto).model_dump(mode="json")), 200
 
-@course_bp.patch("/")
+@course_bp.patch("/<int:course_id>")
 @inject
-def update_course(course_service: CourseService=Provide[Container.courses_service]) -> ResponseReturnValue:
+def update_course(course_id: int, course_service: CourseService=Provide[Container.courses_service]) -> ResponseReturnValue:
     payload = UpdateCourseSchema.model_validate(request.get_json() or {})
-    dto = to_dto_update_course(payload)
+    dto = to_dto_update_course(course_id, payload)
     read_dto = course_service.update_course(dto)
     return jsonify(to_schema_course(read_dto).model_dump(mode="json")), 200
 
