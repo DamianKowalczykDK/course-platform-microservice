@@ -18,6 +18,7 @@ def test_get_by_id_when_found_course(session: Session, course: Course) -> None:
     repo = CourseRepository()
     course_a = repo.get_by_id(1)
 
+    assert course_a is not None
     assert course_a.name == "Test"
     assert course_a.description == "test"
 
@@ -25,6 +26,8 @@ def test_get_by_name(session: Session, course: Course) -> None:
     session.add(course)
     repo = CourseRepository()
     course_a = repo.get_by_name("Test")
+
+    assert course_a is not None
     assert course_a.name == "Test"
     assert course_a.id == 1
 

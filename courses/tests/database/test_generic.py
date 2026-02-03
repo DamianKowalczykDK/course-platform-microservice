@@ -12,6 +12,7 @@ def test_generic_add_get_all_delete(session: Session, course: Course) -> None:
     assert course.name is not None
 
     course_a = repo.get(1)
+    assert course_a is not None
     assert course_a.name == "Test"
 
     repo.add_all([course])

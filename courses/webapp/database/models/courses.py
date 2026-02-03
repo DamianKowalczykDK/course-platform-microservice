@@ -32,14 +32,11 @@ class Course(db.Model): #type: ignore
             end_date: datetime,
             max_participants: int | None = None
     ) -> None:
-        # self.updated_at = datetime.now(timezone.utc)
         self.name = name
         self.description = description
         self.start_date = start_date
         self.end_date = end_date
         self.max_participants = max_participants
-
-
 
 
 
