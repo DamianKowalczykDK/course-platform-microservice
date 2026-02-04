@@ -1,3 +1,5 @@
+import urllib.parse
+
 from sqlalchemy import select
 from webapp.database.models.courses import Course
 from webapp.database.repositories.generic import GenericRepository
@@ -13,7 +15,7 @@ class CourseRepository(GenericRepository[Course]):
         return db.session.scalars(stmt).first()
 
     def get_by_name(self, name: str) -> Course | None:
-        stmt = select(Course).where(Course.name == name)
+        stmt = select(Course).where(Course.name.ilike(name))
         return db.session.scalars(stmt).first()
 
     def delete_by_id(self, course_id: int) -> None:
