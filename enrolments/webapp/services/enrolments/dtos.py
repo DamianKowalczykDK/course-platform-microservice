@@ -5,7 +5,6 @@ class CreateEnrolmentDTO:
     user_id: str
     course_id: int
 
-
 class CreateCourseDTO:
     name: str
     description: str
@@ -19,3 +18,7 @@ class ReadEnrolmentDTO:
     user_id: str
     course_id: int
     invoice_url: str | None = None
+
+@dataclass(frozen=True)
+class EnrolmentIdDTO:
+    enrolment_id: int
