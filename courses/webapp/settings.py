@@ -1,6 +1,5 @@
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
-from typing import TypedDict
 from logging.config import dictConfig
 from flask import Flask
 import os
@@ -27,14 +26,6 @@ class Config:
             f"{self.MYSQL_DIALECT}://{self.MYSQL_USER}:{quote_plus(self.MYSQL_PASSWORD)}"
             f"@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}?charset=utf8mb4"
         )
-
-    # MAIL_SERVER: str=os.getenv('MAIL_SERVER', "smtp.gmail.com")
-    # MAIL_PORT: int= int(os.getenv('MAIL_PORT', "587"))
-    # MAIL_USE_TLS: bool=os.getenv('MAIL_USE_TLS', "True") in ("1", "true", "True")
-    # MAIL_USE_SSL: bool=os.getenv('MAIL_USE_SSL', "False") in ("1", "true", "True")
-    # MAIL_USERNAME: str=os.getenv('MAIL_USERNAME', "")
-    # MAIL_PASSWORD: str=os.getenv('MAIL_PASSWORD', "")
-    # MAIL_DEFAULT_SENDER: str=os.getenv('MAIL_DEFAULT_SENDER', "")
 
     @staticmethod
     def configure_logging(app: Flask) -> None: # pragma: no cover
