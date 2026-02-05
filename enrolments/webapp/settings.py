@@ -11,13 +11,13 @@ class Config:
     FLASK_ENV:str = os.getenv('FLASK_ENV', "development")
     FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
 
-    MYSQL_DIALECT: str = os.getenv('MYSQL_DIALECT', 'mysql+mysqldb')
-    MYSQL_HOST: str = os.getenv('MYSQL_HOST', 'mysql-enrolments')
-    MYSQL_DATABASE: str = os.getenv('MYSQL_DATABASE', 'db_enrolments')
-    MYSQL_USER: str = os.getenv('MYSQL_USER', '')
-    MYSQL_PASSWORD: str = os.getenv('MYSQL_PASSWORD', '')
-    MYSQL_ROOT_PASSWORD: str = os.getenv('MYSQL_ROOT_PASSWORD', '')
-    MYSQL_PORT: str = os.getenv('MYSQL_PORT', '3308')
+    MYSQL_DIALECT: str = os.getenv('MYSQL_ENROLMENT_DIALECT', 'mysql+mysqldb')
+    MYSQL_HOST: str = os.getenv('MYSQL_ENROLMENT_HOST', 'mysql-enrolments')
+    MYSQL_DATABASE: str = os.getenv('MYSQL_ENROLMENT_DATABASE', 'db_enrolments')
+    MYSQL_USER: str = os.getenv('MYSQL_ENROLMENT_USER', '')
+    MYSQL_PASSWORD: str = os.getenv('MYSQL_ENROLMENT_PASSWORD', '')
+    MYSQL_ROOT_PASSWORD: str = os.getenv('MYSQL_ENROLMENT_ROOT_PASSWORD', '')
+    MYSQL_PORT: str = os.getenv('MYSQL_ENROLMENT_PORT', '3308')
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str: # pragma: no cover
@@ -33,6 +33,9 @@ class Config:
     MAIL_USERNAME: str=os.getenv('MAIL_USERNAME', "")
     MAIL_PASSWORD: str=os.getenv('MAIL_PASSWORD', "")
     MAIL_DEFAULT_SENDER: str=os.getenv('MAIL_DEFAULT_SENDER', "")
+
+    USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "http://localhost:5000/api/users")
+    COURSE_SERVICE_URL: str = os.getenv('COURSE_SERVICE_URL', "http://localhost:5000/api/course")
 
     @staticmethod
     def configure_logging(app: Flask) -> None: # pragma: no cover
