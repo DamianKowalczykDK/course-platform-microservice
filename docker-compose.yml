@@ -58,10 +58,10 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - api-gateway-webapp
-      - enrolments-webapp
-      - courses-webapp
       - users-webapp
+      - courses-webapp
+      - enrolments-webapp
+      - api-gateway-webapp
     networks:
       - dk-network
 
@@ -91,11 +91,11 @@ services:
     volumes:
       - mysql-enrolments:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_TCP_PORT: ${MYSQL_PORT}
+      MYSQL_DATABASE: ${MYSQL_ENROLMENT_DATABASE}
+      MYSQL_USER: ${MYSQL_ENROLMENT_USER}
+      MYSQL_PASSWORD: ${MYSQL_ENROLMENT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ENROLMENT_ROOT_PASSWORD}
+      MYSQL_TCP_PORT: ${MYSQL_ENROLMENT_PORT}
       TZ: Europe/Warsaw
     ports:
       - 3308:3308
@@ -117,6 +117,7 @@ services:
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
+      MYSQL_ROOT: ${MYSQL_ROOT}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_TCP_PORT: ${MYSQL_PORT}
