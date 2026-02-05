@@ -11,3 +11,7 @@ class EnrolmentRepository(GenericRepository[Enrolment]):
         stmt = select(Enrolment).where(and_(Enrolment.course_id == course_id, Enrolment.user_id == user_id))
         return db.session.scalars(stmt).first()
 
+    def get_by_id(self, enrolment_id: int) -> Enrolment | None:
+        stmt = select(Enrolment).where(Enrolment.id == enrolment_id)
+        return db.session.scalars(stmt).first()
+
