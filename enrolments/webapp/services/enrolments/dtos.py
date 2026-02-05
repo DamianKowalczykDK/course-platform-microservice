@@ -1,0 +1,21 @@
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class CreateEnrolmentDTO:
+    user_id: str
+    course_id: int
+
+
+class CreateCourseDTO:
+    name: str
+    description: str
+    start_date: str
+    end_date: str
+    max_participants: int | None = None
+
+@dataclass(frozen=True)
+class ReadEnrolmentDTO:
+    id: int
+    user_id: str
+    course_id: int
+    invoice_url: str | None = None
