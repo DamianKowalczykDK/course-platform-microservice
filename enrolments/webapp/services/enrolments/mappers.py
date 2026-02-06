@@ -6,5 +6,6 @@ def to_read_dto(model: Enrolment) -> ReadEnrolmentDTO:
         id=model.id,
         course_id=model.course_id,
         user_id=model.user_id,
+        payment_status=model.payment_status,
         invoice_url=model.invoice_url,
     )

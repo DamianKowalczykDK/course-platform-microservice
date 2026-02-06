@@ -9,7 +9,13 @@ def to_create_enrolment_dto(schema: CreateEnrolmentSchema) -> CreateEnrolmentDTO
     )
 
 def to_enrolment_response_schema(dto: ReadEnrolmentDTO) -> EnrolmentResponseSchema:
-    return EnrolmentResponseSchema(id=dto.id ,course_id=dto.course_id, user_id=dto.user_id, invoice_url=dto.invoice_url)
+    return EnrolmentResponseSchema(
+        id=dto.id,
+        course_id=dto.course_id,
+        user_id=dto.user_id,
+        payment_status=dto.payment_status,
+        invoice_url=dto.invoice_url
+    )
 
 def to_enrolment_id_dto(schema: EnrolmentIdSchema) -> EnrolmentIdDTO:
     return EnrolmentIdDTO(enrolment_id=schema.enrolment_id)

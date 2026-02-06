@@ -1,4 +1,6 @@
+from webapp.database.models.enrolments import PaymentStatus
 from dataclasses import dataclass
+
 
 @dataclass(frozen=True)
 class CreateEnrolmentDTO:
@@ -17,7 +19,9 @@ class ReadEnrolmentDTO:
     id: int
     user_id: str
     course_id: int
+    payment_status: PaymentStatus
     invoice_url: str | None = None
+
 
 @dataclass(frozen=True)
 class EnrolmentIdDTO:
