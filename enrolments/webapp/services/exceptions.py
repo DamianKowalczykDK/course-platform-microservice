@@ -17,6 +17,6 @@ class ConflictException(ApiException):
     def __init__(self, message: str = "Conflict") -> None:
         super().__init__(message, status_code=409, error_code='conflict')
 
-class ServerException(ApiException):
-    def __init__(self, message: str = "Server error") -> None:
-        super().__init__(message, status_code=500, error_code="server_error")
+class ServiceException(ApiException):
+    def __init__(self, message: str = "Service error") -> None:
+        super().__init__(message, status_code=500, error_code="service_error")
