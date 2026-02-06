@@ -5,7 +5,7 @@ from flask import current_app
 from webapp.services.email_service import EmailService
 from webapp.services.enrolments.dtos import CreateEnrolmentDTO, ReadEnrolmentDTO, EnrolmentIdDTO
 from webapp.services.enrolments.mappers import to_read_dto
-from webapp.services.exceptions import ValidationException, NotFoundException, ConflictException, ServerException
+from webapp.services.exceptions import ValidationException, NotFoundException, ConflictException, ServiceException
 from webapp.extensions import db
 import httpx
 
@@ -15,7 +15,7 @@ class EnrolmentService:
         self.email_service = email_service
 
 
-    def create_course_for_user(self, dto: CreateEnrolmentDTO) -> ReadEnrolmentDTO:
+    def create_enrolment_for_user(self, dto: CreateEnrolmentDTO) -> ReadEnrolmentDTO:
         course_url = current_app.config["COURSE_SERVICE_URL"]
         users_url = current_app.config["USERS_SERVICE_URL"]
 
@@ -50,9 +50,11 @@ class EnrolmentService:
 
 
         except httpx.RequestError as e:
-            raise ServerException(f"HTTP Request Error: {e}")
+            raise ServiceException(f"HTTP Request Error: {e}")
+        except (ValidationException, NotFoundException, ConflictException):
+            raise
         except Exception as e:
-            raise ServerException(f"Unknown Server Error: {e}")
+            raise ServiceException(f"Unknown Server Error: {e}")
 
     def set_paid(self, dto: EnrolmentIdDTO) -> ReadEnrolmentDTO:
         enrolment = self.repo.get_by_id(dto.enrolment_id)
