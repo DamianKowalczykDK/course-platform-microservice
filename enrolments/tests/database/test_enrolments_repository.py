@@ -23,3 +23,18 @@ def test_get_by_user_and_course_success(session: Session, enrolment: Enrolment) 
     assert result.user_id == "123"
     assert result.__repr__() == "Enrolment(id=1, course_id=1)"
 
+def test_get_by_active(session: Session, enrolment: Enrolment) -> None:
+    session.add(enrolment)
+    repo = EnrolmentRepository()
+    result = repo.get_active()
+    assert result is not None
+
+    enrolment_a = result[0]
+    assert enrolment_a.user_id == "123"
+
+
+
+
+
+
+
