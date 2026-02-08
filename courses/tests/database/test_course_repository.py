@@ -46,6 +46,7 @@ def test_update(session: Session, course: Course) -> None:
     course.update(
         name="Test1",
         description="test",
+        price=100,
         start_date=datetime(2026, 1, 1),
         end_date=datetime(2026, 1, 2),
     )

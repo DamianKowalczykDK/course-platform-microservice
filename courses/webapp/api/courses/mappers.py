@@ -7,6 +7,7 @@ def to_dto_create(schema: CreateCourseSchema) -> CreateCourseDTO:
     return CreateCourseDTO(
         name=schema.name,
         description=schema.description,
+        price=schema.price,
         max_participants=schema.max_participants,
         start_date=schema.start_date,
         end_date=schema.end_date,
@@ -17,6 +18,7 @@ def to_schema_course(dto: ReadCourseDTO) -> CourseResponseSchema:
         id=dto.id,
         name=dto.name,
         description=dto.description,
+        price=dto.price,
         max_participants=dto.max_participants,
         start_date=dto.start_date,
         end_date=dto.end_date
@@ -33,6 +35,7 @@ def to_dto_update_course(course_id: int, schema: UpdateCourseSchema) -> UpdateCo
         course_id,
         name=schema.name,
         description=schema.description,
+        price=schema.price,
         max_participants=schema.max_participants,
         start_date=schema.start_date,
         end_date=schema.end_date,

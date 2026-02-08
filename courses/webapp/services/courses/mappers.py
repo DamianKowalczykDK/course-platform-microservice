@@ -6,6 +6,7 @@ def to_read_dto(model: Course) -> ReadCourseDTO:
         id=model.id,
         name=model.name,
         description=str(model.description),
+        price=model.price,
         max_participants=model.max_participants,
         start_date=model.start_date,
         end_date=model.end_date

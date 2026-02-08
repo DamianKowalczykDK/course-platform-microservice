@@ -28,6 +28,7 @@ def test_create_course(mock_course_repository: MagicMock, course_service: Course
     dto = CreateCourseDTO(
         name="Test",
         description="test",
+        price=100,
         start_date=datetime(2026, 1, 1),
         end_date=datetime(2026, 1, 2)
     )
@@ -43,6 +44,7 @@ def test_create_course_if_already_exists(mock_course_repository: MagicMock, cour
     dto = CreateCourseDTO(
         name="Test",
         description="test",
+        price=100,
         start_date=datetime(2026, 1, 1),
         end_date=datetime(2026, 1, 2)
     )
@@ -56,6 +58,7 @@ def test_get_by_id(mock_course_repository: MagicMock, course_service: CourseServ
         id=1,
         name="Test",
         description="test",
+        price=100,
         start_date=datetime(2026, 1, 1),
         end_date=datetime(2026, 1, 2)
     )
@@ -78,6 +81,7 @@ def test_get_by_name(mock_course_repository: MagicMock, course_service: CourseSe
         id=1,
         name="Test",
         description="test",
+        price=100,
         start_date=datetime(2026, 1, 1),
         end_date=datetime(2026, 1, 2)
     )
@@ -97,6 +101,7 @@ def test_update_course(mock_course_repository: MagicMock, course_service: Course
     course = Course(
         name="Test",
         description="test",
+        price=100,
         start_date=datetime(2026, 1, 1),
         end_date=datetime(2026, 1, 2),
         )
@@ -105,6 +110,7 @@ def test_update_course(mock_course_repository: MagicMock, course_service: Course
         id=1,
         name="Test",
         description="test1",
+        price=100,
         start_date=datetime(2026, 1, 1),
         end_date=datetime(2026, 1, 2)
     )
@@ -119,6 +125,7 @@ def test_update_if_not_found(mock_course_repository: MagicMock, course_service: 
             id=1,
             name="Test",
             description="test1",
+            price=100,
             start_date=datetime(2026, 1, 1),
             end_date=datetime(2026, 1, 2)
         )
@@ -130,6 +137,7 @@ def test_delete_by_id(mock_course_repository: MagicMock, course_service: CourseS
         id=1,
         name="Test",
         description="test",
+        price=100,
         start_date=datetime(2026, 1, 1),
         end_date=datetime(2026, 1, 2)
     )

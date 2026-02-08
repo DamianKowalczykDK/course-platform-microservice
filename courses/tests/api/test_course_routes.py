@@ -6,7 +6,8 @@ def test_create_order(client: FlaskClient) -> None:
         'name': 'Test',
         'description': 'test',
         'start_date': '2026-10-10',
-        'end_date': '2026-10-10'
+        'end_date': '2026-10-10',
+        'price': 100
     })
     assert resp.status_code == 201
 
@@ -15,7 +16,8 @@ def test_get_by_id(client: FlaskClient) -> None:
         'name': 'Test',
         'description': 'test',
         'start_date': '2026-10-10',
-        'end_date': '2026-10-10'
+        'end_date': '2026-10-10',
+        'price': 100
     })
 
     resp2 = client.get('/api/course/1', json={"course_id": 1})
@@ -26,7 +28,8 @@ def test_get_by_name(client: FlaskClient) -> None:
         'name': 'Test',
         'description': 'test',
         'start_date': '2026-10-10',
-        'end_date': '2026-10-10'
+        'end_date': '2026-10-10',
+        'price': 100
     })
 
     resp = client.get('/api/course/?name=Test', json={'name': 'Test'})
@@ -37,13 +40,15 @@ def test_update_course_and_delete(client: FlaskClient) -> None:
         'name': 'Test',
         'description': 'test',
         'start_date': '2026-10-10',
-        'end_date': '2026-10-10'
+        'end_date': '2026-10-10',
+        'price': 100
     })
     resp = client.patch('/api/course/1', json={
         'name': 'Test',
         'description': 'update test',
         'start_date': '2026-10-10',
-        'end_date': '2026-10-10'
+        'end_date': '2026-10-10',
+        'price': 100
     })
     assert resp.status_code == 200
 

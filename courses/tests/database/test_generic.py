@@ -1,8 +1,7 @@
-from sqlalchemy.orm import Session
-
-from webapp.database.models.courses import Course
-from webapp.database.repositories.courses import CourseRepository
 from webapp.database.repositories.generic import GenericRepository
+from webapp.database.repositories.courses import CourseRepository
+from webapp.database.models.courses import Course
+from sqlalchemy.orm import Session
 import pytest
 
 def test_generic_add_get_all_delete(session: Session, course: Course) -> None:

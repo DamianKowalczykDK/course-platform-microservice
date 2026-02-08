@@ -63,4 +63,5 @@ def course() -> Course:
         description="test",
         start_date=datetime.date(2026, 1, 1),
         end_date=datetime.date(2026, 1, 10),
+        price=100
     )

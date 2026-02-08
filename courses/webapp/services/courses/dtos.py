@@ -6,6 +6,7 @@ from datetime import datetime
 class CreateCourseDTO:
     name: str
     description: str
+    price: float
     start_date: datetime
     end_date: datetime
     max_participants: int | None = None
@@ -15,6 +16,7 @@ class ReadCourseDTO:
     id: int
     name: str
     description: str
+    price: float
     start_date: datetime
     end_date: datetime
     max_participants: int | None = None
@@ -32,6 +34,7 @@ class UpdateCourseDTO:
     id: int
     name: str
     description: str
+    price: float
     start_date: datetime
     end_date: datetime
     max_participants: int | None = None
