@@ -13,6 +13,7 @@ def to_enrolment_response_schema(dto: ReadEnrolmentDTO) -> EnrolmentResponseSche
         id=dto.id,
         course_id=dto.course_id,
         user_id=dto.user_id,
+        status=dto.status,
         payment_status=dto.payment_status,
         invoice_url=dto.invoice_url
     )

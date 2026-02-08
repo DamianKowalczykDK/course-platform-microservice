@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from webapp.database.models.enrolments import PaymentStatus
+from webapp.database.models.enrolments import PaymentStatus, Status
 
 
 class CreateEnrolmentSchema(BaseModel):
@@ -11,6 +11,7 @@ class EnrolmentResponseSchema(BaseModel):
     id: int
     course_id: int
     user_id: str
+    status: Status
     payment_status: PaymentStatus
     invoice_url: str | None = None
 

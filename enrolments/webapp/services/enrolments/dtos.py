@@ -1,4 +1,4 @@
-from webapp.database.models.enrolments import PaymentStatus
+from webapp.database.models.enrolments import PaymentStatus, Status
 from dataclasses import dataclass
 
 
@@ -19,6 +19,7 @@ class ReadEnrolmentDTO:
     id: int
     user_id: str
     course_id: int
+    status: Status
     payment_status: PaymentStatus
     invoice_url: str | None = None
 
