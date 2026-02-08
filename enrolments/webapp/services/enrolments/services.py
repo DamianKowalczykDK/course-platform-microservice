@@ -1,7 +1,7 @@
 from webapp.database.models.enrolments import Enrolment, PaymentStatus, Status
 from webapp.database.repositories.enrolments import EnrolmentRepository
 from flask import current_app
-
+from datetime import datetime, timezone
 from webapp.services.email_service import EmailService
 from webapp.services.enrolments.dtos import CreateEnrolmentDTO, ReadEnrolmentDTO, EnrolmentIdDTO
 from webapp.services.enrolments.mappers import to_read_dto
@@ -82,6 +82,31 @@ class EnrolmentService:
 
         return to_read_dto(enrolment)
 
+
+    def expired_courses(self) -> list[ReadEnrolmentDTO]:
+        course_url = current_app.config["COURSE_SERVICE_URL"]
+        active_enrolments = self.repo.get_active()
+
+        enrolments_completed = []
+
+        for enrolment in active_enrolments:
+            course_resp = httpx.get(f"{course_url}/{enrolment.course_id}", timeout=5)
+            if course_resp.status_code != 200:
+                continue
+
+            course_data = course_resp.json()
+            course_end_date = course_data["end_date"]
+            end_date = datetime.fromisoformat(course_end_date).replace(tzinfo=timezone.utc)
+
+            now_utc = datetime.now(timezone.utc)
+            if end_date < now_utc:
+                enrolment.status = Status.COMPLETED
+                enrolments_completed.append(enrolment)
+                db.session.commit()
+
+        return [to_read_dto(e) for e in enrolments_completed]
+
+
     def get_by_id(self, dto: EnrolmentIdDTO) -> ReadEnrolmentDTO:
         enrolment = self.repo.get_by_id(dto.enrolment_id)
 
@@ -89,3 +114,10 @@ class EnrolmentService:
             raise NotFoundException(f"Enrolment not found")
 
         return to_read_dto(enrolment)
+
+    def get_active(self) -> list[ReadEnrolmentDTO]:
+         enrolments = self.repo.get_active()
+
+         if not enrolments:
+            raise NotFoundException(f"Enrolments not found")
+         return [to_read_dto(e) for e in enrolments]
