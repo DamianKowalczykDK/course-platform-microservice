@@ -30,3 +30,10 @@ def get_by_id(enrolment_id: int, enrolment_service: EnrolmentService= Provide[Co
     dto =  to_enrolment_id_dto(payload)
     read_dto = enrolment_service.get_by_id(dto)
     return jsonify(to_enrolment_response_schema(read_dto).model_dump(mode="json")), 200
+
+@enrolment_bp.patch("/expired")
+@inject
+def expired_courses(enrolment_service: EnrolmentService=Provide[Container.enrolment_service]) -> ResponseReturnValue:
+    updated_enrolments = enrolment_service.expired_courses()
+    return jsonify([to_enrolment_response_schema(e).model_dump(mode="json") for e in updated_enrolments]), 200
+
