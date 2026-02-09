@@ -20,3 +20,7 @@ class ConflictException(ApiException):
 class ServiceException(ApiException):
     def __init__(self, message: str = "Service error") -> None:
         super().__init__(message, status_code=500, error_code="service_error")
+
+class InvoiceCreationException(ApiException):
+    def __init__(self, message: str = "Service error") -> None:
+        super().__init__(message, status_code=422, error_code="service_error")

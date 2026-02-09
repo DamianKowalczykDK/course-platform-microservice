@@ -1,3 +1,4 @@
+from webapp.services.exceptions import InvoiceCreationException
 from webapp.services.invoices.dtos import InvoiceDTO
 from flask import  current_app
 import datetime
@@ -36,7 +37,7 @@ class InvoiceService:
 
         response.raise_for_status()
         if response.status_code == 422:
-            raise ValueError(f"Invoice could not be created: {response.text}")
+            raise InvoiceCreationException("Invoice creation failed")
 
         result = response.json()
         invoice_url = result.get("view_url", "N/A")
