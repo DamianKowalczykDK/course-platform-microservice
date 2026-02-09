@@ -104,10 +104,10 @@ class EnrolmentService:
         )
 
         invoice_url = self.invoice_service.create_invoice(invoice_data)
-
+        enrolment.invoice_url = invoice_url
 
         html = f"<html><body>Your course has been paid, your invoice:\n {invoice_url}</body></html>"
-        self.email_service.send_email(to=user_email, subject=f"Thank you for paying your invoice: {invoice_url}", html=html)
+        self.email_service.send_email(to=user_email, subject=f"Thank you for paying", html=html)
 
         return to_read_dto(enrolment)
 
