@@ -4,6 +4,7 @@ from dataclasses import dataclass
 class CreateCourseDTO:
     name: str
     description: str
+    price: float
     start_date: str
     end_date: str
     max_participants: int | None = None
@@ -12,6 +13,7 @@ class CreateCourseDTO:
 class CourseDTO:
     id: int
     name: str
+    price: float
     description: str
     start_date: str
     end_date: str
@@ -30,6 +32,7 @@ class UpdateCourseDTO:
     id: int
     name: str
     description: str
+    price: float
     start_date: str
     end_date: str
     max_participants: int | None = None

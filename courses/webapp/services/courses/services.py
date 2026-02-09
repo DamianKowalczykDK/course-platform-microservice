@@ -47,7 +47,7 @@ class CourseService:
         course.update(
             name=dto.name,
             description=dto.description,
-            price=100,
+            price=dto.price,
             max_participants=dto.max_participants,
             start_date=dto.start_date,
             end_date=dto.end_date
