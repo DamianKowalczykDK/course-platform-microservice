@@ -37,6 +37,9 @@ class Config:
     USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "http://localhost:5000/api/users")
     COURSE_SERVICE_URL: str = os.getenv('COURSE_SERVICE_URL', "http://localhost:5000/api/course")
 
+    INVOICE_API_TOKEN: str = os.getenv('INVOICE_API_TOKEN', "")
+    INVOICE_DOMAIN: str = os.getenv('INVOICE_DOMAIN', "")
+
     @staticmethod
     def configure_logging(app: Flask) -> None: # pragma: no cover
         if getattr(app, "_logging_configured", False):
