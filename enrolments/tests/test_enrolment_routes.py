@@ -1,5 +1,5 @@
 from webapp.services.enrolments.dtos import ReadEnrolmentDTO, CreateEnrolmentDTO, EnrolmentIdDTO
-from webapp.database.models.enrolments import PaymentStatus
+from webapp.database.models.enrolments import PaymentStatus, Status
 from webapp.services.exceptions import ServiceException
 from webapp.api import api_bp
 from webapp.container import Container
@@ -37,6 +37,7 @@ def test_create_enrolment_success(client: FlaskClient, mock_service: MagicMock) 
         user_id="123",
         course_id=1,
         invoice_url="https://invoice.example.com/555",
+        status=Status.ACTIVE,
         payment_status=PaymentStatus.PENDING
     )
     create_enrolment = CreateEnrolmentDTO(
@@ -59,12 +60,14 @@ def test_create_enrolment_service_exception(client: FlaskClient, mock_service: M
     response = client.post("/api/enrolment/", json=create_enrolment)
     assert response.status_code == 500
 
+
 def test_get_by_id_success(client: FlaskClient, mock_service: MagicMock) -> None:
     fake_enrolment_dto = ReadEnrolmentDTO(
         id=1,
         user_id="123",
         course_id=1,
         invoice_url="https://invoice.example.com/555",
+        status=Status.ACTIVE,
         payment_status=PaymentStatus.PENDING
     )
     create_enrolment = CreateEnrolmentDTO(
@@ -75,6 +78,9 @@ def test_get_by_id_success(client: FlaskClient, mock_service: MagicMock) -> None
     mock_service.get_by_id.return_value = fake_enrolment_dto
     response = client.get("/api/enrolment/1", json=create_enrolment)
     assert response.status_code == 200
+    data = response.get_json()
+    assert data["id"] == 1
+
 
 
 def test_set_paid(client: FlaskClient, mock_service: MagicMock) -> None:
@@ -83,7 +89,8 @@ def test_set_paid(client: FlaskClient, mock_service: MagicMock) -> None:
         user_id="123",
         course_id=1,
         invoice_url="https://invoice.example.com/555",
-        payment_status=PaymentStatus.PENDING
+        status=Status.ACTIVE,
+        payment_status=PaymentStatus.PAID
     )
     enrolment_id = EnrolmentIdDTO(
         enrolment_id=1,
@@ -92,3 +99,24 @@ def test_set_paid(client: FlaskClient, mock_service: MagicMock) -> None:
     mock_service.set_paid.return_value = fake_enrolment_dto
     response = client.patch("/api/enrolment/paid", json=enrolment_id)
     assert response.status_code == 200
+    data = response.get_json()
+    assert data["payment_status"] == PaymentStatus.PAID.value
+
+
+def test_expired_courses(client: FlaskClient, mock_service: MagicMock) -> None:
+    fake_enrolment_dto = ReadEnrolmentDTO(
+        id=1,
+        user_id="123",
+        course_id=1,
+        invoice_url="https://invoice.example.com/555",
+        status=Status.COMPLETED,
+        payment_status=PaymentStatus.PENDING)
+
+    mock_service.expired_courses.return_value = [fake_enrolment_dto]
+    response = client.patch("/api/enrolment/expired")
+    assert response.status_code == 200
+
+    data = response.get_json()
+    assert data[0]["status"] == Status.COMPLETED.value
+
+
