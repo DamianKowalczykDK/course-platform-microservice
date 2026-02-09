@@ -1,7 +1,7 @@
 from webapp.services.exceptions import ValidationException, ServiceException, NotFoundException, ConflictException
-from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentIdDTO
+from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentIdDTO, ReadEnrolmentDTO
 from webapp.services.enrolments.services import EnrolmentService
-from webapp.database.models.enrolments import PaymentStatus
+from webapp.database.models.enrolments import PaymentStatus, Status, Enrolment
 from unittest.mock import MagicMock, patch
 from typing import Generator
 from flask import Flask
@@ -27,9 +27,15 @@ def email_service() -> MagicMock:
     return MagicMock()
 
 @pytest.fixture
-def service(repo: MagicMock, email_service: MagicMock) -> EnrolmentService:
-    service = EnrolmentService(repo, email_service)
+def invoice_service() -> MagicMock:
+    return MagicMock()
+
+
+@pytest.fixture
+def service(repo: MagicMock, email_service: MagicMock, invoice_service: MagicMock) -> EnrolmentService:
+    service = EnrolmentService(repo, email_service, invoice_service)
     return service
+
 
 @pytest.fixture
 def dto() -> CreateEnrolmentDTO:
@@ -44,11 +50,12 @@ def course_resp() -> MagicMock:
     return MagicMock()
 
 @pytest.fixture
-def fake_enrolment() -> MagicMock:
+def enrolment() -> Enrolment:
     enrolment = MagicMock()
     enrolment.id = 1
     enrolment.user_id = "123"
     enrolment.course_id = 1
+    enrolment.status = Status.ACTIVE
     enrolment.payment_status = PaymentStatus.PENDING
     return enrolment
 
@@ -148,12 +155,13 @@ def test_set_paid(
         app: Flask,
         repo: MagicMock,
         service: EnrolmentService,
-        fake_enrolment: MagicMock,
+        enrolment: MagicMock,
 ) -> None:
-    repo.get_by_id.return_value = fake_enrolment
+    repo.get_by_id.return_value = enrolment
 
     mock_get.return_value.status_code = 200
-    mock_get.return_value.json.return_value = {"email": "test@example.com"}
+    mock_get.return_value.json.return_value = {"email": "test@example.com", "first_name": "Jan",
+    "last_name": "Kowalski", "name": "Python", "price": 1000}
 
     _ = service.email_service.send_email
 
@@ -181,11 +189,11 @@ def test_set_paid_conflict_exception(
         app: Flask,
         repo: MagicMock,
         service: EnrolmentService,
-        fake_enrolment: MagicMock,
+        enrolment: MagicMock,
 ) -> None:
 
-    fake_enrolment.payment_status = PaymentStatus.PAID
-    repo.get_by_id.return_value = fake_enrolment
+    enrolment.payment_status = PaymentStatus.PAID
+    repo.get_by_id.return_value = enrolment
 
     mock_get.return_value.status_code = 409
 
@@ -201,10 +209,10 @@ def test_set_paid_validation_exception(
         app: Flask,
         repo: MagicMock,
         service: EnrolmentService,
-        fake_enrolment: MagicMock,
+        enrolment: MagicMock,
 ) -> None:
 
-    repo.get_by_id.return_value = fake_enrolment
+    repo.get_by_id.return_value = enrolment
     mock_get.return_value.status_code = 400
 
     with pytest.raises(ValidationException, match="User not found"):
@@ -213,11 +221,70 @@ def test_set_paid_validation_exception(
 
     repo.get_by_id.assert_called_once()
 
+@patch('webapp.services.enrolments.services.httpx.get')
+def test_set_paid_validation_exception_not_found_course(
+        mock_get: MagicMock,
+        user_resp: MagicMock,
+        course_resp: MagicMock,
+        app: Flask,
+        repo: MagicMock,
+        service: EnrolmentService,
+        enrolment: MagicMock,
+) -> None:
+    repo.get_by_id.return_value = enrolment
+    user_resp.status_code = 200
+    user_resp.json.return_value = {
+        "user_id": "123"
+    }
 
-def test_get_by_id(repo: MagicMock,service: EnrolmentService) -> None:
-    fake_enrolment =MagicMock()
-    service.get_by_id(fake_enrolment)
-    assert fake_enrolment is not None
+    course_resp.status_code = 400
+    mock_get.side_effect = [user_resp, course_resp]
+
+    dto = EnrolmentIdDTO(enrolment_id=1)
+    with pytest.raises(ValidationException, match=f"Course {dto.enrolment_id} not found"):
+        service.set_paid(dto)
+
+    repo.get_by_id.assert_called_once()
+
+@patch('webapp.services.enrolments.services.httpx.get')
+def test_expired_courses(
+        mock_get: MagicMock,
+        app: Flask,
+        repo: MagicMock,
+        service: EnrolmentService,
+        enrolment: MagicMock
+) -> None:
+    repo.get_active.return_value = [enrolment]
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = {"end_date": "2022-01-01"}
+
+    result = service.expired_courses()
+    assert result[0].status.value == Status.COMPLETED.value
+
+
+@patch('webapp.services.enrolments.services.httpx.get')
+def test_expired_courses_skip_when_course_response_is_not_200(
+        mock_get: MagicMock,
+        app: Flask,
+        repo: MagicMock,
+        service: EnrolmentService,
+        enrolment: MagicMock
+) -> None:
+    repo.get_active.return_value = [enrolment]
+    mock_get.return_value.status_code = 500
+    mock_get.return_value.json.return_value = {"end_date": "2022-01-01"}
+
+    result = service.expired_courses()
+    assert len(result) == 0
+
+
+def test_get_by_id(repo: MagicMock,service: EnrolmentService, enrolment: Enrolment) -> None:
+
+    repo.get_by_id.return_value = enrolment
+
+    result = service.get_by_id(enrolment)
+    assert result is not None
+    assert result.user_id == "123"
     repo.get_by_id.assert_called_once()
 
 def test_get_by_id_if_not_found_enrolment(repo: MagicMock,service: EnrolmentService) -> None:
@@ -226,3 +293,20 @@ def test_get_by_id_if_not_found_enrolment(repo: MagicMock,service: EnrolmentServ
     with pytest.raises(NotFoundException, match="Enrolment not found"):
         service.get_by_id(enrolment_id)
     repo.get_by_id.assert_called_once()
+
+def test_get_active(repo: MagicMock, service: EnrolmentService, enrolment: Enrolment) -> None:
+    repo.get_active.return_value = [enrolment]
+    result = service.get_active()
+    assert result is not None
+    repo.get_active.assert_called_once()
+
+    assert result[0].status == Status.ACTIVE
+
+def test_get_active_not_found_exception(repo: MagicMock, service: EnrolmentService) -> None:
+    repo.get_active.return_value = None
+    with pytest.raises(NotFoundException, match="Enrolments not found"):
+        service.get_active()
+    repo.get_active.assert_called_once()
+
+
+
