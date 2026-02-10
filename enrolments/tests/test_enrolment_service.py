@@ -1,3 +1,5 @@
+import datetime
+
 from webapp.services.exceptions import ValidationException, ServiceException, NotFoundException, ConflictException
 from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentIdDTO, ReadEnrolmentDTO
 from webapp.services.enrolments.services import EnrolmentService
@@ -57,6 +59,7 @@ def enrolment() -> Enrolment:
     enrolment.course_id = 1
     enrolment.status = Status.ACTIVE
     enrolment.payment_status = PaymentStatus.PENDING
+    enrolment.course_end_date = datetime.date.today() - datetime.timedelta(days=1)
     return enrolment
 
 
@@ -254,7 +257,8 @@ def test_expired_courses(
         service: EnrolmentService,
         enrolment: MagicMock
 ) -> None:
-    repo.get_active.return_value = [enrolment]
+    enrolment.status = Status.COMPLETED
+    repo.mark_expired_enrolments_completed.return_value = [enrolment]
     mock_get.return_value.status_code = 200
     mock_get.return_value.json.return_value = {"end_date": "2022-01-01"}
 
