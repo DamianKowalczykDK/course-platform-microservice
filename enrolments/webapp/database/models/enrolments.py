@@ -29,6 +29,7 @@ class Enrolment(db.Model): #type: ignore
 
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+    course_end_date: Mapped[datetime] = mapped_column(DateTime,  nullable=True)
 
     def __repr__(self) -> str:
         return f"Enrolment(id={self.id}, course_id={self.course_id})"
