@@ -24,19 +24,17 @@ class EnrolmentRepository(GenericRepository[Enrolment]):
         return list(db.session.scalars(stmt).all())
 
     def mark_expired_enrolments_completed(self) -> list[Enrolment]:
-        update_stmt = (
-            update(Enrolment)
-            .where(
-                Enrolment.course_end_date < datetime.now(timezone.utc),
+        now = datetime.now(timezone.utc)
+
+        to_expire = db.session.scalars(
+            select(Enrolment).where(
+                Enrolment.course_end_date < now,
                 Enrolment.status == Status.ACTIVE
             )
-            .values(status=Status.COMPLETED)
-        )
-        db.session.execute(update_stmt)
-        db.session.commit()
+        ).all()
 
-        stmt = select(Enrolment).where(
-            Enrolment.status == Status.COMPLETED,
-            Enrolment.course_end_date < datetime.now(timezone.utc)
-        )
-        return list(db.session.scalars(stmt).all())
+        for e in to_expire:
+            e.status = Status.COMPLETED
+
+        db.session.commit()
+        return list(to_expire)
