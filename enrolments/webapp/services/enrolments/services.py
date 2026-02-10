@@ -42,6 +42,7 @@ class EnrolmentService:
 
             course_data = course_resp.json()
             course_id = int(course_data["id"])
+            course_end_data = course_data["end_date"]
 
             user_data = user_resp.json()
             user_email = user_data["email"]
@@ -50,12 +51,12 @@ class EnrolmentService:
                 entity = Enrolment(
                     course_id=course_id,
                     user_id=dto.user_id,
+                    course_end_date=course_end_data,
                 )
                 db.session.add(entity)
             html = f"<html><body>Your invoice link: </body></html>"
 
             self.email_service.send_email(to=user_email, subject="Thank you for enrolment", html=html)
-
 
             return to_read_dto(entity)
 
@@ -113,27 +114,9 @@ class EnrolmentService:
 
 
     def expired_courses(self) -> list[ReadEnrolmentDTO]:
-        course_url = current_app.config["COURSE_SERVICE_URL"]
-        active_enrolments = self.repo.get_active()
+        updated_enrolments = self.repo.mark_expired_enrolments_completed()
 
-        enrolments_completed = []
-
-        for enrolment in active_enrolments:
-            course_resp = httpx.get(f"{course_url}/{enrolment.course_id}", timeout=5)
-            if course_resp.status_code != 200:
-                continue
-
-            course_data = course_resp.json()
-            course_end_date = course_data["end_date"]
-            end_date = datetime.fromisoformat(course_end_date).replace(tzinfo=timezone.utc)
-
-            now_utc = datetime.now(timezone.utc)
-            if end_date < now_utc:
-                enrolment.status = Status.COMPLETED
-                enrolments_completed.append(enrolment)
-                db.session.commit()
-
-        return [to_read_dto(e) for e in enrolments_completed]
+        return [to_read_dto(e) for e in updated_enrolments]
 
 
     def get_by_id(self, dto: EnrolmentIdDTO) -> ReadEnrolmentDTO:
