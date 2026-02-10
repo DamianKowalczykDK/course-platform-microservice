@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from webapp.services.courses.dtos import CreateCourseDTO, ReadCourseDTO, CourseIdDTO, CourseNameDTO, UpdateCourseDTO
 from webapp.services.exceptions import ConflictException, NotFoundException
 from webapp.services.courses.mappers import to_read_dto
@@ -21,7 +22,10 @@ class CourseService:
             start_date=dto.start_date,
             end_date=dto.end_date
         )
-        self.course_repository.add_and_commit(course)
+        try:
+            self.course_repository.add_and_commit(course)
+        except IntegrityError:
+            self.course_repository.rollback()
 
         return to_read_dto(course)
 
