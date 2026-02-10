@@ -54,9 +54,16 @@ class EnrolmentService:
                     course_end_date=course_end_data,
                 )
                 db.session.add(entity)
-            html = f"<html><body>Your invoice link: </body></html>"
+            html = f"""
+            <html>
+              <body>
+                <h2>Thank you for enrolling in the course {course_data["name"]}!</h2>
+                <p>Your enrolment has been successfully recorded.</p>
+              </body>
+            </html>
+            """
 
-            self.email_service.send_email(to=user_email, subject="Thank you for enrolment", html=html)
+            self.email_service.send_email(to=user_email, subject="Course enrolment confirmation", html=html)
 
             return to_read_dto(entity)
 
@@ -95,7 +102,7 @@ class EnrolmentService:
 
 
         enrolment.payment_status = PaymentStatus.PAID
-        db.session.commit()
+
 
         invoice_data = InvoiceDTO(
             client_name=f"{user_data["first_name"]} {user_data['last_name']}",
@@ -107,8 +114,19 @@ class EnrolmentService:
         invoice_url = self.invoice_service.create_invoice(invoice_data)
         enrolment.invoice_url = invoice_url
 
-        html = f"<html><body>Your course has been paid, your invoice:\n {invoice_url}</body></html>"
-        self.email_service.send_email(to=user_email, subject=f"Thank you for paying", html=html)
+        html = f"""
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
+            <h2>Thank you for your payment!</h2>
+            <p>Your course has been successfully paid.</p>
+            <p>You can download your invoice here: <a href="{invoice_url}">{invoice_url}</a></p>
+            <p>We look forward to seeing you in the course!</p>
+          </body>
+        </html>
+        """
+
+        self.email_service.send_email(to=user_email, subject=f"Your course payment confirmation", html=html)
+        db.session.commit()
 
         return to_read_dto(enrolment)
 
