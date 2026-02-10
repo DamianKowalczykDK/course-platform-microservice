@@ -26,11 +26,11 @@ class CourseNameSchema(BaseModel):
     name: str = Field(min_length=2, max_length=64)
 
 class UpdateCourseSchema(BaseModel):
-    name: str =  Field(min_length=2, max_length=64)
-    description: str = Field(max_length=255)
-    price: float
-    start_date: datetime
-    end_date: datetime
+    name: str | None =  Field(None, min_length=2, max_length=64)
+    description: str | None = Field(None, max_length=255)
+    price: float | None = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
     max_participants: int | None = Field(None, ge=0)
 
 
