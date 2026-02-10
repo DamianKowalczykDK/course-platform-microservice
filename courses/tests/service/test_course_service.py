@@ -1,14 +1,13 @@
 from datetime import datetime
 from unittest.mock import MagicMock
-
-import pytest
-
 from webapp.database.models.courses import Course
 from webapp.services.courses.dtos import CreateCourseDTO, CourseIdDTO, ReadCourseDTO, CourseNameDTO, UpdateCourseDTO
 from webapp.services.courses.services import CourseService
-from flask import Flask
-
 from webapp.services.exceptions import ConflictException, NotFoundException, ValidationException
+from sqlalchemy.exc import IntegrityError
+from flask import Flask
+import pytest
+
 
 
 @pytest.fixture
@@ -52,6 +51,21 @@ def test_create_course_if_already_exists(mock_course_repository: MagicMock, cour
     with pytest.raises(ConflictException, match="Course already exists"):
         course_service.create_course(dto)
         mock_course_repository.get_by_name.assert_called_once()
+
+def test_create_course_if_integrity_error(mock_course_repository: MagicMock, course_service: CourseService) -> None:
+    dto = CreateCourseDTO(
+        name="Test",
+        description="test",
+        price=100,
+        start_date=datetime(2026, 1, 1),
+        end_date=datetime(2026, 1, 2)
+    )
+    mock_course_repository.get_by_name.return_value = None
+    mock_course_repository.add_and_commit.side_effect = IntegrityError(None, None, None)
+
+    course_service.create_course(dto)
+    mock_course_repository.rollback.assert_called_once()
+
 
 def test_get_by_id(mock_course_repository: MagicMock, course_service: CourseService) -> None:
     dto = ReadCourseDTO(
