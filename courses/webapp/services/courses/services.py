@@ -48,14 +48,15 @@ class CourseService:
         if not course:
             raise NotFoundException("Course not found")
 
-        course.update(
-            name=dto.name,
-            description=dto.description,
-            price=dto.price,
-            max_participants=dto.max_participants,
-            start_date=dto.start_date,
-            end_date=dto.end_date
-        )
+        course.update(update_data={
+            "name": dto.name,
+            "description": dto.description,
+            "price": dto.price,
+            "max_participants": dto.max_participants,
+            "start_date": dto.start_date,
+            "end_date": dto.end_date
+
+        })
         self.course_repository.add_and_commit(course)
         return to_read_dto(course)
 

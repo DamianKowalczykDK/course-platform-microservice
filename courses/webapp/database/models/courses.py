@@ -25,21 +25,11 @@ class Course(db.Model): #type: ignore
     def __repr__(self):
         return f'Course id: {self.id} tittle: {self.name}'
 
-    def update(
-            self,
-            name: str,
-            description: str,
-            price: float,
-            start_date: datetime,
-            end_date: datetime,
-            max_participants: int | None = None
-    ) -> None:
-        self.name = name
-        self.description = description
-        self.price = price
-        self.start_date = start_date
-        self.end_date = end_date
-        self.max_participants = max_participants
+    def update(self, update_data: dict) -> None:
+        for key, value in update_data.items():
+            if hasattr(self, key) and value is not None:
+                setattr(self, key, value)
+
 
 
 
