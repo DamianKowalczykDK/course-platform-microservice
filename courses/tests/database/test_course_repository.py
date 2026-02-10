@@ -1,7 +1,5 @@
 from datetime import datetime
-
 from sqlalchemy.orm import Session
-
 from webapp.database.models.courses import Course
 from webapp.database.repositories.courses import CourseRepository
 
@@ -44,11 +42,13 @@ def test_update(session: Session, course: Course) -> None:
     session.add(course)
     repo = CourseRepository()
     course.update(
-        name="Test1",
-        description="test",
-        price=100,
-        start_date=datetime(2026, 1, 1),
-        end_date=datetime(2026, 1, 2),
+        {
+            "name": "Test1",
+            "description": "test",
+            "price":100,
+            "start_date":datetime(2026, 1, 1),
+            "end_date":datetime(2026, 1, 2),
+        }
     )
     repo.get_by_id(1)
     assert course.name == "Test1"
