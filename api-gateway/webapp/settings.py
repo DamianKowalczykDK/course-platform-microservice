@@ -23,6 +23,7 @@ class Config:
 
     USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "http://localhost:5000/api/users")
     COURSE_SERVICE_URL: str = os.getenv('COURSE_SERVICE_URL', "http://localhost:5000/api/course")
+    ENROLMENT_SERVICE_URL: str = os.getenv('ENROLMENT_SERVICE_URL', "http://localhost:5000/api/enrolment")
 
     @staticmethod
     def configure_logging(app: Flask) -> None:
