@@ -30,10 +30,10 @@ class CourseNameDTO:
 @dataclass(frozen=True)
 class UpdateCourseDTO:
     id: int
-    name: str
-    description: str
-    price: float
-    start_date: str
-    end_date: str
+    name: str | None = None
+    description: str | None = None
+    price: float | None = None
+    start_date: str | None = None
+    end_date: str | None = None
     max_participants: int | None = None
 
