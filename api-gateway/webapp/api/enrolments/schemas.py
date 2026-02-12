@@ -15,3 +15,6 @@ class EnrolmentResponseSchema(BaseModel):
 
 class EnrolmentIdSchema(BaseModel):
     enrolment_id: int
+
+class EnrolmentByUserSchema(BaseModel):
+    enrolment_id: int

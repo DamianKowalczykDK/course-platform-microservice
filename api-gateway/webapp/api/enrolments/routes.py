@@ -3,9 +3,13 @@ from flask.typing import ResponseReturnValue
 from flask import jsonify, request
 from flask_jwt_extended import get_jwt_identity
 from webapp.services.enrolments.services import EnrolmentService
-from webapp.api.enrolments.schemas import CreateEnrolmentSchema, EnrolmentResponseSchema, EnrolmentIdSchema
-from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentIdDTO, EnrolmentDTO
-from webapp.api.enrolments.mappers import to_create_enrolment_dto, to_enrolment_response_schema, to_enrolment_id_dto
+from webapp.api.enrolments.schemas import CreateEnrolmentSchema, EnrolmentIdSchema, EnrolmentByUserSchema
+from webapp.api.enrolments.mappers import (
+    to_create_enrolment_dto,
+    to_enrolment_response_schema,
+    to_enrolment_id_dto,
+    to_enrolment_by_user_dto
+)
 from webapp.api.protected.routes import user_required, admin_required
 from webapp.container import Container
 from . import enrolment_bp
@@ -44,4 +48,16 @@ def get_by_id(enrolment_id: int, enrolment_service: EnrolmentService=Provide[Con
     payload = EnrolmentIdSchema(enrolment_id=enrolment_id)
     dto = to_enrolment_id_dto(payload)
     enrolment = enrolment_service.get_by_id(dto)
+
     return jsonify(to_enrolment_response_schema(enrolment).model_dump(mode="json")), 200
+
+@enrolment_bp.get("/<int:enrolment_id>/details")
+@user_required
+@inject
+def get_by_id_and_user(enrolment_id: int, enrolment_service: EnrolmentService=Provide[Container.enrolment_service]) -> ResponseReturnValue:
+    user_id = get_jwt_identity()
+    payload = EnrolmentByUserSchema(enrolment_id=enrolment_id)
+    dto = to_enrolment_by_user_dto(payload, user_id)
+    enrolment = enrolment_service.get_by_id_and_user(dto)
+    return jsonify(to_enrolment_response_schema(enrolment).model_dump(mode="json")), 200
+

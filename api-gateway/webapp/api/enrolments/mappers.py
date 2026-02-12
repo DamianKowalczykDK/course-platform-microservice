@@ -1,5 +1,6 @@
-from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentDTO, EnrolmentIdDTO
-from webapp.api.enrolments.schemas import CreateEnrolmentSchema, EnrolmentResponseSchema, EnrolmentIdSchema
+from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO
+from webapp.api.enrolments.schemas import CreateEnrolmentSchema, EnrolmentResponseSchema, EnrolmentIdSchema, \
+    EnrolmentByUserSchema
 
 
 def to_create_enrolment_dto(schema: CreateEnrolmentSchema, user_id: str) -> CreateEnrolmentDTO:
@@ -17,4 +18,9 @@ def to_enrolment_response_schema(dto: EnrolmentDTO) -> EnrolmentResponseSchema:
 
 def to_enrolment_id_dto(schema: EnrolmentIdSchema) -> EnrolmentIdDTO:
     return EnrolmentIdDTO(enrolment_id=schema.enrolment_id)
+
+def to_enrolment_by_user_dto(schema: EnrolmentByUserSchema, user_id: str) -> EnrolmentByUserDTO:
+    return EnrolmentByUserDTO(enrolment_id=schema.enrolment_id, user_id=user_id)
+
+
 

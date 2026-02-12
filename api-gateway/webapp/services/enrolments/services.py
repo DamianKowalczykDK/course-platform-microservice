@@ -1,5 +1,5 @@
 from flask import current_app
-from webapp.services.enrolments.dtos import EnrolmentDTO, CreateEnrolmentDTO, EnrolmentIdDTO
+from webapp.services.enrolments.dtos import EnrolmentDTO, CreateEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO
 from webapp.services.exceptions import raise_for_status
 import httpx
 
@@ -25,5 +25,11 @@ class EnrolmentService:
     def get_by_id(self, dto: EnrolmentIdDTO) -> EnrolmentDTO:
         enrolment_url = current_app.config["ENROLMENT_SERVICE_URL"]
         response = httpx.get(f"{enrolment_url}/{dto.enrolment_id}", timeout=5)
+        raise_for_status(response)
+        return EnrolmentDTO(**response.json())
+
+    def get_by_id_and_user(self, dto: EnrolmentByUserDTO) -> EnrolmentDTO:
+        enrolment_url = current_app.config["ENROLMENT_SERVICE_URL"]
+        response = httpx.get(f"{enrolment_url}/{dto.enrolment_id}/details", params={"user_id": dto.user_id}, timeout=5)
         raise_for_status(response)
         return EnrolmentDTO(**response.json())
