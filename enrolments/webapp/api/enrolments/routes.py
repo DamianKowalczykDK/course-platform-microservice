@@ -1,13 +1,24 @@
+from dependency_injector.wiring import Provide, inject
 from flask import request, jsonify
 from flask.typing import ResponseReturnValue
-from dependency_injector.wiring import Provide, inject
+from webapp.api.enrolments.mappers import(
+    to_enrolment_response_schema,
+    to_create_enrolment_dto,
+    to_enrolment_id_dto,
+    to_enrolment_by_user_dto,
+    to_enrolment_delete_dto
+)
+from webapp.api.enrolments.schemas import (
+    CreateEnrolmentSchema,
+    EnrolmentIdSchema,
+    EnrolmentByUserSchema,
+    DeleteEnrolmentSchema
+)
 from webapp.container import Container
-from webapp.services.exceptions import ApiException
-from webapp.api.enrolments.schemas import CreateEnrolmentSchema, EnrolmentIdSchema, EnrolmentByUserSchema
-from webapp.api.enrolments.mappers import to_enrolment_response_schema, to_create_enrolment_dto, to_enrolment_id_dto, \
-    to_enrolment_by_user_dto
 from webapp.services.enrolments.services import EnrolmentService
+from webapp.services.exceptions import ApiException
 from . import enrolment_bp
+
 
 @enrolment_bp.post("/")
 @inject
@@ -53,4 +64,13 @@ def get_by_id_and_user(enrolment_id: int, enrolment_service: EnrolmentService=Pr
     dto = to_enrolment_by_user_dto(payload)
     read_dto = enrolment_service.get_by_id_and_user(dto)
     return jsonify(to_enrolment_response_schema(read_dto).model_dump(mode="json")), 200
+
+
+@enrolment_bp.delete("/<int:enrolment_id>")
+@inject
+def delete_by_id(enrolment_id: int, enrolment_service: EnrolmentService=Provide[Container.enrolment_service]) -> ResponseReturnValue:
+    payload = DeleteEnrolmentSchema.model_validate({"enrolment_id": enrolment_id})
+    dto = to_enrolment_delete_dto(payload)
+    enrolment_service.delete_by_id(dto)
+    return jsonify(""), 204
 

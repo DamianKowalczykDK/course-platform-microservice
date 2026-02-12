@@ -21,3 +21,6 @@ class EnrolmentIdSchema(BaseModel):
 class EnrolmentByUserSchema(BaseModel):
     enrolment_id: int
     user_id: str
+
+class DeleteEnrolmentSchema(BaseModel):
+    enrolment_id: int

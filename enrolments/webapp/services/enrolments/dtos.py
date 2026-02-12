@@ -25,3 +25,7 @@ class EnrolmentIdDTO:
 class EnrolmentByUserDTO:
     enrolment_id: int
     user_id: str
+
+@dataclass(frozen=True)
+class DeleteEnrolmentDTO:
+    enrolment_id: int

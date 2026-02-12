@@ -1,7 +1,8 @@
 import datetime
 
 from webapp.services.exceptions import ValidationException, ServiceException, NotFoundException, ConflictException
-from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentIdDTO, ReadEnrolmentDTO, EnrolmentByUserDTO
+from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentIdDTO, ReadEnrolmentDTO, EnrolmentByUserDTO, \
+    DeleteEnrolmentDTO
 from webapp.services.enrolments.services import EnrolmentService
 from webapp.database.models.enrolments import PaymentStatus, Status, Enrolment
 from unittest.mock import MagicMock, patch
@@ -326,5 +327,23 @@ def test_get_by_id_and_user_not_found(repo: MagicMock, service: EnrolmentService
     with pytest.raises(NotFoundException, match="Enrolment not found"):
         service.get_by_id_and_user(enrolment_id)
     repo.get_by_id_and_user.assert_called_once()
+
+
+def test_delete_by_id(repo: MagicMock, service: EnrolmentService, enrolment: Enrolment) -> None:
+    repo.get_by_id.return_value = enrolment
+    delete = DeleteEnrolmentDTO(enrolment_id=1)
+    service.delete_by_id(delete)
+
+    repo.delete_by_id.assert_called_once_with(1)
+    repo.get_by_id.assert_called_once_with(1)
+
+def test_delete_by_id_if_not_found(repo: MagicMock, service: EnrolmentService, enrolment: Enrolment) -> None:
+    repo.get_by_id.return_value = None
+    delete = DeleteEnrolmentDTO(enrolment_id=1)
+
+    with pytest.raises(NotFoundException, match="Enrolment not found"):
+        service.delete_by_id(delete)
+    repo.get_by_id.assert_called_once()
+    repo.delete_by_id.assert_not_called()
 
 

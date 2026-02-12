@@ -1,5 +1,6 @@
 from webapp import register_error_handlers
-from webapp.services.enrolments.dtos import ReadEnrolmentDTO, CreateEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO
+from webapp.services.enrolments.dtos import ReadEnrolmentDTO, CreateEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO, \
+    DeleteEnrolmentDTO
 from webapp.database.models.enrolments import PaymentStatus, Status
 from webapp.services.exceptions import ServiceException, ApiException
 from webapp.api import api_bp
@@ -149,4 +150,8 @@ def test_get_by_id_and_user_if_not_user(client: FlaskClient, mock_service: Magic
     assert response.status_code == 400
 
 
-
+def test_delete_by_id(client: FlaskClient, mock_service: MagicMock) -> None:
+    enrolment = DeleteEnrolmentDTO(1)
+    mock_service.delete_by_id.return_value = enrolment
+    response = client.delete(f"/api/enrolment/1")
+    assert response.status_code == 204

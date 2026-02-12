@@ -1,14 +1,15 @@
 from webapp.database.models.enrolments import Enrolment, PaymentStatus, Status
 from webapp.database.repositories.enrolments import EnrolmentRepository
 from webapp.services.email_service import EmailService
-from webapp.services.enrolments.dtos import CreateEnrolmentDTO, ReadEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO
+from webapp.services.enrolments.dtos import CreateEnrolmentDTO, ReadEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO, \
+    DeleteEnrolmentDTO
 from webapp.services.enrolments.mappers import to_read_dto
 from webapp.services.exceptions import ValidationException, NotFoundException, ConflictException, ServiceException
 from webapp.extensions import db
 from webapp.services.invoices.services import InvoiceService
 from webapp.services.invoices.dtos import InvoiceDTO
 from datetime import datetime, timezone
-from flask import current_app
+from flask import current_app, session
 import httpx
 
 
@@ -157,3 +158,10 @@ class EnrolmentService:
          if not enrolments:
             raise NotFoundException(f"Enrolments not found")
          return [to_read_dto(e) for e in enrolments]
+
+    def delete_by_id(self, dto: DeleteEnrolmentDTO) -> None:
+        enrolment = self.repo.get_by_id(dto.enrolment_id)
+        if not enrolment:
+            raise NotFoundException(f"Enrolment not found")
+
+        self.repo.delete_by_id(dto.enrolment_id)
