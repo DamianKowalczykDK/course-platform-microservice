@@ -1,6 +1,5 @@
 from dependency_injector.wiring import Provide, inject
 from flask import request, jsonify
-
 from webapp.api.courses.schemas import CreateCourseSchema, CourseIdSchema, CourseNameSchema, UpdateCourseSchema
 from webapp.services.courses.services import CourseService
 from flask.typing import ResponseReturnValue
@@ -21,7 +20,7 @@ def create_course(course_service: CourseService=Provide[Container.course_service
 @course_bp.get("/<int:course_id>")
 @inject
 def get_by_id(course_id: int, course_service: CourseService=Provide[Container.course_service]) -> ResponseReturnValue:
-    payload = CourseIdSchema.model_validate({"course_id": course_id})
+    payload = CourseIdSchema(course_id=course_id)
     dto = to_dto_course_id(payload)
     course = course_service.get_by_id(dto)
     return jsonify(to_schema_course(course).model_dump(mode="json")), 200
@@ -45,7 +44,7 @@ def update_course(course_id: int, course_service: CourseService=Provide[Containe
 @course_bp.delete("/<int:course_id>")
 @inject
 def delete_by_id(course_id: int, course_service: CourseService=Provide[Container.course_service]) -> ResponseReturnValue:
-    payload = CourseIdSchema.model_validate({"course_id": course_id})
+    payload = CourseIdSchema(course_id=course_id)
     dto = to_dto_course_id(payload)
     course_service.delete_by_id(dto)
     return "", 204
