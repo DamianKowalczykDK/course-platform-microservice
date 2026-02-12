@@ -33,3 +33,9 @@ class EnrolmentService:
         response = httpx.get(f"{enrolment_url}/{dto.enrolment_id}/details", params={"user_id": dto.user_id}, timeout=5)
         raise_for_status(response)
         return EnrolmentDTO(**response.json())
+
+    def get_active(self) -> list[EnrolmentDTO]:
+        enrolment_url = current_app.config["ENROLMENT_SERVICE_URL"]
+        response = httpx.get(f"{enrolment_url}/active", timeout=5)
+        raise_for_status(response)
+        return [EnrolmentDTO(**e) for e in response.json()]

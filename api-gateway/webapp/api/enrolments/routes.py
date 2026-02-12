@@ -61,3 +61,10 @@ def get_by_id_and_user(enrolment_id: int, enrolment_service: EnrolmentService=Pr
     enrolment = enrolment_service.get_by_id_and_user(dto)
     return jsonify(to_enrolment_response_schema(enrolment).model_dump(mode="json")), 200
 
+@enrolment_bp.get("/active")
+@admin_required
+@inject
+def get_active(enrolment_service: EnrolmentService=Provide[Container.enrolment_service]) -> ResponseReturnValue:
+    enrolment = enrolment_service.get_active()
+    return jsonify([to_enrolment_response_schema(e).model_dump(mode="json") for e in enrolment]), 200
+
