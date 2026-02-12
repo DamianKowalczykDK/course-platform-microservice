@@ -1,5 +1,6 @@
 from flask import current_app
-from webapp.services.enrolments.dtos import EnrolmentDTO, CreateEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO
+from webapp.services.enrolments.dtos import EnrolmentDTO, CreateEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO, \
+    DeleteEnrolmentDTO
 from webapp.services.exceptions import raise_for_status
 import httpx
 
@@ -39,3 +40,8 @@ class EnrolmentService:
         response = httpx.get(f"{enrolment_url}/active", timeout=5)
         raise_for_status(response)
         return [EnrolmentDTO(**e) for e in response.json()]
+
+    def delete_by_id(self, dto: DeleteEnrolmentDTO) -> None:
+        enrolment_url = current_app.config["ENROLMENT_SERVICE_URL"]
+        response = httpx.delete(f"{enrolment_url}/{dto.enrolment_id}", timeout=5)
+        raise_for_status(response)

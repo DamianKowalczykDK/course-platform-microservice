@@ -3,12 +3,13 @@ from flask.typing import ResponseReturnValue
 from flask import jsonify, request
 from flask_jwt_extended import get_jwt_identity
 from webapp.services.enrolments.services import EnrolmentService
-from webapp.api.enrolments.schemas import CreateEnrolmentSchema, EnrolmentIdSchema, EnrolmentByUserSchema
+from webapp.api.enrolments.schemas import CreateEnrolmentSchema, EnrolmentIdSchema, EnrolmentByUserSchema, \
+    DeleteEnrolmentSchema
 from webapp.api.enrolments.mappers import (
     to_create_enrolment_dto,
     to_enrolment_response_schema,
     to_enrolment_id_dto,
-    to_enrolment_by_user_dto
+    to_enrolment_by_user_dto, to_delete_enrolment_dto
 )
 from webapp.api.protected.routes import user_required, admin_required
 from webapp.container import Container
@@ -67,4 +68,14 @@ def get_by_id_and_user(enrolment_id: int, enrolment_service: EnrolmentService=Pr
 def get_active(enrolment_service: EnrolmentService=Provide[Container.enrolment_service]) -> ResponseReturnValue:
     enrolment = enrolment_service.get_active()
     return jsonify([to_enrolment_response_schema(e).model_dump(mode="json") for e in enrolment]), 200
+
+@enrolment_bp.delete("/<int:enrolment_id>")
+@admin_required
+@inject
+def delete_by_id(enrolment_id: int, enrolment_service: EnrolmentService=Provide[Container.enrolment_service]) -> ResponseReturnValue:
+    payload = DeleteEnrolmentSchema(enrolment_id=enrolment_id)
+    dto = to_delete_enrolment_dto(payload)
+    enrolment_service.delete_by_id(dto)
+    return "", 204
+
 
