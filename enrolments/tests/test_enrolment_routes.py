@@ -1,6 +1,7 @@
-from webapp.services.enrolments.dtos import ReadEnrolmentDTO, CreateEnrolmentDTO, EnrolmentIdDTO
+from webapp import register_error_handlers
+from webapp.services.enrolments.dtos import ReadEnrolmentDTO, CreateEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO
 from webapp.database.models.enrolments import PaymentStatus, Status
-from webapp.services.exceptions import ServiceException
+from webapp.services.exceptions import ServiceException, ApiException
 from webapp.api import api_bp
 from webapp.container import Container
 from flask import Flask
@@ -18,7 +19,9 @@ def app() -> Flask:
     container.wire(modules=["webapp.api.enrolments.routes"])
     app.container = container #type: ignore
     app.register_blueprint(api_bp)
+    register_error_handlers(app)
     return app
+
 
 @pytest.fixture
 def client(app: Flask) -> FlaskClient:
@@ -118,5 +121,32 @@ def test_expired_courses(client: FlaskClient, mock_service: MagicMock) -> None:
 
     data = response.get_json()
     assert data[0]["status"] == Status.COMPLETED.value
+
+def test_get_by_id_and_user_success(client: FlaskClient, mock_service: MagicMock) -> None:
+    fake_enrolment_dto = ReadEnrolmentDTO(
+        id=1,
+        user_id="123",
+        course_id=1,
+        invoice_url="https://invoice.example.com/555",
+        status=Status.ACTIVE,
+        payment_status=PaymentStatus.PENDING
+    )
+    enrolment = EnrolmentByUserDTO(
+        enrolment_id=1,
+        user_id="123"
+    )
+
+    mock_service.get_by_id_and_user.return_value = fake_enrolment_dto
+    response = client.get(f"/api/enrolment/{enrolment.enrolment_id}/details", query_string={"user_id": enrolment.user_id})
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["id"] == enrolment.enrolment_id
+    assert data["user_id"] == enrolment.user_id
+    mock_service.get_by_id_and_user.assert_called_once()
+
+def test_get_by_id_and_user_if_not_user(client: FlaskClient, mock_service: MagicMock) -> None:
+    response = client.get(f"/api/enrolment/1/details")
+    assert response.status_code == 400
+
 
 

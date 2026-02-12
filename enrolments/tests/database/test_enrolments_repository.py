@@ -15,7 +15,7 @@ def test_get_by_in_when_found_course(session: Session, enrolment: Enrolment) -> 
 def test_get_by_user_and_course_success(session: Session, enrolment: Enrolment) -> None:
     session.add(enrolment)
     repo = EnrolmentRepository()
-    result = repo.get_by_user_and_course(1, "123")
+    result = repo.get_by_id_and_user(1, "123")
     assert result is not None
 
     assert result.course_id == 1

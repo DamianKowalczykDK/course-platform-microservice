@@ -1,7 +1,7 @@
 import datetime
 
 from webapp.services.exceptions import ValidationException, ServiceException, NotFoundException, ConflictException
-from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentIdDTO, ReadEnrolmentDTO
+from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentIdDTO, ReadEnrolmentDTO, EnrolmentByUserDTO
 from webapp.services.enrolments.services import EnrolmentService
 from webapp.database.models.enrolments import PaymentStatus, Status, Enrolment
 from unittest.mock import MagicMock, patch
@@ -312,5 +312,19 @@ def test_get_active_not_found_exception(repo: MagicMock, service: EnrolmentServi
         service.get_active()
     repo.get_active.assert_called_once()
 
+def test_get_by_id_and_user(repo: MagicMock, service: EnrolmentService, enrolment: Enrolment) -> None:
+    repo.get_by_id_and_user.return_value = enrolment
+    result = service.get_by_id_and_user(enrolment)
+    assert result is not None
+    assert result.user_id == enrolment.user_id
+    assert result.id == enrolment.id
+    repo.get_by_id_and_user.assert_called_once()
+
+def test_get_by_id_and_user_not_found(repo: MagicMock, service: EnrolmentService) -> None:
+    repo.get_by_id_and_user.return_value = None
+    enrolment_id = EnrolmentByUserDTO(enrolment_id=1, user_id="123")
+    with pytest.raises(NotFoundException, match="Enrolment not found"):
+        service.get_by_id_and_user(enrolment_id)
+    repo.get_by_id_and_user.assert_called_once()
 
 

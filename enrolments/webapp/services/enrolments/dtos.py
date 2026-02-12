@@ -20,3 +20,8 @@ class ReadEnrolmentDTO:
 @dataclass(frozen=True)
 class EnrolmentIdDTO:
     enrolment_id: int
+
+@dataclass(frozen=True)
+class EnrolmentByUserDTO:
+    enrolment_id: int
+    user_id: str
