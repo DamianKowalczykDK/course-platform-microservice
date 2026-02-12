@@ -14,3 +14,6 @@ api_bp.register_blueprint(protected_bp)
 from .courses import course_bp
 api_bp.register_blueprint(course_bp)
 
+from .enrolments import enrolment_bp
+api_bp.register_blueprint(enrolment_bp)
+
