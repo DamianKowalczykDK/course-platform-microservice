@@ -149,9 +149,27 @@ def test_get_by_id_and_user_if_not_user(client: FlaskClient, mock_service: Magic
     response = client.get(f"/api/enrolment/1/details")
     assert response.status_code == 400
 
+def test_get_active(client: FlaskClient, mock_service: MagicMock) -> None:
+    fake_enrolment_dto = ReadEnrolmentDTO(
+            id=1,
+            user_id="123",
+            course_id=1,
+            invoice_url="https://invoice.example.com/555",
+            status=Status.ACTIVE,
+            payment_status=PaymentStatus.PENDING
+    )
+    mock_service.get_active.return_value = [fake_enrolment_dto]
+    response = client.get(f"/api/enrolment/active")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data[0]["user_id"] == "123"
+    assert data[0]["status"] == Status.ACTIVE.value
+
+
 
 def test_delete_by_id(client: FlaskClient, mock_service: MagicMock) -> None:
     enrolment = DeleteEnrolmentDTO(1)
     mock_service.delete_by_id.return_value = enrolment
     response = client.delete(f"/api/enrolment/1")
     assert response.status_code == 204
+
