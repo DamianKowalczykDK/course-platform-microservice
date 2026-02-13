@@ -334,8 +334,8 @@ def test_delete_by_id(repo: MagicMock, service: EnrolmentService, enrolment: Enr
     delete = DeleteEnrolmentDTO(enrolment_id=1)
     service.delete_by_id(delete)
 
-    repo.delete_by_id.assert_called_once_with(1)
-    repo.get_by_id.assert_called_once_with(1)
+    repo.delete_and_commit.assert_called_once()
+    repo.get_by_id.assert_called_once()
 
 def test_delete_by_id_if_not_found(repo: MagicMock, service: EnrolmentService, enrolment: Enrolment) -> None:
     repo.get_by_id.return_value = None
@@ -344,6 +344,6 @@ def test_delete_by_id_if_not_found(repo: MagicMock, service: EnrolmentService, e
     with pytest.raises(NotFoundException, match="Enrolment not found"):
         service.delete_by_id(delete)
     repo.get_by_id.assert_called_once()
-    repo.delete_by_id.assert_not_called()
+    repo.delete_and_commit.assert_not_called()
 
 

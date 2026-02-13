@@ -164,4 +164,5 @@ class EnrolmentService:
         if not enrolment:
             raise NotFoundException(f"Enrolment not found")
 
-        self.repo.delete_by_id(dto.enrolment_id)
+        self.repo.delete_and_commit(enrolment)
+
