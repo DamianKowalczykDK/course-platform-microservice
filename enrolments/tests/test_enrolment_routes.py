@@ -162,8 +162,8 @@ def test_get_active(client: FlaskClient, mock_service: MagicMock) -> None:
     response = client.get(f"/api/enrolment/active")
     assert response.status_code == 200
     data = response.get_json()
-    assert data[0]["user_id"] == "123"
-    assert data[0]["status"] == Status.ACTIVE.value
+    assert data["enrolments"][0]["user_id"] == "123"
+    assert data["enrolments"][0]["status"] == Status.ACTIVE.value
 
 
 
