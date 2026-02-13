@@ -66,3 +66,9 @@ class MfaSetupSchema(BaseModel):
 
 class ResendActivationCodeSchema(BaseModel):
     identifier: str
+
+class DeleteUserByIdSchema(BaseModel):
+    user_id: str
+
+class DeleteUserByIdentifierSchema(BaseModel):
+    identifier: str

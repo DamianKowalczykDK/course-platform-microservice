@@ -11,7 +11,7 @@ from webapp.api.users.schemas import (
     EnableMfaSchema,
     UserIDSchema,
     IdentifierSchema,
-    ResendActivationCodeSchema
+    ResendActivationCodeSchema, DeleteUserByIdSchema, DeleteUserByIdentifierSchema
 
 )
 from webapp.api.users.mappers import (
@@ -26,7 +26,7 @@ from webapp.api.users.mappers import (
     to_dto_get_mfa_qrcode,
     to_dto_user_id,
     to_dto_identifier,
-    to_dto_resend_activation_code
+    to_dto_resend_activation_code, to_dto_delete_user_by_id, to_dto_delete_user_by_identifier
 )
 from webapp.services.users.services import UserService
 from webapp.container import Container
@@ -121,3 +121,20 @@ def get_mfa_qrcode(user_service: UserService=Provide[Container.user_service]) ->
     dto = to_dto_get_mfa_qrcode(payload)
     result = user_service.get_mfa_qrcode(dto)
     return jsonify(to_schema_mfa_setup(result).model_dump(mode="json")), 200
+
+@users_bp.delete("/id")#type: ignore
+@inject
+def delete_by_id(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+    payload = DeleteUserByIdSchema.model_validate(request.args.to_dict() or {})
+    dto = to_dto_delete_user_by_id(payload)
+    user_service.delete_by_id(dto)
+    return "", 204
+
+@users_bp.delete("/identifier")#type: ignore
+@inject
+def delete_by_identifier(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+    payload = DeleteUserByIdentifierSchema.model_validate(request.args.to_dict() or {})
+    dto = to_dto_delete_user_by_identifier(payload)
+    user_service.delete_by_identifier(dto)
+    return "", 204
+

@@ -10,6 +10,9 @@ from webapp.api.users.schemas import (
     UserIDSchema,
     IdentifierSchema,
     ResendActivationCodeSchema,
+    DeleteUserByIdSchema,
+    DeleteUserByIdentifierSchema
+
 )
 from webapp.services.users.dtos import (
     CreateUserDTO,
@@ -23,7 +26,9 @@ from webapp.services.users.dtos import (
     GetMfaQrCodeDTO,
     UserIdDTO,
     IdentifierDTO,
-    ResendActivationCodeDTO
+    ResendActivationCodeDTO,
+    DeleteUserByIdDTO,
+    DeleteUserByIdentifierDTO
 )
 
 
@@ -86,3 +91,9 @@ def to_dto_identifier(schema: IdentifierSchema) -> IdentifierDTO:
 
 def to_dto_resend_activation_code(schema: ResendActivationCodeSchema) -> ResendActivationCodeDTO:
     return ResendActivationCodeDTO(identifier=schema.identifier)
+
+def to_dto_delete_user_by_id(schema: DeleteUserByIdSchema) -> DeleteUserByIdDTO:
+    return DeleteUserByIdDTO(user_id=schema.user_id)
+
+def to_dto_delete_user_by_identifier(schema: DeleteUserByIdentifierSchema) -> DeleteUserByIdentifierDTO:
+    return DeleteUserByIdentifierDTO(identifier=schema.identifier)

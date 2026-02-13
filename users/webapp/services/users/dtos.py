@@ -70,3 +70,13 @@ class IdentifierDTO:
 @dataclass(frozen=True)
 class ResendActivationCodeDTO:
     identifier: str
+
+@dataclass(frozen=True)
+class DeleteUserByIdDTO:
+    user_id: str
+
+@dataclass(frozen=True)
+class DeleteUserByIdentifierDTO:
+    identifier: str
+
+

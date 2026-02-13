@@ -49,3 +49,41 @@ def test_get_by_reset_password_token(user_repository: UserRepository) -> None:
 
     assert found_user is not None
     assert found_user.reset_password_token == "token-test"
+
+def test_delete_user_by_id(user_repository: UserRepository) -> None:
+    user = make_user("test3", "test3@example.com", "t123")
+    user_repository.create_user(user)
+
+    found_user = user_repository.get_by_id(str(user.id))
+    assert found_user is not None
+    assert found_user.username == "test3"
+
+    user_repository.delete_user_by_id(str(user.id))
+    result = user_repository.get_by_id(user.id)
+
+    assert result is None
+
+def test_delete_user_by_id_if_not_user(user_repository: UserRepository) -> None:
+    fake_id = "507f1f77bcf86cd799439011"
+    result = user_repository.delete_user_by_id(fake_id)
+    assert result is False
+
+def test_delete_user_by_identifier(user_repository: UserRepository) -> None:
+    user = make_user("test4", "test4@example.com", "t123")
+    user_repository.create_user(user)
+    found_user = user_repository.get_by_username_or_email("test4@example.com")
+    assert found_user is not None
+    user_repository.delete_user_by_identifier(user.email)
+    result = user_repository.get_by_id(str(user.id))
+    assert result is None
+
+def test_delete_user_by_identifier_if_not_user(user_repository: UserRepository) -> None:
+    fake_identifier = "t@example.com"
+    result = user_repository.delete_user_by_identifier(fake_identifier)
+    assert result is False
+
+
+
+
+
+

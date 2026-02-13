@@ -8,7 +8,8 @@ from webapp.services.users.dtos import (
     ResetPasswordDTO,
     ForgotPasswordDTO,
     EnableMfaDTO,
-    MfaSetupDTO, DisableMfaDTO, GetMfaQrCodeDTO, UserIdDTO, IdentifierDTO, ResendActivationCodeDTO
+    MfaSetupDTO, DisableMfaDTO, GetMfaQrCodeDTO, UserIdDTO, IdentifierDTO, ResendActivationCodeDTO,
+    DeleteUserByIdentifierDTO, DeleteUserByIdDTO
 )
 from webapp.services.exceptions import ConflictException, NotFoundException, ValidationException
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -178,6 +179,16 @@ class UserService:
             raise ValidationException("MFA is not enabled for this user")
 
         return self._generate_mfa_setup(user)
+
+    def delete_by_id(self, dto: DeleteUserByIdDTO) -> None:
+        user_deleted = self.user_repository.delete_user_by_id(dto.user_id)
+        if not user_deleted:
+            raise NotFoundException("User not found")
+
+    def delete_by_identifier(self, dto: DeleteUserByIdentifierDTO) -> None:
+        user_deleted = self.user_repository.delete_user_by_identifier(dto.identifier)
+        if not user_deleted:
+            raise NotFoundException("User not found")
 
 
     def _generate_mfa_setup(self, user: User) -> MfaSetupDTO:

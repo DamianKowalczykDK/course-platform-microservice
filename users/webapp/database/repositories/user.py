@@ -35,6 +35,19 @@ class UserRepository:
     def get_by_reset_password_token(self, token: str) -> User | None:
         return User.objects(reset_password_token=token).first()
 
+    def delete_user_by_id(self, user_id: str) -> bool:
+        user = User.objects(id=user_id).first()
+        if user is None:
+            return False
+        user.delete()
+        return True
+
+    def delete_user_by_identifier(self, identifier: str) -> bool:
+        user = self.get_by_username_or_email(identifier)
+        if not user:
+            return False
+        user.delete()
+        return True
 
 
 

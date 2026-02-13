@@ -11,7 +11,7 @@ from webapp.services.users.dtos import (
     GetMfaQrCodeDTO,
     ResetPasswordDTO,
     LoginUserDTO,
-    ForgotPasswordDTO, UserIdDTO, IdentifierDTO, ResendActivationCodeDTO
+    ForgotPasswordDTO, UserIdDTO, IdentifierDTO, ResendActivationCodeDTO, DeleteUserByIdDTO, DeleteUserByIdentifierDTO
 )
 from webapp.services.users.services import UserService
 import pyotp
@@ -308,6 +308,31 @@ def test_verify_credentials_invalid_password(user_service: UserService, mock_use
     with pytest.raises(ValidationException, match="Invalid credentials -2"):
         user_service.verify_credentials(dto)
 
+def test_delete_user_by_id(user_service: UserService, mock_user_repository: MagicMock) -> None:
+    dto = DeleteUserByIdDTO(user_id="4234dsfsgd98234234")
+    user_service.delete_by_id(dto)
+    mock_user_repository.delete_user_by_id.assert_called_with(dto.user_id)
+    assert mock_user_repository.delete_user_by_id.call_count == 1
+
+def test_delete_user_by_id_if_not_user(user_service: UserService, mock_user_repository: MagicMock) -> None:
+    mock_user_repository.delete_user_by_id.return_value = None
+    with pytest.raises(NotFoundException, match="User not found"):
+        dto = DeleteUserByIdDTO(user_id="4234dsfsgd98234234")
+        user_service.delete_by_id(dto)
+    mock_user_repository.delete_user_by_id.assert_called_with(dto.user_id)
+
+def test_delete_user_by_identifier(user_service: UserService, mock_user_repository: MagicMock) -> None:
+    dto = DeleteUserByIdentifierDTO(identifier="test_user1@example.com")
+    user_service.delete_by_identifier(dto)
+    mock_user_repository.delete_user_by_identifier.assert_called_with(dto.identifier)
+    assert mock_user_repository.delete_user_by_identifier.call_count == 1
+
+def test_delete_user_by_identifier_if_not_user(user_service: UserService, mock_user_repository: MagicMock) -> None:
+    mock_user_repository.delete_user_by_identifier.return_value = None
+    with pytest.raises(NotFoundException, match="User not found"):
+        dto = DeleteUserByIdentifierDTO(identifier="test@example.com")
+        user_service.delete_by_identifier(dto)
+    mock_user_repository.delete_user_by_identifier.assert_called_with(dto.identifier)
 
 
 

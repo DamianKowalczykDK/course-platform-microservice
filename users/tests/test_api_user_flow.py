@@ -120,7 +120,49 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
         resp = client.patch("/api/users/mfa/disable", json={"user_id": str(user.id)})
         assert resp.status_code == 200
 
+def test_delete_user_by_id(client: FlaskClient) -> None:
+    resp = client.post("/api/users/",
+                       json={
+                           "username": "Jon30",
+                           "first_name": "Jon",
+                           "last_name": "Doe",
+                           "email": "jon@example.com",
+                           "password": "secret123",
+                           "password_confirmation": "secret123",
+                           "gender": "Male",
+                           "role": "user",
+                       }
+                       )
 
+    assert resp.status_code == 201
+    user = User.objects.get(username="Jon30")
+    user_id = user.id
+    resp = client.delete("/api/users/id", query_string={"user_id": user_id})
+    assert resp.status_code == 204
+    data = resp.get_json()
+    assert data is None
+
+
+def test_delete_user_by_identifier(client: FlaskClient) -> None:
+    resp = client.post("/api/users/",
+                       json={
+                           "username": "Jon30",
+                           "first_name": "Jon",
+                           "last_name": "Doe",
+                           "email": "jon@example.com",
+                           "password": "secret123",
+                           "password_confirmation": "secret123",
+                           "gender": "Male",
+                           "role": "user",
+                       }
+                       )
+    assert resp.status_code == 201
+    user = User.objects.get(username="Jon30")
+    identifier = user.email
+    resp = client.delete("/api/users/identifier", query_string={"identifier": identifier})
+    assert resp.status_code == 204
+    data = resp.get_json()
+    assert data is None
 
 
 
