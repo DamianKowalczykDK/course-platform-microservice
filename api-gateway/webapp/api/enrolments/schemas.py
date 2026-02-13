@@ -13,6 +13,9 @@ class EnrolmentResponseSchema(BaseModel):
     payment_status: PaymentStatus
     invoice_url: str | None = None
 
+class EnrolmentsListResponseSchema(BaseModel):
+    enrolments: list[EnrolmentResponseSchema]
+
 class EnrolmentIdSchema(BaseModel):
     enrolment_id: int
 

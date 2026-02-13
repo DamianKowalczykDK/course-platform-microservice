@@ -9,7 +9,7 @@ from webapp.api.enrolments.mappers import (
     to_create_enrolment_dto,
     to_enrolment_response_schema,
     to_enrolment_id_dto,
-    to_enrolment_by_user_dto, to_delete_enrolment_dto
+    to_enrolment_by_user_dto, to_delete_enrolment_dto, to_enrolments_list_response_schema
 )
 from webapp.api.protected.routes import user_required, admin_required
 from webapp.container import Container
@@ -39,8 +39,9 @@ def set_paid(enrolment_service: EnrolmentService=Provide[Container.enrolment_ser
 @admin_required
 @inject
 def expired_courses(enrolment_service: EnrolmentService=Provide[Container.enrolment_service]) -> ResponseReturnValue:
-    update_enrolments = enrolment_service.expired_courses()
-    return jsonify([to_enrolment_response_schema(e).model_dump(mode="json") for e in update_enrolments]), 200
+    dtos = enrolment_service.expired_courses()
+    enrolments = to_enrolments_list_response_schema(dtos)
+    return jsonify(enrolments.model_dump(mode="json")), 200
 
 @enrolment_bp.get("/<int:enrolment_id>")
 @admin_required
@@ -66,8 +67,9 @@ def get_by_id_and_user(enrolment_id: int, enrolment_service: EnrolmentService=Pr
 @admin_required
 @inject
 def get_active(enrolment_service: EnrolmentService=Provide[Container.enrolment_service]) -> ResponseReturnValue:
-    enrolment = enrolment_service.get_active()
-    return jsonify([to_enrolment_response_schema(e).model_dump(mode="json") for e in enrolment]), 200
+    dtos = enrolment_service.get_active()
+    enrolments = to_enrolments_list_response_schema(dtos)
+    return jsonify(enrolments.model_dump(mode="json")), 200
 
 @enrolment_bp.delete("/<int:enrolment_id>")
 @admin_required
