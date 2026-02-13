@@ -6,7 +6,8 @@ from webapp.services.users.dtos import (
     ResetPasswordDTO,
     EnableMfaDTO,
     MfaSetupDTO,
-    UserIdDTO, GetMfaDTO, ResendActivationCodeDTO, IdentifierDTO, DisableMfaDTO
+    UserIdDTO, GetMfaDTO, ResendActivationCodeDTO, IdentifierDTO, DisableMfaDTO, DeleteUserByIdDTO,
+    DeleteUserByIdentifierDTO
 )
 from flask import current_app
 from webapp.services.exceptions import raise_for_status
@@ -90,4 +91,16 @@ class UserService:
         raise_for_status(response)
 
         return MfaSetupDTO(**response.json())
+
+    def delete_user_by_id(self, dto: DeleteUserByIdDTO) -> None:
+        users_url = current_app.config["USERS_SERVICE_URL"]
+
+        response = httpx.delete(f"{users_url}/id", params=dto.__dict__, timeout=5)
+        raise_for_status(response)
+
+    def delete_user_by_identifier(self, dto: DeleteUserByIdentifierDTO) -> None:
+        users_url = current_app.config["USERS_SERVICE_URL"]
+
+        response = httpx.delete(f"{users_url}/identifier", params=dto.__dict__, timeout=5)
+        raise_for_status(response)
 

@@ -1,5 +1,6 @@
 from dependency_injector.wiring import Provide, inject
 from flask import request, jsonify
+from webapp.api.protected.routes import admin_required
 from webapp.api.users.mappers import (
     to_dto_create,
     to_dto_activate,
@@ -12,7 +13,7 @@ from webapp.api.users.mappers import (
     to_dto_user_id,
     to_dto_identifier,
     to_dto_disable_mfa,
-    to_dto_mfa_qr
+    to_dto_mfa_qr, to_dto_delete_user_by_id, to_dto_delete_user_by_identifier
 )
 from webapp.services.users.services import UserService
 from webapp.container import Container
@@ -27,10 +28,11 @@ from .schemas import (
     UserIdSchema,
     IdentifierSchema,
     DisableMfaSchema,
-    GetMfaSchema
+    GetMfaSchema, DeleteUserByIdSchema, DeleteUserByIdentifierSchema
 
 )
 from . import users_bp
+
 
 
 @users_bp.post("")
@@ -113,3 +115,21 @@ def get_mfa_qr_code(user_service: UserService=Provide[Container.user_service]) -
     dto = to_dto_mfa_qr(payload)
     result = user_service.get_mfa_qr_code(dto)
     return jsonify(to_schema_mfa_setup(result).model_dump(mode="json"), 200)
+
+@users_bp.delete("/id")
+@admin_required
+@inject
+def delete_user_by_id(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+    payload = DeleteUserByIdSchema.model_validate(request.args.to_dict() or {})
+    dto = to_dto_delete_user_by_id(payload)
+    user_service.delete_user_by_id(dto)
+    return "", 204
+
+@users_bp.delete("/identifier")
+@admin_required
+@inject
+def delete_user_by_identifier(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
+    payload = DeleteUserByIdentifierSchema.model_validate(request.args.to_dict() or {})
+    dto = to_dto_delete_user_by_identifier(payload)
+    user_service.delete_user_by_identifier(dto)
+    return "", 204

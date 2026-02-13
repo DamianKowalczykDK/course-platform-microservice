@@ -7,7 +7,12 @@ from webapp.api.users.schemas import (
     MfaSetupSchema,
     EnableMfaSchema,
     ResendActivationCodeSchema,
-    IdentifierSchema, UserIdSchema, DisableMfaSchema, GetMfaSchema
+    IdentifierSchema,
+    UserIdSchema,
+    DisableMfaSchema,
+    GetMfaSchema,
+    DeleteUserByIdSchema,
+    DeleteUserByIdentifierSchema
 )
 from webapp.services.users.dtos import (
     CreateUserDTO,
@@ -21,7 +26,9 @@ from webapp.services.users.dtos import (
     IdentifierDTO,
     UserIdDTO,
     GetMfaDTO,
-    DisableMfaDTO
+    DisableMfaDTO,
+    DeleteUserByIdDTO,
+    DeleteUserByIdentifierDTO
 )
 
 def to_dto_create(schema: CreateUserSchema) -> CreateUserDTO:
@@ -81,3 +88,9 @@ def to_dto_disable_mfa(schema: DisableMfaSchema) -> DisableMfaDTO:
 
 def to_dto_mfa_qr(schema: GetMfaSchema) -> GetMfaDTO:
     return GetMfaDTO(user_id=schema.user_id)
+
+def to_dto_delete_user_by_id(schema: DeleteUserByIdSchema) -> DeleteUserByIdDTO:
+    return DeleteUserByIdDTO(user_id=schema.user_id)
+
+def to_dto_delete_user_by_identifier(schema: DeleteUserByIdentifierSchema) -> DeleteUserByIdentifierDTO:
+    return DeleteUserByIdentifierDTO(identifier=schema.identifier)

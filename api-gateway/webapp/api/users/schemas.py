@@ -60,3 +60,9 @@ class UserIdSchema(BaseModel):
 
 class GetMfaSchema(BaseModel):
     user_id: str
+
+class DeleteUserByIdSchema(BaseModel):
+    user_id: str
+
+class DeleteUserByIdentifierSchema(BaseModel):
+    identifier: str
