@@ -61,7 +61,7 @@ def test_create_course_if_integrity_error(mock_course_repository: MagicMock, cou
         end_date=datetime(2026, 1, 2)
     )
     mock_course_repository.get_by_name.return_value = None
-    mock_course_repository.add_and_commit.side_effect = IntegrityError(None, None, None)
+    mock_course_repository.add_and_commit.side_effect = IntegrityError(None, None, BaseException())
 
     course_service.create_course(dto)
     mock_course_repository.rollback.assert_called_once()
