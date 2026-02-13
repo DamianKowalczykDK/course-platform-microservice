@@ -1,5 +1,5 @@
 from webapp.api.enrolments.schemas import CreateEnrolmentSchema, EnrolmentResponseSchema, EnrolmentIdSchema, \
-    EnrolmentByUserSchema, DeleteEnrolmentSchema
+    EnrolmentByUserSchema, DeleteEnrolmentSchema, EnrolmentsListResponseSchema
 from webapp.services.enrolments.dtos import CreateEnrolmentDTO, ReadEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO, \
     DeleteEnrolmentDTO
 
@@ -19,6 +19,8 @@ def to_enrolment_response_schema(dto: ReadEnrolmentDTO) -> EnrolmentResponseSche
         payment_status=dto.payment_status,
         invoice_url=dto.invoice_url
     )
+def to_enrolments_list_response_schema(dtos: list[ReadEnrolmentDTO]) -> EnrolmentsListResponseSchema:
+    return EnrolmentsListResponseSchema(enrolments=[to_enrolment_response_schema(dto) for dto in dtos])
 
 def to_enrolment_id_dto(schema: EnrolmentIdSchema) -> EnrolmentIdDTO:
     return EnrolmentIdDTO(enrolment_id=schema.enrolment_id)

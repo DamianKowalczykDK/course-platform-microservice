@@ -1,12 +1,12 @@
 from dependency_injector.wiring import Provide, inject
 from flask import request, jsonify
 from flask.typing import ResponseReturnValue
-from webapp.api.enrolments.mappers import(
+from webapp.api.enrolments.mappers import (
     to_enrolment_response_schema,
     to_create_enrolment_dto,
     to_enrolment_id_dto,
     to_enrolment_by_user_dto,
-    to_enrolment_delete_dto
+    to_enrolment_delete_dto, to_enrolments_list_response_schema
 )
 from webapp.api.enrolments.schemas import (
     CreateEnrolmentSchema,
@@ -39,8 +39,9 @@ def set_paid(enrolment_service: EnrolmentService = Provide[Container.enrolment_s
 @enrolment_bp.patch("/expired")
 @inject
 def expired_courses(enrolment_service: EnrolmentService=Provide[Container.enrolment_service]) -> ResponseReturnValue:
-    updated_enrolments = enrolment_service.expired_courses()
-    return jsonify([to_enrolment_response_schema(e).model_dump(mode="json") for e in updated_enrolments]), 200
+    dtos = enrolment_service.expired_courses()
+    enrolments = to_enrolments_list_response_schema(dtos)
+    return jsonify(enrolments.model_dump(mode="json")), 200
 
 @enrolment_bp.get("/<int:enrolment_id>")
 @inject
@@ -68,8 +69,9 @@ def get_by_id_and_user(enrolment_id: int, enrolment_service: EnrolmentService=Pr
 @enrolment_bp.get("/active")
 @inject
 def get_active(enrolment_service: EnrolmentService=Provide[Container.enrolment_service]) -> ResponseReturnValue:
-    enrolments = enrolment_service.get_active()
-    return jsonify([to_enrolment_response_schema(e).model_dump(mode="json") for e in enrolments]), 200
+    dtos = enrolment_service.get_active()
+    enrolments = to_enrolments_list_response_schema(dtos)
+    return jsonify(enrolments.model_dump(mode="json")), 200
 
 
 @enrolment_bp.delete("/<int:enrolment_id>")

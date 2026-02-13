@@ -121,7 +121,7 @@ def test_expired_courses(client: FlaskClient, mock_service: MagicMock) -> None:
     assert response.status_code == 200
 
     data = response.get_json()
-    assert data[0]["status"] == Status.COMPLETED.value
+    assert data["enrolments"][0]["status"] == Status.COMPLETED.value
 
 def test_get_by_id_and_user_success(client: FlaskClient, mock_service: MagicMock) -> None:
     fake_enrolment_dto = ReadEnrolmentDTO(

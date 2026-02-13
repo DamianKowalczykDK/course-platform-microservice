@@ -1,15 +1,19 @@
-from webapp.database.models.enrolments import Enrolment, PaymentStatus, Status
+from webapp.database.models.enrolments import Enrolment, PaymentStatus
 from webapp.database.repositories.enrolments import EnrolmentRepository
 from webapp.services.email_service import EmailService
-from webapp.services.enrolments.dtos import CreateEnrolmentDTO, ReadEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO, \
+from webapp.services.enrolments.dtos import (
+    CreateEnrolmentDTO,
+    ReadEnrolmentDTO,
+    EnrolmentIdDTO,
+    EnrolmentByUserDTO,
     DeleteEnrolmentDTO
+)
 from webapp.services.enrolments.mappers import to_read_dto
 from webapp.services.exceptions import ValidationException, NotFoundException, ConflictException, ServiceException
 from webapp.extensions import db
 from webapp.services.invoices.services import InvoiceService
 from webapp.services.invoices.dtos import InvoiceDTO
-from datetime import datetime, timezone
-from flask import current_app, session
+from flask import current_app
 import httpx
 
 
