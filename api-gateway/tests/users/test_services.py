@@ -56,7 +56,7 @@ def test_create_user(mock_raise: MagicMock, mock_post: MagicMock, service: UserS
         "role": "admin",
         "is_active": False,
         "mfa_secret": "secret123"
-    }
+    }, 201
     )
     with app.test_request_context():
         result = service.create_user(dto)
@@ -280,7 +280,7 @@ def test_get_mfa_qr_code(mock_raise: MagicMock, mock_get: MagicMock, service: Us
 @patch("webapp.services.users.services.raise_for_status")
 def test_delete_user_by_id(mock_raise: MagicMock, mock_delete: MagicMock, service: UserService, app: Flask) -> None:
     dto = DeleteUserByIdDTO(user_id="123")
-    mock_delete.return_value = {}
+    mock_delete.return_value = make_response({}, 204)
     with app.test_request_context():
         service.delete_user_by_id(dto)
 
@@ -291,7 +291,7 @@ def test_delete_user_by_id(mock_raise: MagicMock, mock_delete: MagicMock, servic
 @patch("webapp.services.users.services.raise_for_status")
 def test_delete_user_by_identifier(mock_raise: MagicMock, mock_delete: MagicMock, service: UserService, app: Flask) -> None:
     dto = DeleteUserByIdentifierDTO(identifier="test@example.com")
-    mock_delete.return_value = {}
+    mock_delete.return_value = make_response({}, 204)
     with app.test_request_context():
         service.delete_user_by_identifier(dto)
 
