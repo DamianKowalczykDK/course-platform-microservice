@@ -1,23 +1,14 @@
 from flask import Flask
 from flask.testing import FlaskClient
 from unittest.mock import patch, MagicMock
-
 from flask_jwt_extended import create_access_token, create_refresh_token
-
 from webapp import create_app
 from webapp.api.auth.mappers import to_schema_token_pair
-from webapp.api.auth.schemas import TokenPairSchema
-from webapp.api.users.routes import activate_user
 from webapp.api.users.schemas import GenderType
-from webapp.services.auth.dtos import LoginMfaRequiredDTO, TokenPairDTO, VerifyMfaDTO
-from webapp.services.users.dtos import UserDTO, MfaSetupDTO, GetMfaDTO
+from webapp.services.auth.dtos import LoginMfaRequiredDTO, TokenPairDTO
+from webapp.services.users.dtos import UserDTO, MfaSetupDTO
 import pytest
 
-@pytest.fixture
-def app() -> Flask:
-    app = create_app()
-    app.config.update({"TESTING": True})
-    return app
 
 @pytest.fixture
 def client(app: Flask) -> FlaskClient:

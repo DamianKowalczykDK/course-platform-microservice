@@ -1,9 +1,5 @@
 from unittest.mock import MagicMock, patch
-from flask import Flask
 from flask.testing import FlaskClient
-from flask_jwt_extended import create_access_token
-from webapp import create_app
-import pytest
 from webapp.services.enrolments.dtos import (
     EnrolmentDTO,
     PaymentStatus,
@@ -13,30 +9,6 @@ from webapp.services.enrolments.dtos import (
     DeleteEnrolmentDTO
 )
 from webapp.services.users.dtos import UserIdDTO
-
-
-@pytest.fixture
-def app() -> Flask:
-    app = create_app()
-    app.config.update({
-        "TESTING": True,
-    })
-    return app
-@pytest.fixture
-def client(app: Flask) -> FlaskClient:
-    return app.test_client()
-
-@pytest.fixture
-def user_headers(app: Flask) -> dict[str, str]:
-    with app.app_context():
-        token = create_access_token(identity="user123")
-    return {"Authorization": f"Bearer {token}"}
-
-@pytest.fixture
-def admin_headers(app: Flask) -> dict[str, str]:
-    with app.app_context():
-        token = create_access_token(identity="admin")
-    return {"Authorization": f"Bearer {token}"}
 
 @patch("webapp.api.enrolments.routes.EnrolmentService.create_enrolment_for_user")
 @patch("webapp.api.auth.decorators.UserService.get_user_by_id")
