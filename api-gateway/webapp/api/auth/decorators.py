@@ -6,6 +6,7 @@ from functools import wraps
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from webapp.container import Container
 from webapp.services.users.dtos import UserIdDTO
+from webapp.services.users.services import UserService
 
 
 def role_required(*roles: str) -> Callable[[Callable[..., ResponseReturnValue]], Callable[..., ResponseReturnValue]]:
@@ -16,7 +17,7 @@ def role_required(*roles: str) -> Callable[[Callable[..., ResponseReturnValue]],
             user_id = get_jwt_identity()
 
             container = Container()
-            user_service = container.user_service()
+            user_service: UserService = container.user_service()
 
             dto = UserIdDTO(user_id=user_id)
             user = user_service.get_user_by_id(dto)
