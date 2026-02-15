@@ -1,6 +1,7 @@
 from dependency_injector.wiring import Provide, inject
 from flask import request, jsonify
 from webapp.api.courses.schemas import CreateCourseSchema, CourseIdSchema, CourseNameSchema, UpdateCourseSchema
+from webapp.api.auth.decorators import admin_required
 from webapp.services.courses.services import CourseService
 from flask.typing import ResponseReturnValue
 from webapp.container import Container
@@ -9,6 +10,7 @@ from . import course_bp
 
 
 @course_bp.post("")
+@admin_required
 @inject
 def create_course(course_service: CourseService=Provide[Container.course_service]) -> ResponseReturnValue:
     payload = CreateCourseSchema.model_validate(request.get_json())
@@ -18,6 +20,7 @@ def create_course(course_service: CourseService=Provide[Container.course_service
 
 
 @course_bp.get("/<int:course_id>")
+@admin_required
 @inject
 def get_by_id(course_id: int, course_service: CourseService=Provide[Container.course_service]) -> ResponseReturnValue:
     payload = CourseIdSchema(course_id=course_id)
@@ -26,6 +29,7 @@ def get_by_id(course_id: int, course_service: CourseService=Provide[Container.co
     return jsonify(to_schema_course(course).model_dump(mode="json")), 200
 
 @course_bp.get("/")
+@admin_required
 @inject
 def get_by_name(course_service: CourseService=Provide[Container.course_service]) -> ResponseReturnValue:
     payload = CourseNameSchema.model_validate(request.args.to_dict() or {})
@@ -34,6 +38,7 @@ def get_by_name(course_service: CourseService=Provide[Container.course_service])
     return jsonify(to_schema_course(course).model_dump(mode="json")), 200
 
 @course_bp.patch("/<int:course_id>")
+@admin_required
 @inject
 def update_course(course_id: int, course_service: CourseService=Provide[Container.course_service]) -> ResponseReturnValue:
     payload = UpdateCourseSchema.model_validate(request.get_json() or {})
@@ -42,6 +47,7 @@ def update_course(course_id: int, course_service: CourseService=Provide[Containe
     return jsonify(to_schema_course(course).model_dump(mode="json")), 200
 
 @course_bp.delete("/<int:course_id>")
+@admin_required
 @inject
 def delete_by_id(course_id: int, course_service: CourseService=Provide[Container.course_service]) -> ResponseReturnValue:
     payload = CourseIdSchema(course_id=course_id)
