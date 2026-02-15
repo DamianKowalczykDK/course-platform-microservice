@@ -36,5 +36,4 @@ class EnrolmentRepository(GenericRepository[Enrolment]):
         for e in to_expire:
             e.status = Status.COMPLETED
 
-        db.session.commit()
         return list(to_expire)

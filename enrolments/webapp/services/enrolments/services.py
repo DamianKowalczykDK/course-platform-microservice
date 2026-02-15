@@ -138,6 +138,7 @@ class EnrolmentService:
 
     def expired_courses(self) -> list[ReadEnrolmentDTO]:
         updated_enrolments = self.repo.mark_expired_enrolments_completed()
+        db.session.commit()
 
         return [to_read_dto(e) for e in updated_enrolments]
 
