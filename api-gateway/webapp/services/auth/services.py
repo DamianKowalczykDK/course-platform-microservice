@@ -24,7 +24,7 @@ class AuthService:
 
     def verify_mfa(self, dto: VerifyMfaDTO) -> TokenPairDTO:
         users_url = current_app.config["USERS_SERVICE_URL"]
-        response = httpx.get(f"{users_url}/by-id", params=dto.__dict__, timeout=5)
+        response = httpx.get(f"{users_url}/id", params=dto.__dict__, timeout=5)
 
         raise_for_status(response)
 
