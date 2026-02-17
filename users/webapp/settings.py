@@ -14,16 +14,16 @@ class MongoDBSettings(TypedDict):
     password: str
 
 class Config:
-    SECRET_KEY: str = os.getenv('SECRET_KEY', "default secret key")
-    FLASK_ENV:str = os.getenv('FLASK_ENV', "development")
+    SECRET_KEY: str = os.getenv('SECRET_KEY', "")
+    FLASK_ENV:str = os.getenv('FLASK_ENV', "")
     FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
-    USER_ACTIVATION_EXPIRATION_MINUTES: int = int(os.getenv("USER_ACTIVATION_EXPIRATION_MINUTES", "30"))
-    RESET_PASSWORD_EXPIRATION_MINUTES: int = int(os.getenv('RESET_PASSWORD_EXPIRATION_MINUTES', "15"))
+    USER_ACTIVATION_EXPIRATION_MINUTES: int = int(os.getenv("USER_ACTIVATION_EXPIRATION_MINUTES", ""))
+    RESET_PASSWORD_EXPIRATION_MINUTES: int = int(os.getenv('RESET_PASSWORD_EXPIRATION_MINUTES', ""))
 
 
     MONGODB_DB: str=os.getenv('MONGODB_DB', "")
     MONGODB_HOST: str=os.getenv('MONGODB_HOST', "")
-    MONGODB_PORT: int=int(os.getenv('MONGODB_PORT', "27018"))
+    MONGODB_PORT: int=int(os.getenv('MONGODB_PORT', ""))
     MONGODB_USERNAME: str=os.getenv('MONGODB_USERNAME', "")
     MONGODB_PASSWORD: str=os.getenv('MONGODB_PASSWORD', "")
 
@@ -37,8 +37,8 @@ class Config:
             'password': self.MONGODB_PASSWORD
         }
 
-    MAIL_SERVER: str=os.getenv('MAIL_SERVER', "smtp.gmail.com")
-    MAIL_PORT: int= int(os.getenv('MAIL_PORT', "587"))
+    MAIL_SERVER: str=os.getenv('MAIL_SERVER', "")
+    MAIL_PORT: int= int(os.getenv('MAIL_PORT', ""))
     MAIL_USE_TLS: bool=os.getenv('MAIL_USE_TLS', "True") in ("1", "true", "True")
     MAIL_USE_SSL: bool=os.getenv('MAIL_USE_SSL', "False") in ("1", "true", "True")
     MAIL_USERNAME: str=os.getenv('MAIL_USERNAME', "")

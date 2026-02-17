@@ -8,22 +8,23 @@ load_dotenv()
 
 
 class Config:
-    SECRET_KEY: str = os.getenv('SECRET_KEY', "default secret key")
-    FLASK_ENV:str = os.getenv('FLASK_ENV', "development")
+    SECRET_KEY: str = os.getenv('SECRET_KEY', "")
+    FLASK_ENV:str = os.getenv('FLASK_ENV', "")
     FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
+    HTTP_TIMEOUT: int = int(os.getenv("HTTP_TIMEOUT", ""))
 
-    JWT_SECRET_KEY: str = os.getenv('JWT_SECRET_KEY', "default secret key")
-    JWT_ACCESS_TOKEN_EXPIRES: int = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 600))
-    JWT_REFRESH_TOKEN_EXPIRES: int = int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 3600))
+    JWT_SECRET_KEY: str = os.getenv('JWT_SECRET_KEY', "")
+    JWT_ACCESS_TOKEN_EXPIRES: int = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', ""))
+    JWT_REFRESH_TOKEN_EXPIRES: int = int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', ""))
     JWT_COOKIE_CSRF_PROTECT: bool = os.getenv("JWT_COOKIE_CSRF_PROTECT", "False") in ("1", "true", "True")
     JWT_ALGORITHM: str = os.getenv('JWT_ALGORITHM', "HS256")
     JWT_TOKEN_LOCATION: list[str] = os.getenv('JWT_TOKEN_LOCATION', "cookies, headers").split(",")
     # JWT_TOKEN_SECURE: bool = os.getenv('JWT_TOKEN_SECURE', "True") in ("1", "true", "True")
-    # JWT_TOKEN_SAMESITE: str = os.getenv('JWT_TOKEN_SAMESITE', "Strict")
+    # JWT_TOKEN_SAMESITE: str = os.getenv('JWT_TOKEN_SAMESITE', "")
 
-    USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "http://localhost:5000/api/users")
-    COURSE_SERVICE_URL: str = os.getenv('COURSE_SERVICE_URL', "http://localhost:5000/api/course")
-    ENROLMENT_SERVICE_URL: str = os.getenv('ENROLMENT_SERVICE_URL', "http://localhost:5000/api/enrolment")
+    USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "")
+    COURSE_SERVICE_URL: str = os.getenv('COURSE_SERVICE_URL', "")
+    ENROLMENT_SERVICE_URL: str = os.getenv('ENROLMENT_SERVICE_URL', "")
 
     @staticmethod
     def configure_logging(app: Flask) -> None:

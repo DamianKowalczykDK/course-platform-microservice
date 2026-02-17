@@ -7,17 +7,17 @@ import os
 load_dotenv()
 
 class Config:
-    SECRET_KEY: str = os.getenv('SECRET_KEY', "default secret key")
-    FLASK_ENV:str = os.getenv('FLASK_ENV', "development")
+    SECRET_KEY: str = os.getenv('SECRET_KEY', "")
+    FLASK_ENV:str = os.getenv('FLASK_ENV', "")
     FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
 
-    MYSQL_DIALECT: str = os.getenv('MYSQL_ENROLMENT_DIALECT', 'mysql+mysqldb')
-    MYSQL_HOST: str = os.getenv('MYSQL_ENROLMENT_HOST', 'mysql-enrolments')
-    MYSQL_DATABASE: str = os.getenv('MYSQL_ENROLMENT_DATABASE', 'db_enrolments')
+    MYSQL_DIALECT: str = os.getenv('MYSQL_ENROLMENT_DIALECT', '')
+    MYSQL_HOST: str = os.getenv('MYSQL_ENROLMENT_HOST', '')
+    MYSQL_DATABASE: str = os.getenv('MYSQL_ENROLMENT_DATABASE', '')
     MYSQL_USER: str = os.getenv('MYSQL_ENROLMENT_USER', '')
     MYSQL_PASSWORD: str = os.getenv('MYSQL_ENROLMENT_PASSWORD', '')
     MYSQL_ROOT_PASSWORD: str = os.getenv('MYSQL_ENROLMENT_ROOT_PASSWORD', '')
-    MYSQL_PORT: str = os.getenv('MYSQL_ENROLMENT_PORT', '3308')
+    MYSQL_PORT: str = os.getenv('MYSQL_ENROLMENT_PORT', '')
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str: # pragma: no cover
@@ -26,19 +26,21 @@ class Config:
             f"@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}?charset=utf8mb4"
         )
 
-    MAIL_SERVER: str=os.getenv('MAIL_SERVER', "smtp.gmail.com")
-    MAIL_PORT: int= int(os.getenv('MAIL_PORT', "587"))
-    MAIL_USE_TLS: bool=os.getenv('MAIL_USE_TLS', "True") in ("1", "true", "True")
-    MAIL_USE_SSL: bool=os.getenv('MAIL_USE_SSL', "False") in ("1", "true", "True")
+    MAIL_SERVER: str=os.getenv('MAIL_SERVER', "")
+    MAIL_PORT: int= int(os.getenv('MAIL_PORT', ""))
+    MAIL_USE_TLS: bool=os.getenv('MAIL_USE_TLS', "") in ("1", "true", "True")
+    MAIL_USE_SSL: bool=os.getenv('MAIL_USE_SSL', "") in ("1", "true", "True")
     MAIL_USERNAME: str=os.getenv('MAIL_USERNAME', "")
     MAIL_PASSWORD: str=os.getenv('MAIL_PASSWORD', "")
     MAIL_DEFAULT_SENDER: str=os.getenv('MAIL_DEFAULT_SENDER', "")
 
-    USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "http://localhost:5000/api/users")
-    COURSE_SERVICE_URL: str = os.getenv('COURSE_SERVICE_URL', "http://localhost:5000/api/course")
+    USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "")
+    COURSE_SERVICE_URL: str = os.getenv('COURSE_SERVICE_URL', "")
 
     INVOICE_API_TOKEN: str = os.getenv('INVOICE_API_TOKEN', "")
     INVOICE_DOMAIN: str = os.getenv('INVOICE_DOMAIN', "")
+
+    HTTP_TIMEOUT: int = int(os.getenv('HTTP_TIMEOUT', ""))
 
     @staticmethod
     def configure_logging(app: Flask) -> None: # pragma: no cover

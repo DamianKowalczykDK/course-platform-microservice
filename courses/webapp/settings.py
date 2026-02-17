@@ -8,17 +8,17 @@ load_dotenv()
 
 
 class Config:
-    SECRET_KEY: str = os.getenv('SECRET_KEY', "default secret key")
-    FLASK_ENV:str = os.getenv('FLASK_ENV', "development")
+    SECRET_KEY: str = os.getenv('SECRET_KEY', "")
+    FLASK_ENV:str = os.getenv('FLASK_ENV', "")
     FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
 
-    MYSQL_DIALECT: str = os.getenv('MYSQL_DIALECT', 'mysql+mysqldb')
-    MYSQL_HOST: str = os.getenv('MYSQL_HOST', 'mysql-courses')
-    MYSQL_DATABASE: str = os.getenv('MYSQL_DATABASE', 'db_courses')
+    MYSQL_DIALECT: str = os.getenv('MYSQL_DIALECT', '')
+    MYSQL_HOST: str = os.getenv('MYSQL_HOST', 's')
+    MYSQL_DATABASE: str = os.getenv('MYSQL_DATABASE', '')
     MYSQL_USER: str = os.getenv('MYSQL_USER', '')
     MYSQL_PASSWORD: str = os.getenv('MYSQL_PASSWORD', '')
     MYSQL_ROOT_PASSWORD: str = os.getenv('MYSQL_ROOT_PASSWORD', '')
-    MYSQL_PORT: str = os.getenv('MYSQL_PORT', '3307')
+    MYSQL_PORT: str = os.getenv('MYSQL_PORT', '')
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str: # pragma: no cover
