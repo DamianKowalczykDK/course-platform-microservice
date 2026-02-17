@@ -29,20 +29,19 @@ class EnrolmentService:
         self.email_service = email_service
         self.invoice_service = invoice_service
 
-        self.http_timeout = current_app.config["HTTP_TIMEOUT"]
-        self.course_url = current_app.config["COURSE_SERVICE_URL"]
-        self.users_url = current_app.config["USERS_SERVICE_URL"]
-
 
     def create_enrolment_for_user(self, dto: CreateEnrolmentDTO) -> ReadEnrolmentDTO:
+        course_url = current_app.config["COURSE_SERVICE_URL"]
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
 
         try:
 
-            user_resp = httpx.get(f"{self.users_url}/id", params={"user_id": dto.user_id}, timeout=self.http_timeout)
+            user_resp = httpx.get(f"{users_url}/id", params={"user_id": dto.user_id}, timeout=http_timeout)
             if user_resp.status_code != 200:
                 raise ValidationException(f"User {dto.user_id} not found or inactive")
 
-            course_resp = httpx.get(f"{self.course_url}/{dto.course_id}", timeout=self.http_timeout)
+            course_resp = httpx.get(f"{course_url}/{dto.course_id}", timeout=5)
             if course_resp.status_code != 200:
                 raise ValidationException(f"Course {dto.course_id} not found")
 
@@ -83,6 +82,9 @@ class EnrolmentService:
 
     def set_paid(self, dto: EnrolmentIdDTO) -> ReadEnrolmentDTO:
         enrolment = self.repo.get_by_id(dto.enrolment_id)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        course_url = current_app.config["COURSE_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
 
         if not enrolment:
             raise NotFoundException(f"Enrolment not found")
@@ -90,11 +92,11 @@ class EnrolmentService:
         if enrolment.payment_status == PaymentStatus.PAID:
             raise ConflictException(f"Enrolment already paid")
 
-        user_resp = httpx.get(f"{self.users_url}/id", params={"user_id": enrolment.user_id}, timeout=self.http_timeout)
+        user_resp = httpx.get(f"{users_url}/id", params={"user_id": enrolment.user_id}, timeout=http_timeout)
         if user_resp.status_code != 200:
             raise ValidationException(f"User not found or inactive")
 
-        course_resp = httpx.get(f"{self.course_url}/{enrolment.course_id}", timeout=self.http_timeout)
+        course_resp = httpx.get(f"{course_url}/{enrolment.course_id}", timeout=5)
         if course_resp.status_code != 200:
             raise ValidationException(f"Course {enrolment.course_id} not found")
 

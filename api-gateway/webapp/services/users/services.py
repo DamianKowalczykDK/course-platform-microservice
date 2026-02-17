@@ -14,72 +14,105 @@ from webapp.services.exceptions import raise_for_status
 import httpx
 
 class UserService:
-    def __init__(self) -> None:
-        self.users_url = current_app.config["USERS_SERVICE_URL"]
-        self.http_timeout = current_app.config["HTTP_TIMEOUT"]
 
     def create_user(self, dto: CreateUserDTO) -> UserDTO:
-        response = httpx.post(f"{self.users_url}/", json=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.post(f"{users_url}/", json=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 
         return UserDTO(**response.json())
 
     def activate_user(self, dto: ActivationUserDTO) -> UserDTO:
-        response = httpx.patch(f"{self.users_url}/activation", json=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.patch(f"{users_url}/activation", json=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 
         return UserDTO(**response.json())
 
     def resend_activation_code(self, dto: ResendActivationCodeDTO) -> UserDTO:
-        response = httpx.get(f"{self.users_url}/activation/resend", params=dto.__dict__ , timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.get(f"{users_url}/activation/resend", params=dto.__dict__ , timeout=http_timeout)
         raise_for_status(response, not_found_message=f"User {dto.identifier} not found")
 
         return UserDTO(**response.json())
 
     def forgot_password(self, dto: ForgotPasswordDTO) -> None:
-        response = httpx.post(f"{self.users_url}/password/forgot", json=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.post(f"{users_url}/password/forgot", json=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 
     def reset_password(self, dto: ResetPasswordDTO) -> None:
-        response = httpx.post(f"{self.users_url}/password/reset", json=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.post(f"{users_url}/password/reset", json=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 
     def enable_mfa(self, dto: EnableMfaDTO) -> MfaSetupDTO:
-        response = httpx.patch(f"{self.users_url}/mfa/enable", json=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.patch(f"{users_url}/mfa/enable", json=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 
         return MfaSetupDTO(**response.json())
 
     def get_user_by_id(self, dto: UserIdDTO) -> UserDTO:
-        response = httpx.get(f"{self.users_url}/id", params=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.get(f"{users_url}/id", params=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 
         return UserDTO(**response.json())
 
     def get_user_by_identifier(self, dto: IdentifierDTO) -> UserDTO:
-        response = httpx.get(f"{self.users_url}/identifier",params=dto.__dict__ , timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.get(f"{users_url}/identifier",params=dto.__dict__ , timeout=http_timeout)
         raise_for_status(response, not_found_message=f"User {dto.identifier} not found")
 
         return UserDTO(**response.json())
 
 
     def disable_mfa(self, dto: DisableMfaDTO) -> UserDTO:
-        response = httpx.patch(f"{self.users_url}/mfa/disable", json=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.patch(f"{users_url}/mfa/disable", json=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 
         return UserDTO(**response.json())
 
     def get_mfa_qr_code(self, dto: GetMfaDTO) -> MfaSetupDTO:
-        response = httpx.get(f"{self.users_url}/mfa/qr", params=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.get(f"{users_url}/mfa/qr", params=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 
         return MfaSetupDTO(**response.json())
 
     def delete_user_by_id(self, dto: DeleteUserByIdDTO) -> None:
-        response = httpx.delete(f"{self.users_url}/id", params=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.delete(f"{users_url}/id", params=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 
     def delete_user_by_identifier(self, dto: DeleteUserByIdentifierDTO) -> None:
-        response = httpx.delete(f"{self.users_url}/identifier", params=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.delete(f"{users_url}/identifier", params=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 

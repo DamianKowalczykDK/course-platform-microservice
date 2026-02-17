@@ -7,12 +7,12 @@ import pyotp
 
 
 class AuthService:
-    def __init__(self) -> None:
-        self.users_url = current_app.config["USERS_SERVICE_URL"]
-        self.http_timeout = current_app.config["HTTP_TIMEOUT"]
 
     def login(self, dto: LoginDTO) -> TokenPairDTO | LoginMfaRequiredDTO:
-        response = httpx.post(f"{self.users_url}/auth/check", json=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.post(f"{users_url}/auth/check", json=dto.__dict__, timeout=http_timeout)
         raise_for_status(response)
 
         user = response.json()
@@ -25,7 +25,10 @@ class AuthService:
         return self.generate_token(user["id"])
 
     def verify_mfa(self, dto: VerifyMfaDTO) -> TokenPairDTO:
-        response = httpx.get(f"{self.users_url}/id", params=dto.__dict__, timeout=self.http_timeout)
+        users_url = current_app.config["USERS_SERVICE_URL"]
+        http_timeout = current_app.config["HTTP_TIMEOUT"]
+
+        response = httpx.get(f"{users_url}/id", params=dto.__dict__, timeout=http_timeout)
 
         raise_for_status(response)
 

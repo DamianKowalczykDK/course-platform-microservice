@@ -17,7 +17,8 @@ def app() -> Generator[Flask, None, None]:
     app = Flask(__name__)
     app.config['USERS_SERVICE_URL'] = "http://users-service"
     app.config['COURSE_SERVICE_URL'] = "http://course-service"
-    app.config["MAIL_DEFAULT_SENDER"] = "default@example.com"
+    app.config['HTTP_TIMEOUT'] = 5
+
     with app.app_context():
         yield app
 
