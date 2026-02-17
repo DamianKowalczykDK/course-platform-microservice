@@ -17,7 +17,8 @@ def app() -> Flask:
     app = create_app()
     app.config.update({
         "TESTING": True,
-        "USERS_SERVICE_URL": "http://localhost:users-webapp"
+        "USERS_SERVICE_URL": "http://localhost:users-webapp",
+        "HTTP_TIMEOUT": 5,
     })
     return app
 

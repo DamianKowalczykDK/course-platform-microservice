@@ -14,7 +14,8 @@ def app() -> Flask:
     app = Flask(__name__)
     app.config.update({
         "TESTING": True,
-        "COURSE_SERVICE_URL": "https://localhost:courses-webapp"
+        "COURSE_SERVICE_URL": "https://localhost:courses-webapp",
+        "HTTP_TIMEOUT": 5,
     }
     )
     return app

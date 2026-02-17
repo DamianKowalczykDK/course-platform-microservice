@@ -1,11 +1,9 @@
 from typing import Generator
 from unittest.mock import patch, MagicMock
-
-import pytest
 from flask import Flask
-
 from webapp.services.enrolments.dtos import CreateEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO, DeleteEnrolmentDTO
 from webapp.services.enrolments.services import EnrolmentService
+import pytest
 
 
 @pytest.fixture
@@ -13,7 +11,8 @@ def app() -> Flask:
     app = Flask(__name__)
     app.config.update({
         "TESTING": True,
-        "ENROLMENT_SERVICE_URL": "http://localhost:enrolment-service-webapp"
+        "ENROLMENT_SERVICE_URL": "http://localhost:enrolment-service-webapp",
+        "HTTP_TIMEOUT": 5
     })
     return app
 

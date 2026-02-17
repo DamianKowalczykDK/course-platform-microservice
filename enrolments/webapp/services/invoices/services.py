@@ -28,7 +28,7 @@ class InvoiceService:
             }
         }
 
-        with httpx.Client(timeout=10.0) as client:
+        with httpx.Client() as client:
             response = client.post(
                 self.api_url,
                 headers=self.headers,
