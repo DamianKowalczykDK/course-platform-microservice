@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-from typing import TypedDict
 from logging.config import dictConfig
 from flask import Flask
 import os
@@ -25,6 +24,10 @@ class Config:
     USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "")
     COURSE_SERVICE_URL: str = os.getenv('COURSE_SERVICE_URL', "")
     ENROLMENT_SERVICE_URL: str = os.getenv('ENROLMENT_SERVICE_URL', "")
+
+    CORS_ORIGINS: list[str] = os.getenv('CORS_ORIGINS', "[]").split(",")
+    CORS_METHODS: list[str] = os.getenv('CORS_METHODS', "[]").split(",")
+    CORS_HEADERS: list[str] = os.getenv('CORS_HEADERS', "[]").split(",")
 
     @staticmethod
     def configure_logging(app: Flask) -> None:

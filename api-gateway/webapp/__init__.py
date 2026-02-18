@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+from .extensions import limiter
 from .settings import config
 from flask_jwt_extended import JWTManager
 from .api.error_handlers import register_error_handlers
@@ -15,9 +16,9 @@ def create_app() -> Flask:
         app,
         resources={
             r'/api/*': {
-                'origins': ['http://localhost:3000'],
-                'methods': ['GET', 'POST', 'PATCH', 'OPTIONS'],
-                'allow_headers': ['Content-Type', 'Authorization'],
+                'origins': app.config['CORS_ORIGINS'],
+                'methods': app.config['CORS_METHODS'],
+                'allow_headers': app.config['CORS_HEADERS'],
             }
         },
         supports_credentials=True
@@ -29,9 +30,6 @@ def create_app() -> Flask:
 
     container = Container()
     container.wire()
-
-
-
 
     register_error_handlers(app)
     app.register_blueprint(api_bp)
