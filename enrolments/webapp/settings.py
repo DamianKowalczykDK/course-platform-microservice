@@ -19,12 +19,25 @@ class Config:
     MYSQL_ROOT_PASSWORD: str = os.getenv('MYSQL_ENROLMENT_ROOT_PASSWORD', '')
     MYSQL_PORT: str = os.getenv('MYSQL_ENROLMENT_PORT', '')
 
+    DB_POOL_SIZE: int = int(os.getenv("DB_POOL_SIZE", ""))
+    DB_MAX_OVERFLOW: int = int(os.getenv("DB_MAX_OVERFLOW", ""))
+    DB_POOL_RECYCLE: int = int(os.getenv("DB_POOL_RECYCLE", ""))
+    DB_POOL_PRE_PING: bool = os.getenv("DB_POOL_PRE_PING", "") in ("1", "true", "True")
+
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str: # pragma: no cover
         return (
             f"{self.MYSQL_DIALECT}://{self.MYSQL_USER}:{quote_plus(self.MYSQL_PASSWORD)}"
             f"@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}?charset=utf8mb4"
         )
+    @property
+    def SQLALCHEMY_ENGINE_OPTIONS(self) -> dict:
+        return {
+            "pool_size": self.DB_POOL_SIZE,
+            "max_overflow": self.DB_MAX_OVERFLOW,
+            "pool_pre_ping": self.DB_POOL_PRE_PING,
+            "pool_recycle": self.DB_POOL_RECYCLE,
+        }
 
     MAIL_SERVER: str=os.getenv('MAIL_SERVER', "")
     MAIL_PORT: int= int(os.getenv('MAIL_PORT', ""))
@@ -61,6 +74,7 @@ class Config:
         app.logger.debug("Logger initialized")
         conf = cls()
         app.config['SQLALCHEMY_DATABASE_URI'] = conf.SQLALCHEMY_DATABASE_URI
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = conf.SQLALCHEMY_ENGINE_OPTIONS
 
 config: dict[str, type[Config]] = {
     "default": Config,
