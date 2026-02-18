@@ -1,8 +1,7 @@
 from typing import Literal, Self
-
-from pydantic import BaseModel, EmailStr, model_validator, Field
-
+from pydantic import BaseModel, EmailStr, model_validator, Field, field_validator
 from webapp.database.models.user import GenderType
+import re
 
 
 class CreateUserSchema(BaseModel):
@@ -10,10 +9,19 @@ class CreateUserSchema(BaseModel):
     first_name: str = Field(..., min_length=3, max_length=64)
     last_name: str = Field(..., min_length=3, max_length=64)
     email: EmailStr
-    password: str = Field(..., min_length=6)
-    password_confirmation: str = Field(..., min_length=6)
+    password: str = Field(..., min_length=8)
+    password_confirmation: str = Field(..., min_length=8)
     gender: GenderType
     role: Literal["user", "admin"]
+
+    @field_validator("password")
+    def validate_password(cls, value: str) -> str:
+        pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$'
+
+        if not re.match(pattern, value):
+            raise ValueError("Password must have at least 1 uppercase, 1 lowercase, 1 digit, "
+                "1 special char, and be at least 8 characters long")
+        return value
 
     @model_validator(mode="after")
     def check_password_match(self) -> Self:
