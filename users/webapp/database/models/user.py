@@ -20,7 +20,7 @@ class User(Document):
     gender: PyEnum = EnumField(GenderType)
     password_hash: str = StringField(required=True)
     role: Literal["user", "admin"] = StringField(default="user", choices=["user", "admin"])
-    is_active: bool = BooleanField(default=False)
+    is_active: bool = BooleanField(default=False, index=True)
 
     activation_code: str = StringField(required=True, unique=True)
     activation_created_at: datetime = DateTimeField(default=lambda: datetime.now(timezone.utc))
