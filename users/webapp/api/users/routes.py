@@ -30,6 +30,7 @@ from webapp.api.users.mappers import (
 )
 from webapp.services.users.services import UserService
 from webapp.container import Container
+from webapp.extensions import db
 from . import users_bp
 
 @users_bp.post("/")#type: ignore
@@ -138,3 +139,25 @@ def delete_by_identifier(user_service: UserService=Provide[Container.user_servic
     user_service.delete_by_identifier(dto)
     return "", 204
 
+@users_bp.get("/health")#type: ignore
+def health() -> ResponseReturnValue:
+    health_status = {
+        "status": "ok",
+        "database": "ok",
+        "user_service": "ok"
+    }
+    status_code = 200
+
+    if not check_db_connection():
+        health_status["database"] = "down"
+        health_status["status"] = "error"
+        status_code = 503
+
+    return jsonify(health_status), status_code
+
+def check_db_connection() -> bool:
+    try:
+        db.connection.get_connection().admin.command("ping")
+        return True
+    except Exception as e:
+        return False

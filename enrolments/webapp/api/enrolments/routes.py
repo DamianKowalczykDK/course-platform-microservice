@@ -18,6 +18,7 @@ from webapp.container import Container
 from webapp.services.enrolments.services import EnrolmentService
 from webapp.services.exceptions import ApiException
 from . import enrolment_bp
+from  webapp.extensions import db
 
 
 @enrolment_bp.post("/")
@@ -82,3 +83,27 @@ def delete_by_id(enrolment_id: int, enrolment_service: EnrolmentService=Provide[
     enrolment_service.delete_by_id(dto)
     return jsonify(""), 204
 
+@enrolment_bp.get("/health")
+def health() -> ResponseReturnValue:
+    health_status = {
+        "status": "ok",
+        "database": "ok",
+        "user_service": "ok"
+    }
+    status_code = 200
+
+
+    if not check_db_connection():
+        health_status["database"] = "down"
+        health_status["status"] = "error"
+        status_code = 503
+
+    return jsonify(health_status), status_code
+
+from sqlalchemy import text
+def check_db_connection() -> bool:
+    try:
+        db.session.execute(text('SELECT 1'))
+        return True
+    except Exception as e:
+        return False

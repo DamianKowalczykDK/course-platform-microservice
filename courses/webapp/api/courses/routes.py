@@ -6,6 +6,7 @@ from webapp.services.courses.services import CourseService
 from . import course_bp
 from .mappers import to_dto_create, to_schema_course, to_dto_course_id, to_dto_course_name, to_dto_update_course
 from .schemas import CreateCourseSchema, CourseIdSchema, CourseNameSchema, UpdateCourseSchema
+from webapp.extensions import db
 
 
 @course_bp.post('/')
@@ -49,6 +50,29 @@ def delete_course_by_id(course_id: int, course_service: CourseService=Provide[Co
     course_service.delete_by_id(dto)
     return "", 204
 
+@course_bp.get("/health")
+def health() -> ResponseReturnValue:
+    health_status = {
+        "status": "ok",
+        "database": "ok",
+        "user_service": "ok"
+    }
+    status_code = 200
 
+
+    if not check_db_connection():
+        health_status["database"] = "down"
+        health_status["status"] = "error"
+        status_code = 503
+
+    return jsonify(health_status), status_code
+
+from sqlalchemy import text
+def check_db_connection() -> bool:
+    try:
+        db.session.execute(text('SELECT 1'))
+        return True
+    except Exception as e:
+        return False
 
 
