@@ -9,8 +9,8 @@ def test_passwords_invalid() -> None:
             first_name="John",
             last_name="Doe",
             email="john@example.com",
-            password="secret123",
-            password_confirmation="different123",
+            password="Secret123.",
+            password_confirmation="different123.",
             gender=GenderType.MALE,
             role="user",
         )
@@ -21,8 +21,8 @@ def test_passwords_match() -> None:
         first_name="John",
         last_name="Doe",
         email="john@example.com",
-        password="secret123",
-        password_confirmation="secret123",
+        password="Secret123.",
+        password_confirmation="Secret123.",
         gender=GenderType.MALE,
         role="user"
     )

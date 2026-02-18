@@ -51,8 +51,8 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
                 "first_name": "Jon",
                 "last_name": "Doe",
                 "email": "jon@example.com",
-                "password": "secret123",
-                "password_confirmation": "secret123",
+                "password": "Secret123.",
+                "password_confirmation": "Secret123.",
                 "gender": "Male",
                 "role": "user",
             }
@@ -85,7 +85,7 @@ def test_user_flow(mock_email: MagicMock, client: FlaskClient) -> None:
         resp = client.get(f"/api/users/id", query_string={"user_id": user_id})
         assert resp.status_code == 200
 
-        resp = client.post("/api/users/auth/check", json={"identifier": "Jon30", "password": "secret123"})
+        resp = client.post("/api/users/auth/check", json={"identifier": "Jon30", "password": "Secret123."})
         assert resp.status_code == 200
 
 
@@ -127,8 +127,8 @@ def test_delete_user_by_id(client: FlaskClient) -> None:
                            "first_name": "Jon",
                            "last_name": "Doe",
                            "email": "jon@example.com",
-                           "password": "secret123",
-                           "password_confirmation": "secret123",
+                           "password": "Secret123.",
+                           "password_confirmation": "Secret123.",
                            "gender": "Male",
                            "role": "user",
                        }
@@ -150,8 +150,8 @@ def test_delete_user_by_identifier(client: FlaskClient) -> None:
                            "first_name": "Jon",
                            "last_name": "Doe",
                            "email": "jon@example.com",
-                           "password": "secret123",
-                           "password_confirmation": "secret123",
+                           "password": "Secret123.",
+                           "password_confirmation": "Secret123.",
                            "gender": "Male",
                            "role": "user",
                        }
