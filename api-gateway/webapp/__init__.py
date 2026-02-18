@@ -12,6 +12,8 @@ def create_app() -> Flask:
     app.config.from_object(config['default'])
     config['default'].init_app(app)
 
+    limiter.init_app(app)
+
     CORS(
         app,
         resources={

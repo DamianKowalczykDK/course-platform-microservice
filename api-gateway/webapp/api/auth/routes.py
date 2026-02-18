@@ -1,19 +1,19 @@
 from typing import cast
-
 from flask import request, jsonify, Response
 from flask.typing import ResponseReturnValue
 from dependency_injector.wiring import Provide, inject
 from flask_jwt_extended import set_refresh_cookies, jwt_required, unset_jwt_cookies, get_jwt_identity
-
 from webapp.container import Container
-from webapp.api.auth.mappers import to_dto_login, to_schema_token_pair, to_dto_verify_mfa, to_schema_access_token
+from webapp.api.auth.mappers import to_dto_login, to_dto_verify_mfa, to_schema_access_token
 from webapp.api.auth.schemas import LoginSchema, VerifyMfaSchema
 from webapp.services.auth.services import AuthService
+from webapp.extensions import limiter
+from webapp.services.auth.dtos import TokenPairDTO, LoginMfaRequiredDTO
 from .import auth_bp
-from ...services.auth.dtos import TokenPairDTO, LoginMfaRequiredDTO
 
 
 @auth_bp.post("/login")
+@limiter.limit("2/minute")
 @inject
 def login(auth_service: AuthService=Provide[Container.auth_service]) -> ResponseReturnValue:
     payload = LoginSchema.model_validate(request.get_json() or {})
