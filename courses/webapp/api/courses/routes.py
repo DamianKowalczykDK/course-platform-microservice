@@ -3,11 +3,11 @@ from flask.typing import ResponseReturnValue
 from flask import request, jsonify
 from webapp.container import Container
 from webapp.services.courses.services import CourseService
-from . import course_bp
 from .mappers import to_dto_create, to_schema_course, to_dto_course_id, to_dto_course_name, to_dto_update_course
 from .schemas import CreateCourseSchema, CourseIdSchema, CourseNameSchema, UpdateCourseSchema
 from webapp.extensions import db
-
+from sqlalchemy import text
+from . import course_bp
 
 @course_bp.post('/')
 @inject
@@ -55,7 +55,7 @@ def health() -> ResponseReturnValue:
     health_status = {
         "status": "ok",
         "database": "ok",
-        "user_service": "ok"
+        "course_service": "ok"
     }
     status_code = 200
 
@@ -67,7 +67,7 @@ def health() -> ResponseReturnValue:
 
     return jsonify(health_status), status_code
 
-from sqlalchemy import text
+
 def check_db_connection() -> bool:
     try:
         db.session.execute(text('SELECT 1'))
