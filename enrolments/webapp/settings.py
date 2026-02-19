@@ -31,7 +31,7 @@ class Config:
             f"@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}?charset=utf8mb4"
         )
     @property
-    def SQLALCHEMY_ENGINE_OPTIONS(self) -> dict:
+    def SQLALCHEMY_ENGINE_OPTIONS(self) -> dict: # pragma: no cover
         return {
             "pool_size": self.DB_POOL_SIZE,
             "max_overflow": self.DB_MAX_OVERFLOW,

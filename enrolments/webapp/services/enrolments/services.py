@@ -160,7 +160,7 @@ class EnrolmentService:
         return course_resp.json()
 
 
-    def _send_payment_email(self, user_email: str, invoice_url: str):
+    def _send_payment_email(self, user_email: str, invoice_url: str) -> None:
         html = f"""
                 <html>
                   <body style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
