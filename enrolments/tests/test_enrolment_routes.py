@@ -2,20 +2,22 @@ from webapp import register_error_handlers
 from webapp.services.enrolments.dtos import ReadEnrolmentDTO, CreateEnrolmentDTO, EnrolmentIdDTO, EnrolmentByUserDTO, \
     DeleteEnrolmentDTO
 from webapp.database.models.enrolments import PaymentStatus, Status
-from webapp.services.exceptions import ServiceException, ApiException
+from webapp.services.exceptions import ServiceException
 from webapp.api import api_bp
 from webapp.container import Container
 from flask import Flask
 from flask.testing import FlaskClient
 from typing import Generator
 from dependency_injector import providers
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+from webapp.api.enrolments.routes import check_db_connection
 import pytest
 
 
 @pytest.fixture
 def app() -> Flask:
     app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     container = Container()
     container.wire(modules=["webapp.api.enrolments.routes"])
     app.container = container #type: ignore
@@ -172,4 +174,52 @@ def test_delete_by_id(client: FlaskClient, mock_service: MagicMock) -> None:
     mock_service.delete_by_id.return_value = enrolment
     response = client.delete(f"/api/enrolment/1")
     assert response.status_code == 204
+
+@patch("webapp.api.enrolments.routes.check_db_connection")
+def test_health(mock_db: MagicMock, client: FlaskClient) -> None:
+
+    mock_db.return_value = {"ok"}
+    response = client.get(f"/api/enrolment/health")
+    assert response.status_code == 200
+
+    assert response.json == {
+        "status": "ok",
+        "database": "ok",
+        "enrolment_service": "ok"
+    }
+
+@patch("webapp.api.enrolments.routes.check_db_connection")
+def test_health_if_not_db_connection(mock_db: MagicMock, client: FlaskClient) -> None:
+
+    mock_db.return_value = None
+    response = client.get(f"/api/enrolment/health")
+    assert response.status_code == 503
+
+
+@patch("webapp.api.enrolments.routes.db.session.execute")
+def test_check_db_connection(mock_execute: MagicMock, client: FlaskClient, app: Flask) -> None:
+    mock_execute.return_value = "Test"
+    with app.app_context():
+        res = check_db_connection()
+    assert res is True
+
+@patch("webapp.api.enrolments.routes.db.session.execute")
+def test_check_db_connection_exception(mock_execute: MagicMock, client: FlaskClient, app: Flask) -> None:
+    mock_execute.side_effect = Exception()
+    with app.app_context():
+        res = check_db_connection()
+    assert res is False
+
+
+
+
+
+
+
+
+
+
+
+
+
 

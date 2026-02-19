@@ -4,7 +4,7 @@ from flask.testing import FlaskClient
 from flask import Flask
 from testcontainers.mongodb import MongoDbContainer
 from typing import Generator
-
+from webapp.api.users.routes import check_db_connection
 from webapp import create_app
 from webapp.database.models.user import User
 from webapp.settings import Config
@@ -163,6 +163,39 @@ def test_delete_user_by_identifier(client: FlaskClient) -> None:
     assert resp.status_code == 204
     data = resp.get_json()
     assert data is None
+
+@patch("webapp.api.users.routes.check_db_connection")
+def test_health(mock_db: MagicMock, client: FlaskClient) -> None:
+    mock_db.return_value = True
+    resp = client.get("/api/users/health")
+    assert resp.status_code == 200
+    assert resp.json == {
+        "status": "ok",
+        "database": "ok",
+        "user_service": "ok"
+    }
+
+@patch("webapp.api.users.routes.check_db_connection")
+def test_health_if_not_connection(mock_db: MagicMock, client: FlaskClient) -> None:
+    mock_db.return_value = False
+    resp = client.get("/api/users/health")
+    assert resp.status_code == 503
+
+@patch("webapp.api.users.routes.db.connection")
+def test_check_db_connection(mock_connection: MagicMock, client: FlaskClient, app: Flask) -> None:
+    mock_connection.return_value = "Test"
+    with app.app_context():
+        res = check_db_connection()
+
+    assert res is True
+
+@patch("webapp.api.users.routes.db.connection.get_connection")
+def test_check_db_connection_exception(mock_connection: MagicMock, client: FlaskClient, app: Flask) -> None:
+    mock_connection.side_effect = Exception()
+    with app.app_context():
+        res = check_db_connection()
+
+    assert res is False
 
 
 
