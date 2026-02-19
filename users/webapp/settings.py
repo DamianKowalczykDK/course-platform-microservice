@@ -28,7 +28,7 @@ class Config:
     MONGODB_PASSWORD: str=os.getenv('MONGODB_PASSWORD', "")
 
     @property
-    def MONGODB_SETTINGS(self) -> MongoDBSettings:
+    def MONGODB_SETTINGS(self) -> MongoDBSettings: #pragma: no cover
         return {
             'db': self.MONGODB_DB,
             'host': self.MONGODB_HOST,
