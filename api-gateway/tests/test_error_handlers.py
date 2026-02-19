@@ -1,4 +1,4 @@
-from webapp.services.exceptions import ApiException, ServerException, NotFoundException
+from webapp.services.exceptions import ApiException, ServerException, NotFoundException, ConflictException
 from webapp import register_error_handlers
 from flask.typing import ResponseReturnValue
 from flask.testing import FlaskClient
@@ -28,6 +28,10 @@ def app_with_error_handlers() -> Generator[Flask, None, None]:
     def exception() -> ResponseReturnValue:
         raise ApiException(message="Test",status_code=400, error_code="validation_error", details=["Test"])
 
+    @app.route("/conflict")
+    def conflict() -> ResponseReturnValue:
+        raise ConflictException(message="Conflict")
+
     yield app
 
 @pytest.fixture
@@ -55,7 +59,6 @@ def test_not_found(client: FlaskClient) -> None:
     assert data['error'] == "not_found"
 
 
-
 def test_not_found_exception(client: FlaskClient) -> None:
     response = client.get("/non-exist")
     assert response.status_code == 404
@@ -67,6 +70,14 @@ def test_register_error_handlers(client: FlaskClient) -> None:
     assert response.status_code == 400
     data = response.get_json()
     assert data["details"]  == ["Test"]
+
+def test_conflict_exception(client: FlaskClient) -> None:
+    response = client.get('/conflict')
+    assert response.status_code == 409
+    data = response.get_json()
+
+    assert data['message'] == "Conflict"
+    assert data['error'] == "conflict"
 
 
 
