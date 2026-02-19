@@ -19,6 +19,7 @@ from webapp.services.enrolments.services import EnrolmentService
 from webapp.services.exceptions import ApiException
 from . import enrolment_bp
 from  webapp.extensions import db
+from sqlalchemy import text
 
 
 @enrolment_bp.post("/")
@@ -88,7 +89,7 @@ def health() -> ResponseReturnValue:
     health_status = {
         "status": "ok",
         "database": "ok",
-        "user_service": "ok"
+        "enrolment_service": "ok"
     }
     status_code = 200
 
@@ -100,7 +101,7 @@ def health() -> ResponseReturnValue:
 
     return jsonify(health_status), status_code
 
-from sqlalchemy import text
+
 def check_db_connection() -> bool:
     try:
         db.session.execute(text('SELECT 1'))
