@@ -95,7 +95,7 @@ def test_create_enrolment_for_course_not_found_user(
 ) -> None:
     mock_get.return_value.status_code = 404
 
-    with pytest.raises(ValidationException, match=f"User 123 not found or inactive"):
+    with pytest.raises(ValidationException, match=f"User not found or inactive"):
         service.create_enrolment_for_user(dto)
 
 @patch('webapp.services.enrolments.services.httpx.get')
