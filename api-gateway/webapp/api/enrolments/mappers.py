@@ -14,7 +14,8 @@ def to_enrolment_response_schema(dto: EnrolmentDTO) -> EnrolmentResponseSchema:
         user_id=dto.user_id,
         course_id=dto.course_id,
         status=dto.status,
-        payment_status=dto.payment_status
+        payment_status=dto.payment_status,
+        invoice_url=dto.invoice_url
     )
 def to_enrolments_list_response_schema(dtos: list[EnrolmentDTO]) -> EnrolmentsListResponseSchema:
     return EnrolmentsListResponseSchema(enrolments=[to_enrolment_response_schema(dto) for dto in dtos])
