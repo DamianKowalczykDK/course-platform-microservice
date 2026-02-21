@@ -1,0 +1,19 @@
+   1. zmienne srodowiskowwe
+    2. regex do password
+    3. flask-limiter do logowania
+    4. cors do zmiennych srodowiskowych
+    5. struct log w api gateway 500
+6. testy integracyjne
+7. test w postmanie
+    8. sprawdzic message raz jest Message raz message
+    9. w enrolments opcje w bazie danych pulsize max_overflow, pul_preping
+    10. is_active index
+    11. magicnumer timeouty wazny timeout dac do zmiennych srodowiskowych
+    12. endpoint health
+
+
+13. archwizowanie zamiast odrazu usuniecie soft delete
+
+    14. freedpoolexecutor w set paid
+
+commity dalej
