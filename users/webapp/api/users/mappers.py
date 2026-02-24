@@ -69,7 +69,7 @@ def to_schema_user(dto: ReadUserDTO) -> UserResponseSchema:
         gender=dto.gender,
         role=dto.role,
         is_active=dto.is_active,
-        mfa_secret=dto.mfa_secret,
+
     )
 
 def to_dto_login(schema: LoginSchema) -> LoginUserDTO:

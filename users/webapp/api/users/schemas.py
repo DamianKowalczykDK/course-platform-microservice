@@ -94,7 +94,6 @@ class UserResponseSchema(BaseModel):
     gender: GenderType
     role: Literal["user", "admin"]
     is_active: bool
-    mfa_secret: str | None = None
 
 class LoginSchema(BaseModel):
     """

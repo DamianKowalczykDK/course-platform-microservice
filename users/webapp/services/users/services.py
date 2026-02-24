@@ -411,8 +411,7 @@ class UserService:
             gender=GenderType(user.gender),
             role=user.role,
             is_active=user.is_active,
-            created_at=user.created_at,
-            mfa_secret=user.mfa_secret
+            created_at=user.created_at
         )
 
     def _send_email_with_activation_code(

@@ -55,7 +55,6 @@ class UserDTO:
     gender: GenderType
     role: Literal["user", "admin"]
     is_active: bool
-    mfa_secret: str
 
 @dataclass(frozen=True)
 class ForgotPasswordDTO:
