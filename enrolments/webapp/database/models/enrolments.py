@@ -5,17 +5,37 @@ from webapp.extensions import db
 from enum import Enum as PyEnum
 
 class Status(PyEnum):
+    """Enumeration of possible enrolment statuses."""
     ACTIVE = "active"
     CANCELED = "canceled"
     COMPLETED = "completed"
 
 class PaymentStatus(PyEnum):
+    """Enumeration of possible payment statuses for an enrolment."""
     PENDING = "pending"
     PAID = "paid"
     FAILED = "failed"
 
 
-class Enrolment(db.Model): #type: ignore
+class Enrolment(db.Model):  # type: ignore
+    """
+    Represents an enrolment of a user in a course.
+
+    Attributes:
+        id (int): Primary key of the enrolment.
+        course_id (int): ID of the course.
+        user_id (str): ID of the user.
+        invoice_url (str | None): URL to the payment invoice, if any.
+        status (Status): Status of the enrolment (ACTIVE, CANCELED, COMPLETED).
+        payment_status (PaymentStatus): Status of the payment (PENDING, PAID, FAILED).
+        created_at (datetime): Timestamp of when the enrolment was created.
+        updated_at (datetime): Timestamp of the last update to the enrolment.
+        course_end_date (datetime | None): End date of the course for this enrolment.
+
+    Table constraints:
+        UniqueConstraint: Ensures that a user cannot enrol in the same course more than once.
+    """
+
     __tablename__ = "enrolments"
     __table_args__ = (UniqueConstraint("user_id", "course_id", name="uq_enrolments"), )
 
@@ -32,4 +52,5 @@ class Enrolment(db.Model): #type: ignore
     course_end_date: Mapped[datetime] = mapped_column(DateTime,  nullable=True)
 
     def __repr__(self) -> str:
+        """Return a human-readable representation of the enrolment."""
         return f"Enrolment(id={self.id}, course_id={self.course_id})"

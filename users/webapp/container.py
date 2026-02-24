@@ -3,8 +3,14 @@ from webapp.database.repositories.user import UserRepository
 from webapp.services.users.services import UserService
 from webapp.services.email_service import EmailService
 
-
 class Container(containers.DeclarativeContainer):
+    """
+    Dependency injection container for the Users Microservice.
+
+    Provides singleton instances of the UserRepository, EmailService, and UserService.
+    Automatically wires dependencies for the API packages.
+    """
+
     wiring_config = containers.WiringConfiguration(
         packages=[
             "webapp.api.users"

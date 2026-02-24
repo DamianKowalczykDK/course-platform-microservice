@@ -2,11 +2,15 @@ from flask import Flask, jsonify
 from flask.typing import ResponseReturnValue
 from webapp.services.exceptions import ApiException
 from typing import TypedDict
+import structlog
+import traceback
 
 class ApiExceptionResponse(TypedDict, total=False):
     message: str
     error: str
     details: list
+
+logger = structlog.get_logger(__name__)
 
 def register_error_handlers(app: Flask) -> None:
     @app.errorhandler(ApiException)
@@ -30,7 +34,13 @@ def register_error_handlers(app: Flask) -> None:
         ), 404
 
     @app.errorhandler(Exception)
-    def handle_generic(_: Exception) -> ResponseReturnValue:
+    def handle_generic(error: Exception) -> ResponseReturnValue:
+        logger.error(
+            "Unhandled exception",
+            exc_type=type(error).__name__,
+            message=str(error),
+            traceback=traceback.format_exc()
+        )
         return jsonify({
             "message": "Unexpected error.",
             "error": "internal_error"

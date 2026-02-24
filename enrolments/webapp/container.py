@@ -4,8 +4,14 @@ from webapp.services.email_service import EmailService
 from webapp.services.enrolments.services import EnrolmentService
 from webapp.services.invoices.services import InvoiceService
 
-
 class Container(containers.DeclarativeContainer):
+    """
+    Dependency injection container for the Enrolments microservice.
+
+    Provides singletons for repositories, services, and external integrations,
+    and wires dependencies automatically into the API package.
+    """
+
     wiring_config = containers.WiringConfiguration(
         packages=[
             "webapp.api.enrolments"

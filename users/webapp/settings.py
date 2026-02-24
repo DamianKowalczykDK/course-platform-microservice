@@ -7,6 +7,9 @@ import os
 load_dotenv()
 
 class MongoDBSettings(TypedDict):
+    """
+    TypedDict representing MongoDB connection settings.
+    """
     db: str
     host: str
     port: int
@@ -14,21 +17,30 @@ class MongoDBSettings(TypedDict):
     password: str
 
 class Config:
+    """
+    Main application configuration class.
+
+    Reads environment variables for secrets, database, email, and feature settings.
+    Provides properties for MongoDB settings and static methods for logging initialization.
+    """
+
     SECRET_KEY: str = os.getenv('SECRET_KEY', "")
-    FLASK_ENV:str = os.getenv('FLASK_ENV', "")
-    FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
+    FLASK_ENV: str = os.getenv('FLASK_ENV', "")
+    FLASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
     USER_ACTIVATION_EXPIRATION_MINUTES: int = int(os.getenv("USER_ACTIVATION_EXPIRATION_MINUTES", ""))
     RESET_PASSWORD_EXPIRATION_MINUTES: int = int(os.getenv('RESET_PASSWORD_EXPIRATION_MINUTES', ""))
 
-
-    MONGODB_DB: str=os.getenv('MONGODB_DB', "")
-    MONGODB_HOST: str=os.getenv('MONGODB_HOST', "")
-    MONGODB_PORT: int=int(os.getenv('MONGODB_PORT', ""))
-    MONGODB_USERNAME: str=os.getenv('MONGODB_USERNAME', "")
-    MONGODB_PASSWORD: str=os.getenv('MONGODB_PASSWORD', "")
+    MONGODB_DB: str = os.getenv('MONGODB_DB', "")
+    MONGODB_HOST: str = os.getenv('MONGODB_HOST', "")
+    MONGODB_PORT: int = int(os.getenv('MONGODB_PORT', ""))
+    MONGODB_USERNAME: str = os.getenv('MONGODB_USERNAME', "")
+    MONGODB_PASSWORD: str = os.getenv('MONGODB_PASSWORD', "")
 
     @property
-    def MONGODB_SETTINGS(self) -> MongoDBSettings: #pragma: no cover
+    def MONGODB_SETTINGS(self) -> MongoDBSettings:  # pragma: no cover
+        """
+        Returns MongoDB connection settings as a TypedDict.
+        """
         return {
             'db': self.MONGODB_DB,
             'host': self.MONGODB_HOST,
@@ -37,19 +49,24 @@ class Config:
             'password': self.MONGODB_PASSWORD
         }
 
-    MAIL_SERVER: str=os.getenv('MAIL_SERVER', "")
-    MAIL_PORT: int= int(os.getenv('MAIL_PORT', ""))
-    MAIL_USE_TLS: bool=os.getenv('MAIL_USE_TLS', "True") in ("1", "true", "True")
-    MAIL_USE_SSL: bool=os.getenv('MAIL_USE_SSL', "False") in ("1", "true", "True")
-    MAIL_USERNAME: str=os.getenv('MAIL_USERNAME', "")
-    MAIL_PASSWORD: str=os.getenv('MAIL_PASSWORD', "")
-    MAIL_DEFAULT_SENDER: str=os.getenv('MAIL_DEFAULT_SENDER', "")
+    MAIL_SERVER: str = os.getenv('MAIL_SERVER', "")
+    MAIL_PORT: int = int(os.getenv('MAIL_PORT', ""))
+    MAIL_USE_TLS: bool = os.getenv('MAIL_USE_TLS', "True") in ("1", "true", "True")
+    MAIL_USE_SSL: bool = os.getenv('MAIL_USE_SSL', "False") in ("1", "true", "True")
+    MAIL_USERNAME: str = os.getenv('MAIL_USERNAME', "")
+    MAIL_PASSWORD: str = os.getenv('MAIL_PASSWORD', "")
+    MAIL_DEFAULT_SENDER: str = os.getenv('MAIL_DEFAULT_SENDER', "")
 
     @staticmethod
     def configure_logging(app: Flask) -> None:
+        """
+        Configures logging for the Flask application.
+
+        Ensures that logging is configured only once per app instance.
+        """
         if getattr(app, "_logging_configured", False):
             return
-        app._logging_configured = True # type: ignore
+        app._logging_configured = True  # type: ignore
 
         dictConfig({
             "version": 1,
@@ -60,10 +77,16 @@ class Config:
 
     @classmethod
     def init_app(cls, app: Flask) -> None:
+        """
+        Initializes the app with configuration, including logging.
+
+        Args:
+            app (Flask): Flask application instance.
+        """
         cls.configure_logging(app)
         app.logger.debug("Logger initialized")
 
+# Mapping of configuration keys to configuration classes
 config: dict[str, type[Config]] = {
     "default": Config,
 }
-

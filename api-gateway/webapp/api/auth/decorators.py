@@ -1,5 +1,4 @@
 from typing import Callable
-
 from flask import jsonify
 from flask.typing import ResponseReturnValue
 from functools import wraps
@@ -10,6 +9,15 @@ from webapp.services.users.services import UserService
 
 
 def role_required(*roles: str) -> Callable[[Callable[..., ResponseReturnValue]], Callable[..., ResponseReturnValue]]:
+    """
+    Decorator factory to restrict access to users with specific roles.
+
+    Args:
+        *roles (str): Allowed roles. If empty, allows any authenticated user.
+
+    Returns:
+        Callable: Decorator function that enforces role-based access.
+    """
     def wrapper(func: Callable[..., ResponseReturnValue]) -> Callable[..., ResponseReturnValue]:
         @wraps(func)
         def decorated(*args, **kwargs) -> ResponseReturnValue:
@@ -31,11 +39,39 @@ def role_required(*roles: str) -> Callable[[Callable[..., ResponseReturnValue]],
 
 
 def admin_required(func: Callable[..., ResponseReturnValue]) -> Callable[..., ResponseReturnValue]:
+    """
+    Decorator to allow access only to users with the 'admin' role.
+
+    Args:
+        func (Callable): Endpoint function.
+
+    Returns:
+        Callable: Wrapped function with admin role check.
+    """
     return role_required("admin")(func)
 
+
 def user_required(func: Callable[..., ResponseReturnValue]) -> Callable[..., ResponseReturnValue]:
+    """
+    Decorator to allow access only to users with the 'user' role.
+
+    Args:
+        func (Callable): Endpoint function.
+
+    Returns:
+        Callable: Wrapped function with user role check.
+    """
     return role_required("user")(func)
 
-def any_authenticated(func: Callable[..., ResponseReturnValue]) -> Callable[..., ResponseReturnValue]:
-    return role_required()(func)
 
+def any_authenticated(func: Callable[..., ResponseReturnValue]) -> Callable[..., ResponseReturnValue]:
+    """
+    Decorator to allow access to any authenticated user, regardless of role.
+
+    Args:
+        func (Callable): Endpoint function.
+
+    Returns:
+        Callable: Wrapped function that requires authentication.
+    """
+    return role_required()(func)

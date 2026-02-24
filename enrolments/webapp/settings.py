@@ -7,6 +7,19 @@ import os
 load_dotenv()
 
 class Config:
+    """
+    Configuration class for the Enrolments microservice.
+
+    Loads configuration from environment variables for:
+    - Flask application settings
+    - MySQL database connection
+    - SQLAlchemy engine options
+    - Mail server settings
+    - External service URLs
+    - Invoice API credentials
+    - HTTP timeout
+    """
+
     SECRET_KEY: str = os.getenv('SECRET_KEY', "")
     FLASK_ENV:str = os.getenv('FLASK_ENV', "")
     FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
@@ -26,12 +39,19 @@ class Config:
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str: # pragma: no cover
+        """
+        Constructs the SQLAlchemy database URI using MySQL credentials.
+        """
         return (
             f"{self.MYSQL_DIALECT}://{self.MYSQL_USER}:{quote_plus(self.MYSQL_PASSWORD)}"
             f"@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DATABASE}?charset=utf8mb4"
         )
+
     @property
     def SQLALCHEMY_ENGINE_OPTIONS(self) -> dict: # pragma: no cover
+        """
+        Returns SQLAlchemy engine options including connection pool settings.
+        """
         return {
             "pool_size": self.DB_POOL_SIZE,
             "max_overflow": self.DB_MAX_OVERFLOW,
@@ -57,9 +77,13 @@ class Config:
 
     @staticmethod
     def configure_logging(app: Flask) -> None: # pragma: no cover
+        """
+        Configures Flask logging using dictConfig.
+        Ensures logging is only configured once per app.
+        """
         if getattr(app, "_logging_configured", False):
             return
-        app._logging_configured = True # type: ignore
+        app._logging_configured = True  # type: ignore
 
         dictConfig({
             "version": 1,
@@ -70,14 +94,17 @@ class Config:
 
     @classmethod
     def init_app(cls, app: Flask) -> None: # pragma: no cover
+        """
+        Initializes the Flask app with database URI and engine options.
+        Also configures logging.
+        """
         cls.configure_logging(app)
         app.logger.debug("Logger initialized")
         conf = cls()
         app.config['SQLALCHEMY_DATABASE_URI'] = conf.SQLALCHEMY_DATABASE_URI
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = conf.SQLALCHEMY_ENGINE_OPTIONS
 
+
 config: dict[str, type[Config]] = {
     "default": Config,
 }
-
-

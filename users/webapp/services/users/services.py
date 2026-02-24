@@ -8,8 +8,14 @@ from webapp.services.users.dtos import (
     ResetPasswordDTO,
     ForgotPasswordDTO,
     EnableMfaDTO,
-    MfaSetupDTO, DisableMfaDTO, GetMfaQrCodeDTO, UserIdDTO, IdentifierDTO, ResendActivationCodeDTO,
-    DeleteUserByIdentifierDTO, DeleteUserByIdDTO
+    MfaSetupDTO,
+    DisableMfaDTO,
+    GetMfaQrCodeDTO,
+    UserIdDTO,
+    IdentifierDTO,
+    ResendActivationCodeDTO,
+    DeleteUserByIdentifierDTO,
+    DeleteUserByIdDTO
 )
 from webapp.services.exceptions import ConflictException, NotFoundException, ValidationException
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,13 +27,43 @@ import base64
 import pyotp
 import qrcode
 
-
 class UserService:
+    """
+    Service class for user-related operations.
+
+    Handles creating users, activation, authentication, password reset,
+    MFA management, and deletion of users. Interacts with UserRepository
+    and EmailService for persistence and notifications.
+
+    Attributes:
+        user_repository (UserRepository): Repository for User entities.
+        email_service (EmailService): Service for sending emails.
+    """
+
     def __init__(self, user_repository: UserRepository, email_service: EmailService) -> None:
+        """
+        Initializes the UserService with the provided repository and email service.
+
+        Args:
+            user_repository (UserRepository): Repository for User entities.
+            email_service (EmailService): Service for sending emails.
+        """
         self.user_repository = user_repository
         self.email_service = email_service
 
     def create_user(self, dto: CreateUserDTO ) -> ReadUserDTO:
+        """
+        Creates a new user with the given details and sends an activation email.
+
+        Args:
+            dto (CreateUserDTO): DTO containing user creation details.
+
+        Returns:
+            ReadUserDTO: DTO representing the newly created user.
+
+        Raises:
+            ConflictException: If email or username already exists.
+        """
         if self.user_repository.get_by_email(dto.email):
             raise ConflictException("Email already exists")
 
@@ -46,7 +82,6 @@ class UserService:
             role=dto.role,
             password_hash=password_hash,
             activation_code=activation_code,
-
         )
 
         self.user_repository.create_user(user)
@@ -61,6 +96,19 @@ class UserService:
         return self._to_read_dto(user)
 
     def activate_user(self, activation_code: str) -> ReadUserDTO:
+        """
+        Activates a user account using the provided activation code.
+
+        Args:
+            activation_code (str): Activation code sent to user's email.
+
+        Returns:
+            ReadUserDTO: DTO representing the activated user.
+
+        Raises:
+            NotFoundException: If activation code is invalid.
+            ValueError: If activation code has expired.
+        """
         user = self.user_repository.get_by_activation_code(activation_code)
         if not user:
             raise NotFoundException("Invalid activation code")
@@ -79,6 +127,19 @@ class UserService:
         return self._to_read_dto(self.user_repository.save(user))
 
     def resend_activation_code(self, dto: ResendActivationCodeDTO) -> ReadUserDTO:
+        """
+        Resends a new activation code to a user who is not yet activated.
+
+        Args:
+            dto (ResendActivationCodeDTO): DTO containing username or email.
+
+        Returns:
+            ReadUserDTO: DTO representing the user with the new activation code.
+
+        Raises:
+            NotFoundException: If user does not exist.
+            ValidationException: If user is already activated.
+        """
         user = self.user_repository.get_by_username_or_email(dto.identifier)
         if not user:
             raise NotFoundException("Invalid username or email")
@@ -98,12 +159,36 @@ class UserService:
         return self._to_read_dto(user)
 
     def get_by_id(self, dto: UserIdDTO) -> ReadUserDTO:
+        """
+        Retrieves a user by ID.
+
+        Args:
+            dto (UserIdDTO): DTO containing user ID.
+
+        Returns:
+            ReadUserDTO: DTO representing the found user.
+
+        Raises:
+            NotFoundException: If user does not exist.
+        """
         user = self.user_repository.get_by_id(dto.user_id)
         if not user:
             raise NotFoundException("Active user not found")
         return self._to_read_dto(user)
 
     def get_by_username_or_email(self, dto: IdentifierDTO) -> ReadUserDTO:
+        """
+        Retrieves an active user by username or email.
+
+        Args:
+            dto (IdentifierDTO): DTO containing username or email.
+
+        Returns:
+            ReadUserDTO: DTO representing the found user.
+
+        Raises:
+            NotFoundException: If active user does not exist.
+        """
         user = self.user_repository.get_active_by_username_or_email(dto.identifier)
         if not user:
             raise NotFoundException("Active user not found")
@@ -111,16 +196,36 @@ class UserService:
         return self._to_read_dto(user)
 
     def verify_credentials(self, dto: LoginUserDTO) -> ReadUserDTO:
+        """
+        Verifies login credentials of a user.
+
+        Args:
+            dto (LoginUserDTO): DTO containing identifier and password.
+
+        Returns:
+            ReadUserDTO: DTO representing the authenticated user.
+
+        Raises:
+            NotFoundException: If user not found.
+            ValidationException: If password is invalid.
+        """
         user = self.user_repository.get_active_by_username_or_email(dto.identifier)
         if not user:
-            raise NotFoundException("Invalid credentials -1")
+            raise ValidationException("Invalid credentials")
 
         if not check_password_hash(user.password_hash, dto.password):
-            raise ValidationException("Invalid credentials -2")
+            raise ValidationException("Invalid credentials")
         return self._to_read_dto(user)
 
-
     def forgot_password(self, dto: ForgotPasswordDTO) -> None:
+        """
+        Initiates the password reset process for a user.
+
+        Generates a reset token, saves it, and sends an email with reset link.
+
+        Args:
+            dto (ForgotPasswordDTO): DTO containing username or email.
+        """
         user = self.user_repository.get_active_by_username_or_email(dto.identifier)
         if not user:
             return
@@ -139,6 +244,15 @@ class UserService:
         )
 
     def reset_password(self, dto: ResetPasswordDTO) -> None:
+        """
+        Resets the user's password using a valid reset token.
+
+        Args:
+            dto (ResetPasswordDTO): DTO containing token and new password.
+
+        Raises:
+            NotFoundException: If token is invalid or expired.
+        """
         user = self.user_repository.get_by_reset_password_token(dto.token)
         if not user or not user.is_token_rest_password_valid(dto.token):
             raise NotFoundException("Invalid or expired token")
@@ -147,6 +261,18 @@ class UserService:
         self.user_repository.save(user)
 
     def enable_mfa(self, dto: EnableMfaDTO) -> MfaSetupDTO:
+        """
+        Enables MFA (multi-factor authentication) for a user and returns setup info.
+
+        Args:
+            dto (EnableMfaDTO): DTO containing user ID.
+
+        Returns:
+            MfaSetupDTO: DTO containing provisioning URI and QR code.
+
+        Raises:
+            NotFoundException: If user does not exist.
+        """
         user = self.user_repository.get_by_id(dto.user_id)
         if not user:
             raise NotFoundException("User not found")
@@ -157,8 +283,20 @@ class UserService:
 
         return self._generate_mfa_setup(user)
 
-
     def disable_mfa(self, dto: DisableMfaDTO) -> ReadUserDTO:
+        """
+        Disables MFA for a user.
+
+        Args:
+            dto (DisableMfaDTO): DTO containing user ID.
+
+        Returns:
+            ReadUserDTO: DTO representing the user after MFA is disabled.
+
+        Raises:
+            NotFoundException: If user not found.
+            ValidationException: If MFA is not enabled.
+        """
         user = self.user_repository.get_by_id(dto.user_id)
         if not user:
             raise NotFoundException("User not found")
@@ -172,6 +310,19 @@ class UserService:
         return self._to_read_dto(user)
 
     def get_mfa_qrcode(self, dto: GetMfaQrCodeDTO) -> MfaSetupDTO:
+        """
+        Retrieves MFA QR code and provisioning URI for an existing MFA-enabled user.
+
+        Args:
+            dto (GetMfaQrCodeDTO): DTO containing user ID.
+
+        Returns:
+            MfaSetupDTO: DTO containing provisioning URI and QR code.
+
+        Raises:
+            NotFoundException: If user not found.
+            ValidationException: If MFA is not enabled.
+        """
         user = self.user_repository.get_by_id(dto.user_id)
         if not user:
             raise NotFoundException("User not found")
@@ -181,17 +332,43 @@ class UserService:
         return self._generate_mfa_setup(user)
 
     def delete_by_id(self, dto: DeleteUserByIdDTO) -> None:
+        """
+        Deletes a user by ID.
+
+        Args:
+            dto (DeleteUserByIdDTO): DTO containing user ID.
+
+        Raises:
+            NotFoundException: If user not found.
+        """
         user_deleted = self.user_repository.delete_user_by_id(dto.user_id)
         if not user_deleted:
             raise NotFoundException("User not found")
 
     def delete_by_identifier(self, dto: DeleteUserByIdentifierDTO) -> None:
+        """
+        Deletes a user by username or email.
+
+        Args:
+            dto (DeleteUserByIdentifierDTO): DTO containing username or email.
+
+        Raises:
+            NotFoundException: If user not found.
+        """
         user_deleted = self.user_repository.delete_user_by_identifier(dto.identifier)
         if not user_deleted:
             raise NotFoundException("User not found")
 
-
     def _generate_mfa_setup(self, user: User) -> MfaSetupDTO:
+        """
+        Generates MFA setup information including provisioning URI and QR code.
+
+        Args:
+            user (User): User object with MFA secret enabled.
+
+        Returns:
+            MfaSetupDTO: DTO containing provisioning URI and QR code in Base64.
+        """
         totp = pyotp.TOTP(user.mfa_secret) #type: ignore
 
         provisioning_uri = totp.provisioning_uri(
@@ -206,9 +383,7 @@ class UserService:
         img = qr.make_image(fill_color="black", back_color="white")
 
         buf = io.BytesIO()
-
         img.save(buf, format="PNG")
-
         qr_code_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
 
         return MfaSetupDTO(
@@ -217,8 +392,16 @@ class UserService:
             qr_code_base64=qr_code_base64,
         )
 
-
     def _to_read_dto(self, user: User) -> ReadUserDTO:
+        """
+        Converts a User model to ReadUserDTO.
+
+        Args:
+            user (User): User model instance.
+
+        Returns:
+            ReadUserDTO: Corresponding DTO with user data.
+        """
         return ReadUserDTO(
             id=str(user.id),
             username=user.username,
@@ -230,7 +413,6 @@ class UserService:
             is_active=user.is_active,
             created_at=user.created_at,
             mfa_secret=user.mfa_secret
-
         )
 
     def _send_email_with_activation_code(
@@ -240,6 +422,15 @@ class UserService:
             username: str,
             activation_code: str,
     ) -> None:
+        """
+        Sends an email containing an activation code to the user.
+
+        Args:
+            to (str): Recipient email address.
+            subject (str): Email subject.
+            username (str): User's username.
+            activation_code (str): Activation code to send.
+        """
         html = f'''
                     <p>Hello {username}!</p>
                     <p>Activation code: {activation_code}</p>

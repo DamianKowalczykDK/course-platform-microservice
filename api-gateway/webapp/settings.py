@@ -7,8 +7,19 @@ load_dotenv()
 
 
 class Config:
+    """
+    Base configuration class for API Gateway.
+
+    Reads environment variables for:
+    - Flask app settings
+    - JWT settings
+    - External microservices URLs
+    - CORS configuration
+    - HTTP timeout
+    """
+
     SECRET_KEY: str = os.getenv('SECRET_KEY', "")
-    FLASK_ENV:str = os.getenv('FLASK_ENV', "")
+    FLASK_ENV: str = os.getenv('FLASK_ENV', "")
     FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
     HTTP_TIMEOUT: int = int(os.getenv("HTTP_TIMEOUT", ""))
 
@@ -17,9 +28,7 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES: int = int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', ""))
     JWT_COOKIE_CSRF_PROTECT: bool = os.getenv("JWT_COOKIE_CSRF_PROTECT", "False") in ("1", "true", "True")
     JWT_ALGORITHM: str = os.getenv('JWT_ALGORITHM', "HS256")
-    JWT_TOKEN_LOCATION: list[str] = os.getenv('JWT_TOKEN_LOCATION', "cookies, headers").split(",")
-    # JWT_TOKEN_SECURE: bool = os.getenv('JWT_TOKEN_SECURE', "True") in ("1", "true", "True")
-    # JWT_TOKEN_SAMESITE: str = os.getenv('JWT_TOKEN_SAMESITE', "")
+    JWT_TOKEN_LOCATION: list[str] = os.getenv('JWT_TOKEN_LOCATION', "cookies,headers").split(",")
 
     USERS_SERVICE_URL: str = os.getenv('USERS_SERVICE_URL', "")
     COURSE_SERVICE_URL: str = os.getenv('COURSE_SERVICE_URL', "")
@@ -31,9 +40,12 @@ class Config:
 
     @staticmethod
     def configure_logging(app: Flask) -> None:
+        """
+        Configure root logger for the Flask app if not already configured.
+        """
         if getattr(app, "_logging_configured", False):
             return
-        app._logging_configured = True # type: ignore
+        app._logging_configured = True  # type: ignore
 
         dictConfig({
             "version": 1,
@@ -44,10 +56,12 @@ class Config:
 
     @classmethod
     def init_app(cls, app: Flask) -> None:
+        """
+        Initialize the Flask app with additional configuration, such as logging.
+        """
         cls.configure_logging(app)
         app.logger.debug("Logger initialized")
 
 config: dict[str, type[Config]] = {
     "default": Config,
 }
-

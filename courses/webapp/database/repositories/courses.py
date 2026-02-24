@@ -5,18 +5,58 @@ from webapp.extensions import db
 
 
 class CourseRepository(GenericRepository[Course]):
+    """
+    Repository class responsible for Course data persistence operations.
+
+    Provides methods for retrieving and deleting Course entities
+    from the database. Inherits common CRUD operations from
+    GenericRepository.
+    """
+
     def __init__(self) -> None:
+        """
+        Initialize the CourseRepository.
+
+        Binds the repository to the Course model.
+        """
         super().__init__(Course)
 
     def get_by_id(self, course_id: int) -> Course | None:
+        """
+        Retrieve a course by its unique identifier.
+
+        Args:
+            course_id (int): The unique identifier of the course.
+
+        Returns:
+            Course | None: The Course instance if found, otherwise None.
+        """
         stmt = select(Course).where(Course.id == course_id)
         return db.session.scalars(stmt).first()
 
     def get_by_name(self, name: str) -> Course | None:
+        """
+        Retrieve a course by its name (case-insensitive).
+
+        Args:
+            name (str): The name of the course.
+
+        Returns:
+            Course | None: The Course instance if found, otherwise None.
+        """
         stmt = select(Course).where(Course.name.ilike(name))
         return db.session.scalars(stmt).first()
 
     def delete_by_id(self, course_id: int) -> None:
+        """
+        Delete a course from the database using its ID.
+
+        If the course exists, it is removed from the session
+        and the transaction is committed.
+
+        Args:
+            course_id (int): The unique identifier of the course to delete.
+        """
         course = db.session.get(Course, course_id)
         if course:
             db.session.delete(course)

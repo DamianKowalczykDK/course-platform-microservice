@@ -2,6 +2,18 @@ from webapp.database.models.courses import Course
 from webapp.services.courses.dtos import ReadCourseDTO
 
 def to_read_dto(model: Course) -> ReadCourseDTO:
+    """
+    Convert a Course model instance into a ReadCourseDTO.
+
+    Maps the database model fields to a read-only Data Transfer Object
+    used for returning course data to higher layers of the application.
+
+    Args:
+        model (Course): The Course model instance to convert.
+
+    Returns:
+        ReadCourseDTO: A DTO containing the mapped course data.
+    """
     return ReadCourseDTO(
         id=model.id,
         name=model.name,

@@ -6,10 +6,18 @@ from .api import api_bp
 from .api.error_handlers import register_error_handlers
 
 def create_app() -> Flask:
+    """
+    Creates and configures the Flask application.
+
+    Sets up configuration, database connection, email service, dependency injection,
+    error handlers, and registers the API blueprint.
+
+    Returns:
+        Flask: Configured Flask application instance.
+    """
     app = Flask(__name__)
     app.config.from_object(config['default'])
     config['default'].init_app(app)
-
 
     db.connect(
         db=app.config['MONGODB_DB'],
