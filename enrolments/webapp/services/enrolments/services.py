@@ -198,8 +198,7 @@ class EnrolmentService:
             NotFoundException: If no active enrolments exist.
         """
         enrolments = self.repo.get_active()
-        if not enrolments:
-            raise NotFoundException(f"Enrolments not found")
+        
         return [to_read_dto(e) for e in enrolments]
 
     def delete_by_id(self, dto: DeleteEnrolmentDTO) -> None:
