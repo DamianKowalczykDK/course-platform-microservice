@@ -87,7 +87,6 @@ class Config:
         cls.configure_logging(app)
         app.logger.debug("Logger initialized")
 
-# Mapping of configuration keys to configuration classes
 config: dict[str, type[Config]] = {
     "default": Config,
 }
