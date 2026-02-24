@@ -20,7 +20,7 @@ class Config:
 
     SECRET_KEY: str = os.getenv('SECRET_KEY', "")
     FLASK_ENV: str = os.getenv('FLASK_ENV', "")
-    FlASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
+    FLASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
     HTTP_TIMEOUT: int = int(os.getenv("HTTP_TIMEOUT", ""))
 
     JWT_SECRET_KEY: str = os.getenv('JWT_SECRET_KEY', "")
