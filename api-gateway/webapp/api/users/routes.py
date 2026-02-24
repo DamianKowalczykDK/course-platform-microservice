@@ -1,6 +1,6 @@
+from webapp.api.auth.decorators import user_required, admin_required
 from dependency_injector.wiring import Provide, inject
 from flask import request, jsonify
-from webapp.api.protected.routes import admin_required
 from webapp.api.users.mappers import (
     to_dto_create,
     to_dto_activate,
@@ -56,6 +56,7 @@ def create_user(user_service: UserService=Provide[Container.user_service]) -> Re
 
 
 @users_bp.get("/id")
+@admin_required
 @inject
 def get_user_by_id(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     """
@@ -74,6 +75,7 @@ def get_user_by_id(user_service: UserService=Provide[Container.user_service]) ->
 
 
 @users_bp.get("/identifier")
+@admin_required
 @inject
 def get_user_by_identifier(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     """
@@ -164,6 +166,7 @@ def reset_password(user_service: UserService=Provide[Container.user_service]) ->
 
 
 @users_bp.patch("/mfa/enable")
+@user_required
 @inject
 def enable_mfa(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     """
@@ -182,6 +185,7 @@ def enable_mfa(user_service: UserService=Provide[Container.user_service]) -> Res
 
 
 @users_bp.patch("/mfa/disable")
+@user_required
 @inject
 def disable_mfa(user_service: UserService=Provide[Container.user_service]) -> ResponseReturnValue:
     """
