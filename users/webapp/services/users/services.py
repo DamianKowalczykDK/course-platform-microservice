@@ -233,7 +233,7 @@ class UserService:
         user.set_reset_password_token(expires_minutes=current_app.config["RESET_PASSWORD_EXPIRATION_MINUTES"])
         self.user_repository.save(user)
 
-        resset_link = f"http://frontend/reset-password?token={user.reset_password_token}"
+        resset_link = f'{current_app.config["FRONTEND_URL"]}/reset-password?token={user.reset_password_token}'
 
         html = f"<html><body>Reset password link: {resset_link}</body></html>"
 

@@ -29,6 +29,7 @@ class Config:
     FLASK_DEBUG: bool = os.getenv('FLASK_DEBUG') in ("1", "true", "True")
     USER_ACTIVATION_EXPIRATION_MINUTES: int = int(os.getenv("USER_ACTIVATION_EXPIRATION_MINUTES", ""))
     RESET_PASSWORD_EXPIRATION_MINUTES: int = int(os.getenv('RESET_PASSWORD_EXPIRATION_MINUTES', ""))
+    FRONTEND_URL: str = os.getenv('FRONTEND_URL', '')
 
     MONGODB_DB: str = os.getenv('MONGODB_DB', "")
     MONGODB_HOST: str = os.getenv('MONGODB_HOST', "")
