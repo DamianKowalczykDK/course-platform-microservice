@@ -10,7 +10,8 @@ from .mappers import (
     to_schema_course,
     to_dto_course_id,
     to_dto_course_name,
-    to_dto_update_course
+    to_dto_update_course,
+    to_courses_list_response_schema
 )
 from .schemas import (
     CreateCourseSchema,
@@ -66,18 +67,22 @@ def get_by_id(course_id: int, course_service: CourseService = Provide[Container.
 @inject
 def get_by_name(course_service: CourseService = Provide[Container.courses_service]) -> ResponseReturnValue:
     """
-    Retrieve a course by its name (query parameter).
+       Retrieve courses by name via query parameter.
 
-    Args:
-        course_service (CourseService): Injected course service.
+       Args:
+           course_service (CourseService): Injected service used to fetch courses.
 
-    Returns:
-        ResponseReturnValue: JSON response containing the course data, status code 200.
-    """
+       Returns:
+           ResponseReturnValue: JSON response containing a list of courses in the format of
+                                CourseResponseListSchema, with HTTP status code 200.
+                                Raises NotFoundException if no matching courses are found.
+       """
     payload = CourseNameSchema.model_validate(request.args.to_dict() or {})
     dto = to_dto_course_name(payload)
-    read_dto = course_service.get_by_name(dto)
-    return jsonify(to_schema_course(read_dto).model_dump(mode="json")), 200
+    dtos = course_service.get_by_name(dto)
+    courses =to_courses_list_response_schema(dtos)
+    return jsonify(courses.model_dump(mode="json")), 200
+
 
 
 @course_bp.patch("/<int:course_id>")

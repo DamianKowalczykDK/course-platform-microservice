@@ -84,24 +84,27 @@ class CourseService:
 
         return to_read_dto(course)
 
-    def get_by_name(self, dto: CourseNameDTO) -> ReadCourseDTO:
+    def get_by_name(self, dto: CourseNameDTO) -> list[ReadCourseDTO]:
         """
-        Retrieve a course by its name.
+           Retrieve courses by their name.
 
-        Args:
-            dto (CourseNameDTO): DTO containing the course name.
+           Performs a case-insensitive partial match and returns all matching courses as DTOs.
 
-        Raises:
-            NotFoundException: If the course does not exist.
+           Args:
+               dto (CourseNameDTO): DTO containing the name (full or partial) of the course.
 
-        Returns:
-            ReadCourseDTO: DTO representation of the found course.
-        """
+           Raises:
+               NotFoundException: If no matching courses are found.
+
+           Returns:
+               list[ReadCourseDTO]: List of DTOs representing the found courses.
+                                    Returns a list with one or more items if matches exist.
+           """
         course = self.course_repository.get_by_name(dto.name)
         if not course:
             raise NotFoundException("Course not found")
 
-        return to_read_dto(course)
+        return [to_read_dto(c) for c in course]
 
     def update_course(self, dto: UpdateCourseDTO) -> ReadCourseDTO:
         """

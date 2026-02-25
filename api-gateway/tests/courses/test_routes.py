@@ -66,13 +66,13 @@ def test_get_by_name(
         course: CourseDTO
 ) -> None:
     mock_admin.return_value = MagicMock(id="1", role="admin")
-    mock_get.return_value = course
+    mock_get.return_value = [course]
 
     resp = client.get(f"/api/course/",query_string={"name": "Test Course"}, headers=admin_headers)
     assert resp.status_code == 200
 
     data = resp.get_json()
-    assert data["price"] == 100
+    assert data["courses"][0]["price"] == 100
 
     mock_get.assert_called_once_with(CourseNameDTO("Test Course"))
     mock_admin.assert_called_once()

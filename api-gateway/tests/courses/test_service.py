@@ -68,8 +68,10 @@ def test_get_by_id(mock_raise: MagicMock, mock_get: MagicMock, service: CourseSe
         "price": 100,
         "start_date": "2026-01-10",
         "end_date": "2026-01-11",
-        "max_participants": 10}
-  )
+        "max_participants": 10
+    }
+    )
+
     with app.app_context():
         result = service.get_by_id(dto)
 
@@ -78,24 +80,26 @@ def test_get_by_id(mock_raise: MagicMock, mock_get: MagicMock, service: CourseSe
     mock_get.assert_called_once_with("https://localhost:courses-webapp/1", timeout=5)
 
 @patch("webapp.services.courses.services.httpx.get")
-@patch("webapp.services.courses.services.raise_for_status")
-def test_get_by_name(mock_raise: MagicMock, mock_get: MagicMock, service: CourseService, app: Flask) -> None:
+def test_get_by_name(mock_get: MagicMock, service: CourseService, app: Flask) -> None:
     dto = CourseNameDTO("Test")
-    mock_get.return_value = make_response({
-        "id": 1,
-        "name": "Test",
-        "description": "Test",
-        "price": 100,
-        "start_date": "2026-01-10",
-        "end_date": "2026-01-11",
-        "max_participants": 10
+    mock_get.return_value.json.return_value = {
+        "courses": [
+            {
+            "id": 1,
+            "name": "Test",
+            "description": "Test",
+            "price": 100,
+            "start_date": "2026-01-10",
+            "end_date": "2026-01-11",
+            "max_participants": 10
+        }]
     }
-  )
+
     with app.app_context():
         result = service.get_by_name(dto)
 
-    assert result.name == "Test"
-    mock_raise.assert_called_once()
+    assert len(result) == 1
+    assert result[0].name == "Test"
     mock_get.assert_called_once_with("https://localhost:courses-webapp/", params={"name": "Test"}, timeout=5)
 
 @patch("webapp.services.courses.services.httpx.patch")

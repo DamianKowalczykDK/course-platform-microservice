@@ -26,8 +26,8 @@ def test_get_by_name(session: Session, course: Course) -> None:
     course_a = repo.get_by_name("Test")
 
     assert course_a is not None
-    assert course_a.name == "Test"
-    assert course_a.id == 1
+    assert course_a[0].name == "Test"
+    assert course_a[0].id == 1
 
 def test_delete_by_id(session: Session, course: Course) -> None:
     session.add(course)

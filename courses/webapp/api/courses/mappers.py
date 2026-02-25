@@ -3,7 +3,8 @@ from webapp.api.courses.schemas import (
     CourseResponseSchema,
     CourseIdSchema,
     CourseNameSchema,
-    UpdateCourseSchema
+    UpdateCourseSchema,
+    CourseResponseListSchema
 )
 from webapp.services.courses.dtos import (
     CreateCourseDTO,
@@ -101,3 +102,15 @@ def to_dto_update_course(course_id: int, schema: UpdateCourseSchema) -> UpdateCo
         start_date=schema.start_date,
         end_date=schema.end_date,
     )
+
+def to_courses_list_response_schema(dtos: list[ReadCourseDTO]) -> CourseResponseListSchema:
+    """
+    Convert a list of ReadCourseDTOs to a CourseResponseListSchema.
+
+    Args:
+        dtos (list[ReadCourseDTO]): List of course DTOs to convert.
+
+    Returns:
+        CourseResponseListSchema: Schema containing the list of courses.
+    """
+    return CourseResponseListSchema(courses=[to_schema_course(dto) for dto in dtos])

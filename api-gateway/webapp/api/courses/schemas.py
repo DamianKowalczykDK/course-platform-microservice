@@ -41,6 +41,15 @@ class CourseResponseSchema(BaseModel):
     start_date: str
     end_date: str
 
+class CoursesListResponseSchema(BaseModel):
+    """
+       Schema representing a list of courses returned by the API.
+
+       Attributes:
+           courses (list[CourseResponseSchema]): List of course objects. Can be empty if no courses match the query.
+       """
+    courses: list[CourseResponseSchema]
+
 
 class CourseIdSchema(BaseModel):
     """

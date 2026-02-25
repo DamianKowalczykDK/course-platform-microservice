@@ -47,22 +47,22 @@ class CourseService:
         raise_for_status(response)
         return CourseDTO(**response.json())
 
-    def get_by_name(self, dto: CourseNameDTO) -> CourseDTO:
+    def get_by_name(self, dto: CourseNameDTO) -> list[CourseDTO]:
         """
-        Retrieve course details by course name.
+        Retrieve courses by name from the course service.
 
         Args:
-            dto (CourseNameDTO): DTO containing the name of the course.
+            dto (CourseNameDTO): DTO containing the full or partial course name.
 
         Returns:
-            CourseDTO: Course details.
+            list[CourseDTO]: List of matching courses. Can be empty if no courses are found.
         """
         course_url = current_app.config["COURSE_SERVICE_URL"]
         http_timeout = current_app.config["HTTP_TIMEOUT"]
 
         response = httpx.get(f"{course_url}/", params={"name": dto.name}, timeout=http_timeout)
-        raise_for_status(response)
-        return CourseDTO(**response.json())
+        data = response.json()["courses"]
+        return [CourseDTO(**c) for c in data]
 
     def update_course(self, dto: UpdateCourseDTO) -> CourseDTO:
         """

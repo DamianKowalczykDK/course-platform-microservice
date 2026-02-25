@@ -34,18 +34,22 @@ class CourseRepository(GenericRepository[Course]):
         stmt = select(Course).where(Course.id == course_id)
         return db.session.scalars(stmt).first()
 
-    def get_by_name(self, name: str) -> Course | None:
+    def get_by_name(self, name: str) -> list[Course]:
         """
-        Retrieve a course by its name (case-insensitive).
+
+        Retrieve courses by name (case-insensitive, partial match).
 
         Args:
-            name (str): The name of the course.
+            name (str): Full or partial course name.
 
         Returns:
-            Course | None: The Course instance if found, otherwise None.
+            list[Course]: A list of matching Course instances.
+                          Returns an empty list if no courses are found.
+
         """
-        stmt = select(Course).where(Course.name.ilike(name))
-        return db.session.scalars(stmt).first()
+        pattern = f"%{name}%"
+        stmt = select(Course).where(Course.name.ilike(pattern))
+        return list(db.session.scalars(stmt).all())
 
     def delete_by_id(self, course_id: int) -> None:
         """

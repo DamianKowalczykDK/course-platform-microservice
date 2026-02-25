@@ -99,10 +99,10 @@ def test_get_by_name(mock_course_repository: MagicMock, course_service: CourseSe
         start_date=datetime(2026, 1, 1),
         end_date=datetime(2026, 1, 2)
     )
-    mock_course_repository.get_by_name.return_value = dto
+    mock_course_repository.get_by_name.return_value = [dto]
     dto_name = CourseNameDTO(name="Test")
-    course = course_service.get_by_name(dto_name)
-    assert course.name == "Test"
+    courses = course_service.get_by_name(dto_name)
+    assert courses[0].name == "Test"
 
 def test_get_by_name_if_not_found(mock_course_repository: MagicMock, course_service: CourseService) -> None:
     mock_course_repository.get_by_name.return_value = None
