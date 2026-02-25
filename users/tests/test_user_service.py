@@ -11,7 +11,12 @@ from webapp.services.users.dtos import (
     GetMfaQrCodeDTO,
     ResetPasswordDTO,
     LoginUserDTO,
-    ForgotPasswordDTO, UserIdDTO, IdentifierDTO, ResendActivationCodeDTO, DeleteUserByIdDTO, DeleteUserByIdentifierDTO
+    ForgotPasswordDTO,
+    UserIdDTO,
+    IdentifierDTO,
+    ResendActivationCodeDTO,
+    DeleteUserByIdDTO,
+    DeleteUserByIdentifierDTO
 )
 from webapp.services.users.services import UserService
 import pyotp
@@ -138,13 +143,13 @@ def test_disable_mfa_success(user_service: UserService, mock_user_repository: Ma
         email="test@example.com",
         password_hash="hash1234",
         gender="Male",
-        activation_code="code123"
+        activation_code="code123",
+        mfa_secret="secret123"
       )
     mock_user_repository.get_by_id.return_value = user
     dto = DisableMfaDTO(user_id=str(user.id))
-
     result = user_service.disable_mfa(dto)
-
+    assert not hasattr(result, "mfa_secret")
 
 
 def test_disable_mfa_if_not_user(user_service: UserService, mock_user_repository: MagicMock) -> None:
@@ -163,7 +168,6 @@ def test_disable_mfa_if_user_not_enabled(user_service: UserService, mock_user_re
         password_hash="hash1234",
         gender="Male",
         activation_code="code123",
-        mfa_secret=None
     )
     mock_user_repository.get_by_id.return_value = user
     dto = DisableMfaDTO(user_id=str(user.id))
@@ -205,7 +209,6 @@ def test_get_mfa_qrcode_not_enabled(user_service: UserService, mock_user_reposit
         password_hash="hash1234",
         gender="Male",
         activation_code="code123",
-        mfa_secret=None
     )
     mock_user_repository.get_by_id.return_value = user
     dto = GetMfaQrCodeDTO(user_id=str(user.id))
@@ -270,7 +273,6 @@ def test_get_by_id_success(user_service: UserService, mock_user_repository: Magi
         password_hash="hash1234",
         gender="Male",
         activation_code="code123",
-        mfa_secret=None
     )
     mock_user_repository.get_by_id.return_value = user
     dto = UserIdDTO(user_id="4234dsfsgd98234234")
@@ -286,7 +288,7 @@ def test_get_by_id_not_found_user(user_service: UserService, mock_user_repositor
 def test_verify_credentials_if_not_user(user_service: UserService, mock_user_repository: MagicMock) -> None:
     mock_user_repository.get_active_by_username_or_email.return_value = None
     dto = LoginUserDTO("Test30", "pass1234")
-    with pytest.raises(NotFoundException, match="Invalid credentials -1"):
+    with pytest.raises(ValidationException, match="Invalid credentials"):
         user_service.verify_credentials(dto)
 
 def test_verify_credentials_invalid_password(user_service: UserService, mock_user_repository: MagicMock) -> None:
@@ -299,13 +301,12 @@ def test_verify_credentials_invalid_password(user_service: UserService, mock_use
         password_hash="hash1234",
         gender="Male",
         activation_code="code123",
-        mfa_secret=None
     )
     mock_user_repository.get_active_by_username_or_email.return_value = user
 
     check_password_hash(user.password_hash, "hash123")
     dto = LoginUserDTO("Test30", "hash123")
-    with pytest.raises(ValidationException, match="Invalid credentials -2"):
+    with pytest.raises(ValidationException, match="Invalid credentials"):
         user_service.verify_credentials(dto)
 
 def test_delete_user_by_id(user_service: UserService, mock_user_repository: MagicMock) -> None:
