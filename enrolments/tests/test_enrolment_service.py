@@ -7,7 +7,7 @@ from webapp.services.enrolments.services import EnrolmentService
 from webapp.database.models.enrolments import PaymentStatus, Status, Enrolment
 from unittest.mock import MagicMock, patch
 from typing import Generator
-from flask import Flask
+from flask import Flask, copy_current_request_context
 import httpx
 import pytest
 
@@ -174,7 +174,7 @@ def test_set_paid(
         app: Flask,
         repo: MagicMock,
         service: EnrolmentService,
-        enrolment: MagicMock,
+        enrolment: MagicMock
 ) -> None:
     repo.get_by_id.return_value = enrolment
 
@@ -182,13 +182,14 @@ def test_set_paid(
     mock_get.return_value.json.return_value = {"email": "test@example.com", "first_name": "Jan",
     "last_name": "Kowalski", "name": "Python", "price": 1000}
 
-    _ = service.email_service.send_email
+    service.executor = MagicMock()
+    service.executor.submit.side_effect = lambda f: f()
 
-    dto = EnrolmentIdDTO(enrolment_id=1)
+    with app.test_request_context("endpoint"):
+        dto = EnrolmentIdDTO(enrolment_id=1)
+        result = service.set_paid(dto)
 
-    result = service.set_paid(dto)
-
-    assert result.payment_status == PaymentStatus.PAID
+        assert result.payment_status == PaymentStatus.PAID
 
 def test_set_paid_not_found_exception(
         repo: MagicMock,
