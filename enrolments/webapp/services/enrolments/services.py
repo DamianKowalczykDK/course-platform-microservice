@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from webapp.database.models.enrolments import Enrolment, PaymentStatus
 from webapp.database.repositories.enrolments import EnrolmentRepository
 from webapp.services.email_service import EmailService
@@ -18,7 +19,6 @@ from webapp.services.exceptions import (
 from webapp.extensions import db
 from webapp.services.invoices.services import InvoiceService
 from webapp.services.invoices.dtos import InvoiceDTO
-from webapp.extensions import executor
 from flask import current_app, copy_current_request_context
 import httpx
 
@@ -38,12 +38,14 @@ class EnrolmentService:
             self,
             enrolment_repository: EnrolmentRepository,
             email_service: EmailService,
-            invoice_service: InvoiceService
+            invoice_service: InvoiceService,
+            executor: ThreadPoolExecutor
     ) -> None:
         """Initialize the EnrolmentService with dependencies."""
         self.repo = enrolment_repository
         self.email_service = email_service
         self.invoice_service = invoice_service
+        self.executor = executor
 
     def create_enrolment_for_user(self, dto: CreateEnrolmentDTO) -> ReadEnrolmentDTO:
         """
@@ -135,7 +137,7 @@ class EnrolmentService:
         def send_email() -> None:
             self._send_payment_email(user_email, invoice_url)
 
-        executor.submit(send_email)
+        self.executor.submit(send_email)
         db.session.commit()
 
         return to_read_dto(enrolment)
@@ -198,7 +200,7 @@ class EnrolmentService:
             NotFoundException: If no active enrolments exist.
         """
         enrolments = self.repo.get_active()
-        
+
         return [to_read_dto(e) for e in enrolments]
 
     def delete_by_id(self, dto: DeleteEnrolmentDTO) -> None:
