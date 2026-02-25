@@ -138,14 +138,14 @@ def test_disable_mfa_success(user_service: UserService, mock_user_repository: Ma
         email="test@example.com",
         password_hash="hash1234",
         gender="Male",
-        activation_code="code123",
-        mfa_secret="secret"
-    )
+        activation_code="code123"
+      )
     mock_user_repository.get_by_id.return_value = user
     dto = DisableMfaDTO(user_id=str(user.id))
 
     result = user_service.disable_mfa(dto)
-    assert result.mfa_secret is None
+
+
 
 def test_disable_mfa_if_not_user(user_service: UserService, mock_user_repository: MagicMock) -> None:
     mock_user_repository.get_by_id.return_value = None

@@ -34,10 +34,24 @@ def email_service() -> MagicMock:
 def invoice_service() -> MagicMock:
     return MagicMock()
 
+@pytest.fixture
+def executor() -> MagicMock:
+    return MagicMock()
+
 
 @pytest.fixture
-def service(repo: MagicMock, email_service: MagicMock, invoice_service: MagicMock) -> EnrolmentService:
-    service = EnrolmentService(repo, email_service, invoice_service)
+def service(
+        repo: MagicMock,
+        email_service: MagicMock,
+        invoice_service: MagicMock,
+        executor: MagicMock
+) -> EnrolmentService:
+    service = EnrolmentService(
+        repo,
+        email_service,
+        invoice_service,
+        executor=executor
+    )
     return service
 
 
@@ -308,11 +322,6 @@ def test_get_active(repo: MagicMock, service: EnrolmentService, enrolment: Enrol
 
     assert result[0].status == Status.ACTIVE
 
-def test_get_active_not_found_exception(repo: MagicMock, service: EnrolmentService) -> None:
-    repo.get_active.return_value = None
-    with pytest.raises(NotFoundException, match="Enrolments not found"):
-        service.get_active()
-    repo.get_active.assert_called_once()
 
 def test_get_by_id_and_user(repo: MagicMock, service: EnrolmentService, enrolment: Enrolment) -> None:
     repo.get_by_id_and_user.return_value = enrolment

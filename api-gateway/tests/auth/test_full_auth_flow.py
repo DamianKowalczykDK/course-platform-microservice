@@ -1,8 +1,7 @@
+from unittest.mock import patch, MagicMock
 from flask import Flask
 from flask.testing import FlaskClient
-from unittest.mock import patch, MagicMock
 from flask_jwt_extended import create_access_token, create_refresh_token
-from webapp import create_app
 from webapp.api.auth.mappers import to_schema_token_pair
 from webapp.api.users.schemas import GenderType
 from webapp.services.auth.dtos import LoginMfaRequiredDTO, TokenPairDTO
@@ -13,6 +12,7 @@ import pytest
 @pytest.fixture
 def client(app: Flask) -> FlaskClient:
     return app.test_client()
+
 
 @patch("webapp.services.users.services.UserService.get_mfa_qr_code")
 @patch("webapp.services.auth.services.AuthService.verify_mfa")
@@ -43,20 +43,29 @@ def test_full_auth_flow(
         app: Flask
 
 ) -> None:
-
-    fake_user = UserDTO(
+    fake_admin = UserDTO(
         id="id1234",
-        username="TestUser",
+        username="TestAdmin",
         first_name="TestFirstName",
         last_name="TestLastName",
         email="test@example.com",
         gender=GenderType.MALE,
         role="admin",
-        is_active=False,
-        mfa_secret=""
+        is_active=False
     )
 
-    mock_create_user.return_value = fake_user
+    fake_user = UserDTO(
+        id="id123456",
+        username="TestUser",
+        first_name="TestFirstName",
+        last_name="TestLastName",
+        email="test1@example.com",
+        gender=GenderType.MALE,
+        role="user",
+        is_active=True
+    )
+
+    mock_create_user.return_value = fake_admin
 
     resp = client.post("/api/users", json={
         "username": "TestUser",
@@ -69,12 +78,13 @@ def test_full_auth_flow(
         "role": "admin",
 
     })
+    mock_create_user.refresh_token = fake_user
 
     assert resp.status_code == 201
     mock_create_user.assert_called_once()
 
-    activate_user = fake_user.__class__(**{**fake_user.__dict__, "is_active": True})
-    mock_activate_user.return_value =activate_user
+    activate_user = fake_admin.__class__(**{**fake_admin.__dict__, "is_active": True})
+    mock_activate_user.return_value = activate_user
     resp = client.patch("/api/users/activation", json={"code": "code123"})
 
     assert resp.status_code == 200
@@ -86,11 +96,14 @@ def test_full_auth_flow(
     assert resp.status_code == 200
     mock_resend_activation_code.assert_called_once()
 
-    mock_get_user_by_id.return_value = activate_user
-    resp = client.get("/api/users/id", query_string={"user_id": fake_user.id})
-    assert resp.status_code == 200
     with app.app_context():
-        valid_token = create_access_token(identity="TestUser")
+        valid_token = create_access_token(identity=fake_admin.id)
+
+        mock_get_user_by_id.return_value = fake_admin
+        resp = client.get("/api/users/id", query_string={"user_id": fake_admin.id},
+                          headers={"Authorization": f"Bearer {valid_token}"})
+        assert resp.status_code == 200
+
         resp = client.get("/api/protected/admin-only", headers={"Authorization": f"Bearer {valid_token}"})
         assert resp.status_code == 200
         assert mock_resend_activation_code.call_count == 1
@@ -105,57 +118,58 @@ def test_full_auth_flow(
         data = resp.get_json()
         assert data["Message"] == "Forbidden"
 
+        mock_get_by_identifier.return_value = fake_admin
+        resp = client.get("/api/users/identifier", query_string={"identifier": fake_admin.username},
+                          headers={"Authorization": f"Bearer {valid_token}"})
+        assert resp.status_code == 200
+        mock_get_by_identifier.assert_called_once()
 
-    mock_get_by_identifier.return_value = fake_user
-    resp = client.get("/api/users/identifier", query_string={"identifier": fake_user.username})
+    with app.app_context():
+        valid_token_user = create_access_token(identity=fake_user.id)
+        mock_get_user_by_id.return_value = fake_user
+
+        mock_forgot_password.return_value = fake_user
+        resp = client.post("/api/users/password/forgot", json={"identifier": fake_user.username})
+        assert resp.status_code == 200
+        mock_forgot_password.assert_called_once()
+
+        mock_reset_password.return_value = fake_user
+        resp = client.post("/api/users/password/reset", json={"token": "token1234", "new_password": "new123"})
+        assert resp.status_code == 200
+        mock_reset_password.assert_called_once()
+
+        mfa_setup = MfaSetupDTO(
+            user_id=fake_user.id,
+            provisioning_uri="otpauth://totp/Example:testuser?secret=SECRET",
+            qr_code_base64="3457987dsbfbsz32476"
+        )
+
+        mock_enable_mfa.return_value = mfa_setup
+        resp = client.patch("/api/users/mfa/enable", json={"user_id": fake_user.id},
+                            headers={"Authorization": f"Bearer {valid_token_user}"})
+        assert resp.status_code == 200
+        mock_enable_mfa.assert_called_once()
+
+        mock_get_mfa_qr_code.return_value = mfa_setup
+        resp = client.get("/api/users/mfa/qr", query_string={"user_id": fake_user.id},
+                          headers={"Authorization": f"Bearer {valid_token_user}"})
+        assert resp.status_code == 200
+
+        mock_disable_mfa.return_value = fake_user
+        resp = client.patch("/api/users/mfa/disable", json={"user_id": fake_user.id},
+                            headers={"Authorization": f"Bearer {valid_token_user}"})
+        assert resp.status_code == 200
+        mock_disable_mfa.assert_called_once()
+
+    mock_login.return_value = LoginMfaRequiredDTO(mfa_required=True, user_id=fake_admin.id)
+    resp = client.post("/api/auth/login", json={"identifier": fake_admin.username, "password": "pass1234"})
     assert resp.status_code == 200
-    mock_get_by_identifier.assert_called_once()
-
-    mock_forgot_password.return_value = fake_user
-    resp = client.post("/api/users/password/forgot", json={"identifier": fake_user.username})
-    assert resp.status_code == 200
-    mock_forgot_password.assert_called_once()
-
-    mock_reset_password.return_value = fake_user
-    resp = client.post("/api/users/password/reset", json={"token": "token1234", "new_password": "new123"})
-    assert resp.status_code == 200
-    mock_reset_password.assert_called_once()
-
-    mfa_setup = MfaSetupDTO(
-        user_id=fake_user.id,
-        provisioning_uri="otpauth://totp/Example:testuser?secret=SECRET",
-        qr_code_base64="3457987dsbfbsb32476"
-    )
-
-    mock_enable_mfa.return_value = mfa_setup
-    resp = client.patch("/api/users/mfa/enable", json={"user_id": fake_user.id})
-    assert resp.status_code == 200
-    mock_enable_mfa.assert_called_once()
-
-    mock_get_mfa_qr_code.return_value = mfa_setup
-    resp = client.get("/api/users/mfa/qr", query_string={"user_id": fake_user.id})
-    assert resp.status_code == 200
-
-
-    mock_disable_mfa.return_value = fake_user
-    resp = client.patch("/api/users/mfa/disable", json={"user_id": fake_user.id})
-    assert resp.status_code == 200
-    mock_disable_mfa.assert_called_once()
-
-    mock_login.return_value = LoginMfaRequiredDTO(mfa_required=True, user_id=fake_user.id)
-    resp = client.post("/api/auth/login", json={"identifier": fake_user.username, "password": "pass1234"})
-    assert resp.status_code == 200
-
 
     tokens_pair_dto = TokenPairDTO(access_token="access_token", refresh_token="refresh_token")
     mock_login.return_value = tokens_pair_dto
-    resp = client.post("/api/auth/login", json={"identifier": fake_user.username, "password": "pass1234"})
+    resp = client.post("/api/auth/login", json={"identifier": fake_admin.username, "password": "pass1234"})
     assert resp.status_code == 200
     assert mock_login.call_count == 2
-
-
-
-
 
     mock_verify_mfa.return_value = tokens_pair_dto
     resp = client.post("/api/auth/mfa/verify", json={"user_id": "id789", "code": "code123"})
@@ -164,6 +178,7 @@ def test_full_auth_flow(
 
     resp = client.post("/api/auth/logout")
     assert resp.status_code == 200
+
 
 @patch("webapp.services.users.services.UserService.get_user_by_id")
 def test_user_role(mock_get_user_by_id: MagicMock, app: Flask, client: FlaskClient) -> None:
@@ -175,8 +190,7 @@ def test_user_role(mock_get_user_by_id: MagicMock, app: Flask, client: FlaskClie
         email="testuser@example.com",
         gender=GenderType.MALE,
         role="user",
-        is_active=True,
-        mfa_secret=""
+        is_active=True
     )
 
     mock_get_user_by_id.return_value = user
@@ -188,7 +202,7 @@ def test_user_role(mock_get_user_by_id: MagicMock, app: Flask, client: FlaskClie
 
 
 @patch("webapp.services.auth.services.AuthService.generate_token")
-def test_refresh_token(mock_generate_token: MagicMock,  app: Flask, client: FlaskClient) -> None:
+def test_refresh_token(mock_generate_token: MagicMock, app: Flask, client: FlaskClient) -> None:
     token_pair = TokenPairDTO(access_token="access_token", refresh_token="refresh_token")
     schema = to_schema_token_pair(token_pair)
 
@@ -205,31 +219,3 @@ def test_refresh_token(mock_generate_token: MagicMock,  app: Flask, client: Flas
     assert resp.status_code == 200
 
     mock_generate_token.assert_called_once()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -56,7 +56,6 @@ def test_create_user(mock_raise: MagicMock, mock_post: MagicMock, service: UserS
         "gender": "male",
         "role": "admin",
         "is_active": False,
-        "mfa_secret": "secret123"
     }, 201
     )
     with app.test_request_context():
@@ -80,8 +79,7 @@ def test_activate_user(mock_raise: MagicMock, mock_patch: MagicMock, service: Us
             "email": "test@example.com",
             "gender": "male",
             "role": "admin",
-            "is_active": True,
-            "mfa_secret": "secret123"
+            "is_active": True
         }
     )
     with app.test_request_context():
@@ -106,8 +104,7 @@ def test_resend_activation_code(mock_raise: MagicMock, mock_get: MagicMock, serv
             "email": "test@example.com",
             "gender": "male",
             "role": "admin",
-            "is_active": False,
-            "mfa_secret": "secret123"
+            "is_active": False
         }
     )
     with app.test_request_context():
@@ -130,8 +127,7 @@ def test_forgot_password(mock_raise: MagicMock, mock_post: MagicMock, service: U
             "email": "test@example.com",
             "gender": "male",
             "role": "admin",
-            "is_active": False,
-            "mfa_secret": "secret123"
+            "is_active": False
         }
     )
     with app.test_request_context():
@@ -153,8 +149,7 @@ def test_reset_password(moc_raise: MagicMock, mock_post: MagicMock, service: Use
             "email": "test@example.com",
             "gender": "male",
             "role": "admin",
-            "is_active": False,
-            "mfa_secret": "secret123"
+            "is_active": False
         }
     )
 
@@ -195,8 +190,7 @@ def test_get_user_by_id(mock_raise: MagicMock, mock_get: MagicMock, service: Use
             "email": "test@example.com",
             "gender": "male",
             "role": "admin",
-            "is_active": False,
-            "mfa_secret": "secret123"
+            "is_active": False
         }
     )
     with app.test_request_context():
@@ -219,8 +213,7 @@ def test_get_user_by_identifier(mock_raise: MagicMock, mock_get: MagicMock, serv
             "email": "test@example.com",
             "gender": "male",
             "role": "admin",
-            "is_active": False,
-            "mfa_secret": "secret123"
+            "is_active": False
         }
     )
     with app.test_request_context():
@@ -247,14 +240,12 @@ def test_disable_mfa(mock_raise: MagicMock, mock_patch: MagicMock, service: User
             "email": "test@example.com",
             "gender": "male",
             "role": "admin",
-            "is_active": False,
-            "mfa_secret": ""
+            "is_active": False
         }
     )
     with app.test_request_context():
         result = service.disable_mfa(dto)
 
-    assert result.mfa_secret == ""
     mock_raise.assert_called_once()
     mock_patch.assert_called_once_with("http://localhost:users-service/mfa/disable", json=dto.__dict__, timeout=5)
 
