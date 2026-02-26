@@ -59,7 +59,7 @@ Authentication, authorization (roles), and MFA are handled centrally in the API 
         ┌───────────────┼───────────────┐
         │               │               │
  ┌──────▼─────┐   ┌─────▼─────┐   ┌─────▼─────┐
- │ Users MS   │   │ Courses MS│   │ Enrolments│
+ │ Users      │   │ Courses   │   │ Enrolments│
  │ 5000 /api  │   │ 5000 /api │   │ 5000 /api │
  └──────┬─────┘   └─────┬─────┘   └─────┬─────┘
         │               │               │
