@@ -4,7 +4,7 @@ services:
     restart: always
     build:
       context: ./enrolments
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     depends_on:
       mysql-enrolments:
         condition: service_healthy
@@ -17,7 +17,7 @@ services:
     restart: always
     build:
       context: ./courses
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     depends_on:
       mysql-courses:
         condition: service_healthy
@@ -30,7 +30,7 @@ services:
     restart: always
     build:
       context: ./users
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     depends_on:
       mongo:
         condition: service_healthy
@@ -43,7 +43,7 @@ services:
     restart: always
     build:
       context: ./api-gateway
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     volumes:
       - ./api-gateway:/app
     networks:

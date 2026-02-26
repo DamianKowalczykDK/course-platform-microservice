@@ -27,6 +27,6 @@ RUN poetry config virtualenvs.create false && \
 COPY . .
 EXPOSE 5000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--reload", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4",  "app:app"]
 
 
