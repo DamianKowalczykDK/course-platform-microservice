@@ -8,6 +8,8 @@ services:
     depends_on:
       mysql-enrolments:
         condition: service_healthy
+    volumes:
+      - ./enrolments:/app
     networks:
       - dk-network
 
@@ -19,6 +21,8 @@ services:
     depends_on:
       mysql-courses:
         condition: service_healthy
+    volumes:
+      - ./courses:/app
     networks:
       - dk-network
 
@@ -30,6 +34,8 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+    volumes:
+      - ./users:/app
     networks:
       - dk-network
 
@@ -38,6 +44,8 @@ services:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
+    volumes:
+      - ./api-gateway:/app
     networks:
       - dk-network
 
